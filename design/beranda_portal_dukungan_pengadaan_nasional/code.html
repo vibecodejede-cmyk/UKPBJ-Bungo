@@ -1,0 +1,417 @@
+<!DOCTYPE html><html lang="id" class="light" style=""><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet"><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">try{
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-fixed": "#261900",
+                    "inverse-on-surface": "#f0f0f3",
+                    "on-secondary": "#ffffff",
+                    "on-surface": "#1a1c1e",
+                    "outline": "#747783",
+                    "surface-variant": "#e2e2e5",
+                    "secondary-container": "#fed488",
+                    "on-primary-fixed": "#001947",
+                    "surface-container-low": "#f3f3f6",
+                    "tertiary-fixed-dim": "#c1c7d0",
+                    "on-secondary-fixed-variant": "#5d4201",
+                    "on-secondary-container": "#785a1a",
+                    "surface": "#f9f9fc",
+                    "secondary-fixed-dim": "#e9c176",
+                    "primary-fixed-dim": "#b1c5ff",
+                    "surface-container-highest": "#e2e2e5",
+                    "surface-bright": "#f9f9fc",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-container": "#3c434a",
+                    "surface-container": "#eeeef0",
+                    "on-error-container": "#93000a",
+                    "secondary": "#775a19",
+                    "on-tertiary-container": "#a9afb8",
+                    "background": "#f9f9fc",
+                    "on-surface-variant": "#434652",
+                    "tertiary-fixed": "#dde3ec",
+                    "on-error": "#ffffff",
+                    "tertiary": "#262d33",
+                    "outline-variant": "#c4c6d3",
+                    "on-tertiary-fixed": "#161c23",
+                    "on-background": "#1a1c1e",
+                    "error-container": "#ffdad6",
+                    "primary-container": "#0b3d91",
+                    "primary-fixed": "#dae2ff",
+                    "surface-dim": "#dadadc",
+                    "surface-container-lowest": "#ffffff",
+                    "primary": "#002869",
+                    "on-primary-fixed-variant": "#144296",
+                    "error": "#ba1a1a",
+                    "on-primary-container": "#8dadff",
+                    "surface-tint": "#345baf",
+                    "on-tertiary-fixed-variant": "#41474f",
+                    "secondary-fixed": "#ffdea5",
+                    "inverse-primary": "#b1c5ff",
+                    "surface-container-high": "#e8e8ea",
+                    "on-primary": "#ffffff",
+                    "inverse-surface": "#2f3133"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "stack-sm": "0.5rem",
+                    "gutter": "1.5rem",
+                    "stack-lg": "2rem",
+                    "margin-mobile": "1rem",
+                    "margin-desktop": "2.5rem",
+                    "container-max": "1280px",
+                    "stack-md": "1rem",
+                    "stack-xs": "0.25rem"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "label-md": ["Inter"],
+                    "body-md": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": ["24px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-sm": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.25", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-sm": ["12px", {"lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "label-md": ["14px", {"lineHeight": "1.4", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                    "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    }catch(_e){}</script><meta charset="utf-8"></head><body class="bg-background text-on-surface selection:bg-secondary-container">
+<!-- Top Navigation Bar -->
+<header class="bg-surface-container-lowest dark:bg-inverse-surface border-b border-outline-variant dark:border-outline sticky top-0 z-50">
+<nav class="flex justify-between items-center w-full px-margin-desktop max-w-container-max mx-auto h-16 transition-all duration-200 ease-in-out">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[32px]" data-original-icon="account_balance">account_balance</span>
+<span class="font-headline-sm text-headline-sm font-bold text-primary dark:text-primary-fixed">Procurement Support</span>
+</div>
+<div class="hidden md:flex items-center gap-gutter font-body-md text-body-md"><a href="#" class="text-primary dark:text-primary-fixed border-b-2 border-primary font-bold pb-1 transition-colors">Directory</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Regulasi</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Panduan</a>
+<a href="#" class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors">FAQ</a>
+<a href="#" class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors">Helpdesk</a></div>
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-1 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">language</span>
+<span class="text-label-md font-label-md">Language</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-original-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-original-icon="account_circle">account_circle</span>
+</button>
+</div>
+</nav>
+</header>
+<main>
+<!-- Hero Section -->
+<section class="relative hero-gradient overflow-hidden py-24 lg:py-32">
+
+<div class="max-w-container-max mx-auto px-margin-desktop relative z-10 grid lg:grid-cols-2 gap-12 items-center">
+<div class="text-white space-y-8">
+<div class="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full border border-white/20 backdrop-blur-sm">
+<span class="w-2 h-2 rounded-full bg-secondary-container animate-pulse"></span>
+<span class="text-label-sm font-label-sm uppercase tracking-wider">Lembaga Kebijakan Pengadaan Barang/Jasa Pemerintah</span>
+</div>
+<h1 class="font-display-lg text-display-lg leading-tight">Pusat Dukungan &amp; Informasi Pengadaan Nasional</h1>
+<p class="text-body-lg font-body-lg text-blue-100 max-w-xl">
+                        Mewujudkan pengadaan pemerintah yang kredibel, transparan, dan akuntabel melalui layanan dukungan teknis terpadu untuk seluruh Indonesia.
+                    </p>
+<div class="max-w-xl">
+<div class="relative group">
+<input class="w-full h-16 pl-14 pr-6 rounded-lg bg-white text-on-surface border-none focus:ring-4 focus:ring-primary-fixed shadow-xl transition-all font-body-md" placeholder="Cari regulasi, panduan, atau FAQ..." type="text">
+<span class="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-primary text-[28px] group-hover:scale-110 transition-transform">search</span>
+</div>
+<div class="mt-6 flex flex-col gap-3">
+    <div class="flex items-center gap-3 flex-wrap">
+        <span class="text-label-md font-bold text-blue-200">Cari Cepat:</span>
+        <div class="flex gap-3 flex-wrap">
+            <a href="#" class="text-label-sm font-label-sm text-white bg-white/10 border border-white/20 px-4 py-2 rounded-full hover:bg-white/20 hover:border-white/50 transition-all duration-200">Peraturan Presiden</a>
+            <a href="#" class="text-label-sm font-label-sm text-white bg-white/10 border border-white/20 px-4 py-2 rounded-full hover:bg-white/20 hover:border-white/50 transition-all duration-200">Peraturan LKPP</a>
+            <a href="#" class="text-label-sm font-label-sm text-white bg-white/10 border border-white/20 px-4 py-2 rounded-full hover:bg-white/20 hover:border-white/50 transition-all duration-200">Panduan SPSE</a>
+            <a href="#" class="text-label-sm font-label-sm text-white bg-white/10 border border-white/20 px-4 py-2 rounded-full hover:bg-white/20 hover:border-white/50 transition-all duration-200">Video Tutorial</a>
+        </div>
+    </div>
+    <div class="flex gap-3 flex-wrap items-center opacity-80">
+        <span class="text-label-md text-blue-200">Populer:</span>
+        <a class="text-label-md text-white hover:underline transition-colors" href="#">Perpres 12/2021</a>
+        <span class="text-white/30">|</span>
+        <a class="text-label-md text-white hover:underline transition-colors" href="#">E-Katalog V5</a>
+        <span class="text-white/30">|</span>
+        <a class="text-label-md text-white hover:underline transition-colors" href="#">Sertifikasi Ahli</a>
+    </div>
+</div>
+</div>
+</div>
+<div class="hidden lg:block relative">
+<div class="aspect-video rounded-xl overflow-hidden shadow-2xl border border-white/10 transform rotate-2 hover:rotate-0 transition-transform duration-500">
+<img class="w-full h-full object-cover" data-alt="A professional aerial view of a grand government administrative building in Jakarta under a clear blue sky, emphasizing civic authority and permanence. The architecture features clean lines, structured columns, and large glass windows reflecting a sunset glow, symbolizing transparency and modern public service in the Garuda Blue color palette." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhtVfGqS8MqopTZHMxgluMRQwerZXJliP8PVwHsY3rt3Ksb0FhM0dIiiXh4W9YOoffZw5qmaNLP9wS8D8kBSLgSSrVSb65l94_88Lva_uAuGGyuqJGUYXzwkaIyYbCXug4Suq__M8DEC51UDrgzRiBxdD3G0lA-wUteKBL0_sHrPkhxNdpE40lBZ8VumXXErFkHQ331tOu1BJwLPVi4gUplI14xd9NuTIXtcPMwPGJP4gdmzpK0Qzta3WseoTQ5o3mbqGx9dPWE0s1">
+</div>
+<div class="absolute -bottom-6 -left-6 bg-secondary-container p-6 rounded-lg shadow-xl max-w-xs border border-secondary">
+<p class="text-on-secondary-container font-headline-sm text-headline-sm italic">"Integritas adalah kunci efisiensi pengadaan negara."</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Statistics Section -->
+<section class="py-12 bg-white">
+<div class="max-w-container-max mx-auto px-margin-desktop">
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-8">
+<div class="text-center p-6 border-r border-outline-variant last:border-none">
+<div class="font-display-lg text-primary text-[40px] mb-1">1.2k+</div>
+<div class="text-label-sm font-label-sm text-on-surface-variant uppercase">Regulasi Aktif</div>
+</div>
+<div class="text-center p-6 border-r border-outline-variant last:border-none">
+<div class="font-display-lg text-primary text-[40px] mb-1">850+</div>
+<div class="text-label-sm font-label-sm text-on-surface-variant uppercase">Admin LPSE</div>
+</div>
+<div class="text-center p-6 border-r border-outline-variant last:border-none">
+<div class="font-display-lg text-primary text-[40px] mb-1">15k</div>
+<div class="text-label-sm font-label-sm text-on-surface-variant uppercase">Tiket Teratasi</div>
+</div>
+<div class="text-center p-6 border-r border-outline-variant last:border-none">
+<div class="font-display-lg text-primary text-[40px] mb-1">24/7</div>
+<div class="text-label-sm font-label-sm text-on-surface-variant uppercase">Sistem Uptime</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Core Services Bento Grid -->
+<section class="py-24 bg-surface">
+<div class="max-w-container-max mx-auto px-margin-desktop">
+<div class="mb-12">
+<h2 class="font-headline-lg text-headline-lg text-primary mb-2">Layanan Utama Kami</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">Akses berbagai instrumen dukungan pengadaan barang dan jasa dalam satu platform terintegrasi.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Regulasi & Panduan -->
+<div class="group bg-white border border-outline-variant p-8 flex flex-col justify-between hover:border-primary transition-all duration-300">
+<div>
+<div class="w-12 h-12 bg-primary-fixed rounded flex items-center justify-center mb-6 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined" data-original-icon="description">description</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm mb-3">Regulasi &amp; Panduan</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6">Database lengkap peraturan presiden, instruksi, dan petunjuk teknis pengadaan terbaru.</p>
+</div>
+<ul class="space-y-3 mb-8">
+<li class="flex items-center gap-2 text-label-md"><span class="material-symbols-outlined text-primary text-sm" data-original-icon="check_circle">check_circle</span> Peraturan Presiden</li>
+<li class="flex items-center gap-2 text-label-md"><span class="material-symbols-outlined text-primary text-sm" data-original-icon="check_circle">check_circle</span> Standar Dokumen Pemilihan</li>
+<li class="flex items-center gap-2 text-label-md"><span class="material-symbols-outlined text-primary text-sm" data-original-icon="check_circle">check_circle</span> Surat Edaran Kepala LKPP</li>
+</ul>
+<a class="inline-flex items-center gap-2 text-primary font-bold hover:gap-4 transition-all" href="#">Pelajari Selengkapnya <span class="material-symbols-outlined" data-original-icon="arrow_forward">arrow_forward</span></a>
+</div>
+<!-- Helpdesk LPSE -->
+<div class="group bg-white border border-outline-variant p-8 flex flex-col justify-between hover:border-primary transition-all duration-300">
+<div>
+<div class="w-12 h-12 bg-primary-fixed rounded flex items-center justify-center mb-6 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined" data-original-icon="support_agent">support_agent</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm mb-3">Helpdesk LPSE</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6">Dukungan teknis langsung untuk permasalahan sistem pengadaan elektronik (SPSE) di seluruh unit kerja.</p>
+</div>
+<div class="bg-surface-container-low p-4 mb-8">
+<div class="text-label-sm font-bold uppercase text-on-surface-variant mb-2">Status Saat Ini</div>
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-green-500"></span>
+<span class="text-label-md font-semibold">Tersedia (Waktu Tunggu &lt; 5m)</span>
+</div>
+</div>
+<a class="inline-flex items-center gap-2 text-primary font-bold hover:gap-4 transition-all" href="#">Buka Tiket <span class="material-symbols-outlined" data-original-icon="confirmation_number">confirmation_number</span></a>
+</div>
+<!-- Virtual Assistant -->
+<div class="group bg-white border border-outline-variant p-8 flex flex-col justify-between hover:border-primary transition-all duration-300">
+<div>
+<div class="w-12 h-12 bg-primary-fixed rounded flex items-center justify-center mb-6 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined" data-original-icon="smart_toy">smart_toy</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm mb-3">Virtual Assistant</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6">Asisten cerdas berbasis AI untuk menjawab pertanyaan umum terkait proses pengadaan secara instan.</p>
+</div>
+<div class="flex flex-col gap-2 mb-8">
+<button class="text-left p-3 text-label-md bg-surface hover:bg-primary-fixed transition-colors border border-outline-variant">"Bagaimana cara daftar vendor?"</button>
+<button class="text-left p-3 text-label-md bg-surface hover:bg-primary-fixed transition-colors border border-outline-variant">"Syarat tender di atas 200 juta?"</button>
+</div>
+<a class="inline-flex items-center gap-2 text-primary font-bold hover:gap-4 transition-all" href="#">Mulai Percakapan <span class="material-symbols-outlined">forum</span></a>
+</div>
+</div>
+</div>
+</section>
+<!-- Featured News/Updates -->
+<section class="py-24 bg-white border-y border-outline-variant">
+<div class="max-w-container-max mx-auto px-margin-desktop">
+<div class="flex justify-between items-end mb-12">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-primary">Berita &amp; Pembaruan Terkini</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">Tetap terinformasi dengan perubahan regulasi dan pengumuman penting.</p>
+</div>
+<a class="hidden md:flex items-center gap-2 text-label-md font-bold text-primary group" href="#">Lihat Semua Berita <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span></a>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Featured Article -->
+<div class="lg:col-span-7 group cursor-pointer">
+<div class="aspect-[16/9] overflow-hidden rounded mb-6">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="A diverse group of Indonesian professionals in formal business attire collaborating around a large conference table in a sunlit, modern government office. They are reviewing digital blueprints and procurement documents on tablets and screens. The atmosphere is focused and professional, utilizing a Garuda Blue and Gold color scheme." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBg5aiirT3j3T-gh5PEaWdfx-4Lh4sJlzbCa1IL-bRi3omyC-ZU8vvCxumY7fKFKySllQ4-4x7bUZo1_-SyhNmZsJQL0LpTFTsufNQ_AcIdAolvVloKTni2dT35-PChHWHPHBxUALJXlSJ3xCdrRoLYFAa-R-q4i722bnPrphVtGOCT_JSVObQXlxDeLEo-drF3ccyFGJB6S3En1-zF0X-pCSU86jpXJexKkuTumrjtC5vx095phpNxLDcxhigW5D0RKgk4gEcccrQb">
+</div>
+<div class="flex gap-4 mb-4">
+<span class="bg-primary text-white px-2 py-1 text-label-sm font-label-sm uppercase">Highlight</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant">14 Nov 2024</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary group-hover:underline mb-4">Transformasi E-Katalog V6: Mempercepat Proses Belanja Pemerintah Lebih Efisien</h3>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-3">Pemerintah resmi meluncurkan pembaruan sistem E-Katalog versi terbaru yang menjanjikan antarmuka lebih user-friendly dan integrasi data yang lebih ketat dengan sistem perpajakan nasional.</p>
+</div>
+<!-- News Sidebar -->
+<div class="lg:col-span-5 flex flex-col gap-8">
+<div class="flex gap-6 group cursor-pointer">
+<div class="w-24 h-24 flex-shrink-0 bg-surface-container overflow-hidden rounded">
+<img class="w-full h-full object-cover" data-alt="A macro photograph of an official government seal being stamped onto a heavy bond paper document. The ink is deep Garuda Blue. The lighting is dramatic, highlighting the texture of the paper and the sharp edges of the seal, conveying legal authority and procedural formality." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDG7Y7KiOMoua160F_RwjRYI0mM8RPaMmbNP1dPztIcMspc8UycAU1yptVR7Eq-yh9sgUIU1lzFTaKlzC5FzcjBEoVqyVNC_Jzv1kOoUG3mhU0OvRemP7XRr-8qA4L55j5RDYn6My1d88ENgkcv7kwC1cHQMOc8CxWYNZM67oxow5wnolZAz2AcNN0BVV-GGIuLxszxr41R_KeBuFWZGLhHPClys-O8vbRz0ZeGfA0-d4iPsEI1_wI4ARvPAd6z59d8zREMluho5TBn">
+</div>
+<div class="flex flex-col justify-center">
+<span class="text-label-sm font-label-sm text-on-surface-variant mb-1">Update Regulasi • 12 Nov 2024</span>
+<h4 class="font-label-md text-label-md font-bold group-hover:text-primary transition-colors">Pedoman Baru Audit Pengadaan Konstruksi Pasca Pandemi</h4>
+</div>
+</div>
+<div class="flex gap-6 group cursor-pointer">
+<div class="w-24 h-24 flex-shrink-0 bg-surface-container overflow-hidden rounded">
+<img class="w-full h-full object-cover" data-alt="A digital workspace setup featuring a high-end laptop displaying complex data analytics charts in shades of blue and gold. Beside the laptop is a neatly organized notebook with a professional pen. The background is a blurred office environment, representing modern, tech-driven administrative work." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDywEtt2c70we_THfzZiFwSAciK_8K-IaQwM3SHg2F5OhuaDeviuoMswoTeiY04wW59HeYTi71QYHOFcZcnbscZIc0jYQqO3wAuh9wfJnsCeodJ0AveYsgFe9Dd3kMF4L7XIYyYVGYX3NHeNV1A3DNu0N0De4gK_fpg58cHWpulLKFjtU_KR1Olu-lbhYIGoPGZe9ZTH9Z4b6s5SKcFt8l2qNkHx7DS2f1XuO5CIZ6E8deUvXdTI9XlohRRDEj9pqhYhi2SigKzTEm8">
+</div>
+<div class="flex flex-col justify-center">
+<span class="text-label-sm font-label-sm text-on-surface-variant mb-1">Sosialisasi • 10 Nov 2024</span>
+<h4 class="font-label-md text-label-md font-bold group-hover:text-primary transition-colors">Workshop Nasional Sertifikasi Ahli Pengadaan Tingkat Dasar</h4>
+</div>
+</div>
+<div class="flex gap-6 group cursor-pointer">
+<div class="w-24 h-24 flex-shrink-0 bg-surface-container overflow-hidden rounded">
+<img class="w-full h-full object-cover" data-alt="A close-up of two professional hands shaking in a brightly lit modern hall. The participants wear formal batik and business suits. The background features institutional banners in Garuda Blue. The shot conveys trust, partnership, and successful negotiation." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDC8E9hkYrcboNX3_W0IH0pi96MYELyWKohfRjL2gsQSIIkcIGb_yRk5OUNYI958IyrlJmpCbntpiqxafpcLrlLjCVgRusNgM4sW578E1u_wwl_Jwu7S5gD4GMXp8zJMbrWKV49kbOkkFF3ZQNkfxETUgIs3_WvLRmSl4cVqY29CHZPNTG3xiyxe4qQ6bPWBXUbc68M_i_Q1uaoPqS8CF11AvanPoS09zrYEJTU5Wauv3YmheHJA8AyIE4I0RKl9NOy8OxOPlYcGQAY">
+</div>
+<div class="flex flex-col justify-center">
+<span class="text-label-sm font-label-sm text-on-surface-variant mb-1">Kemitraan • 08 Nov 2024</span>
+<h4 class="font-label-md text-label-md font-bold group-hover:text-primary transition-colors">MoU LKPP dengan Sektor Perbankan untuk Jaminan Penawaran Digital</h4>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="py-24 bg-surface-container-low overflow-hidden">
+<div class="max-w-container-max mx-auto px-margin-desktop">
+<div class="bg-primary text-white p-12 lg:p-20 relative rounded-xl shadow-2xl overflow-hidden">
+<div class="absolute top-0 right-0 w-1/3 h-full opacity-10 bg-no-repeat bg-right" style="background-image: url('https://www.transparenttextures.com/patterns/cubes.png')"></div>
+<div class="relative z-10 max-w-2xl">
+<h2 class="font-headline-lg text-headline-lg mb-6">Masih Memiliki Pertanyaan Terkait Pengadaan?</h2>
+<p class="font-body-lg text-body-lg text-blue-100 mb-10">Tim ahli kami di seluruh Indonesia siap membantu Anda memastikan proses pengadaan berjalan sesuai koridor hukum dan efisien.</p>
+<div class="flex flex-col sm:flex-row gap-4">
+<button class="bg-[#C5A059] text-on-secondary-fixed font-bold py-4 px-8 rounded shadow-lg hover:bg-opacity-90 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">near_me</span>
+                                Hubungi LPSE Terdekat
+                            </button>
+<button class="bg-transparent border-2 border-white/50 hover:border-white text-white font-bold py-4 px-8 rounded transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">call</span>
+                                Hotline 144
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-highest dark:bg-inverse-surface border-t border-outline-variant dark:border-outline">
+<div class="max-w-container-max mx-auto px-margin-desktop py-stack-lg">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+<div class="space-y-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[28px]">account_balance</span>
+<span class="font-headline-sm text-headline-sm font-bold text-primary">Procurement Support</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">
+                        Pusat layanan informasi dan bantuan teknis pengadaan barang/jasa pemerintah di bawah naungan Lembaga Kebijakan Pengadaan Barang/Jasa Pemerintah (LKPP).
+                    </p>
+</div>
+<div>
+<h5 class="font-label-md text-label-md font-bold mb-6 text-primary uppercase tracking-wider">Tautan Cepat</h5>
+<ul class="space-y-4">
+<li class=""><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Portal SPSE</a></li>
+<li class=""><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">E-Katalog Nasional</a></li>
+<li class=""><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">SiRUP</a></li>
+<li class=""><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Sikap (Vendor Management)</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-label-md text-label-md font-bold mb-6 text-primary uppercase tracking-wider">Bantuan</h5>
+<ul class="space-y-4">
+<li class=""><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Pusat Bantuan</a></li>
+<li class=""><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Video Tutorial</a></li>
+<li class=""><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Unduh Sertifikat</a></li>
+<li class=""><a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Lapor Kendala</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-label-md text-label-md font-bold mb-6 text-primary uppercase tracking-wider">Kantor Pusat</h5>
+<p class="font-label-sm text-label-sm text-on-surface-variant leading-relaxed">
+                        Gedung LKPP, Komplek Rasuna Epicentrum,<br>
+                        Jl. Epicentrum Tengah Lot 11B,<br>
+                        Jakarta Selatan, 12940
+                    </p>
+<div class="mt-6 flex gap-4">
+<a class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center hover:bg-primary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined text-primary text-[20px]">public</span>
+</a>
+<a class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center hover:bg-primary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined text-primary text-[20px]">mail</span>
+</a>
+</div>
+</div>
+</div>
+<div class="pt-8 border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-6">
+<p class="font-label-sm text-label-sm text-on-surface-variant opacity-90">© 2024 National Procurement Agency. All rights reserved.</p>
+<div class="flex flex-wrap justify-center gap-6">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-opacity" href="#">Privacy Policy</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-opacity" href="#">Terms of Service</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-opacity" href="#">Accessibility</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-opacity" href="#">Contact Support</a>
+</div>
+</div>
+</div>
+</footer>
+<script>
+        // Smooth reveal on scroll interaction
+        document.addEventListener('DOMContentLoaded', () => {
+            const observerOptions = {
+                threshold: 0.1
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('opacity-100', 'translate-y-0');
+                        entry.target.classList.remove('opacity-0', 'translate-y-10');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('section > div').forEach(section => {
+                section.classList.add('transition-all', 'duration-700', 'opacity-0', 'translate-y-10');
+                observer.observe(section);
+            });
+        });
+    </script>
+
+</body></html>

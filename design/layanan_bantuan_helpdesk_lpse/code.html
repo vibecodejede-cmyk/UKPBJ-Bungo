@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Procurement Support - Helpdesk Vendor</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#e2e2e5",
+                        "on-secondary-container": "#785a1a",
+                        "surface-container-high": "#e8e8ea",
+                        "primary": "#002869",
+                        "on-error-container": "#93000a",
+                        "surface-bright": "#f9f9fc",
+                        "on-primary-fixed-variant": "#144296",
+                        "surface-dim": "#dadadc",
+                        "on-tertiary-fixed": "#161c23",
+                        "on-tertiary-container": "#a9afb8",
+                        "secondary-fixed-dim": "#e9c176",
+                        "on-error": "#ffffff",
+                        "secondary": "#775a19",
+                        "inverse-surface": "#2f3133",
+                        "surface-tint": "#345baf",
+                        "secondary-fixed": "#ffdea5",
+                        "on-primary-fixed": "#001947",
+                        "inverse-on-surface": "#f0f0f3",
+                        "on-surface-variant": "#434652",
+                        "primary-fixed-dim": "#b1c5ff",
+                        "on-background": "#1a1c1e",
+                        "on-tertiary-fixed-variant": "#41474f",
+                        "surface": "#f9f9fc",
+                        "surface-container-low": "#f3f3f6",
+                        "on-secondary-fixed-variant": "#5d4201",
+                        "on-primary-container": "#8dadff",
+                        "primary-container": "#0b3d91",
+                        "outline": "#747783",
+                        "on-primary": "#ffffff",
+                        "tertiary": "#262d33",
+                        "on-secondary": "#ffffff",
+                        "background": "#f9f9fc",
+                        "tertiary-container": "#3c434a",
+                        "tertiary-fixed-dim": "#c1c7d0",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-primary": "#b1c5ff",
+                        "surface-container": "#eeeef0",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-highest": "#e2e2e5",
+                        "primary-fixed": "#dae2ff",
+                        "error": "#ba1a1a",
+                        "outline-variant": "#c4c6d3",
+                        "tertiary-fixed": "#dde3ec",
+                        "error-container": "#ffdad6",
+                        "secondary-container": "#fed488",
+                        "on-surface": "#1a1c1e",
+                        "on-secondary-fixed": "#261900"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "container-max": "1280px",
+                        "margin-mobile": "1rem",
+                        "margin-desktop": "2.5rem",
+                        "stack-sm": "0.5rem",
+                        "stack-md": "1rem",
+                        "stack-xs": "0.25rem",
+                        "stack-lg": "2rem",
+                        "gutter": "1.5rem"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-md": ["14px", { "lineHeight": "1.4", "letterSpacing": "0.01em", "fontWeight": "500" }],
+                        "label-sm": ["12px", { "lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-sm": ["20px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.25", "fontWeight": "700" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { background-color: #f9f9fc; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            height: 24px;
+            padding: 0 12px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-radius: 2px;
+        }
+        .status-open { background-color: #E0F2FE; color: #002869; }
+        .status-progress { background-color: #FEF3C7; color: #785a1a; }
+        .status-resolved { background-color: #DCFCE7; color: #166534; }
+        
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid #E2E8F0;
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-background min-h-screen flex">
+<!-- SideNavBar (Authority Source: JSON) -->
+<aside class="fixed left-0 top-0 h-full w-[280px] bg-surface-container-low border-r border-outline-variant flex flex-col p-stack-md z-40 hidden md:flex">
+<div class="mb-stack-lg">
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary">Admin CMS</h1>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Procurement Portal</p>
+</div>
+<button class="w-full bg-secondary text-on-secondary py-3 px-4 rounded font-bold text-label-md flex items-center justify-center gap-2 mb-stack-lg hover:brightness-90 transition-all" onclick="openModal()">
+<span class="material-symbols-outlined">add</span>
+            Buat Tiket Baru
+        </button>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-label-md transition-all hover:bg-surface-container-high rounded" href="#">
+<span class="material-symbols-outlined">dashboard</span> Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 border-l-4 border-on-secondary-container bg-secondary-container text-on-secondary-container font-semibold font-label-md" href="#">
+<span class="material-symbols-outlined">confirmation_number</span> Ticket Queue
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-label-md transition-all hover:bg-surface-container-high rounded" href="#">
+<span class="material-symbols-outlined">description</span> Regulations
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-label-md transition-all hover:bg-surface-container-high rounded" href="#">
+<span class="material-symbols-outlined">store</span> Vendor Registry
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-label-md transition-all hover:bg-surface-container-high rounded" href="#">
+<span class="material-symbols-outlined">group</span> User Management
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant font-label-md transition-all hover:bg-surface-container-high rounded" href="#">
+<span class="material-symbols-outlined">settings</span> Settings
+            </a>
+</nav>
+<!-- Virtual Assistant Widget -->
+<div class="mt-auto bg-surface-container-lowest border border-outline-variant p-4 rounded-xl shadow-sm">
+<div class="flex items-center gap-3 mb-3">
+<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined">smart_toy</span>
+</div>
+<div>
+<p class="font-bold text-label-md text-primary">Virtual Assistant</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-wider">Online Sekarang</p>
+</div>
+</div>
+<p class="text-label-sm text-on-surface-variant mb-3">Butuh bantuan cepat terkait akun SPSE atau verifikasi?</p>
+<button class="w-full border border-primary text-primary py-2 rounded font-bold text-label-sm hover:bg-primary hover:text-white transition-colors">Tanya AI</button>
+</div>
+<div class="mt-stack-md pt-stack-md border-t border-outline-variant">
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant font-label-sm hover:text-primary" href="#"><span class="material-symbols-outlined">help</span> Support</a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant font-label-sm hover:text-error" href="#"><span class="material-symbols-outlined">logout</span> Logout</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-[280px] min-h-screen flex flex-col">
+<!-- TopNavBar (Authority Source: JSON) -->
+<header class="h-16 bg-surface-container-lowest border-b border-outline-variant sticky top-0 z-30">
+<div class="flex justify-between items-center w-full px-margin-desktop max-w-container-max mx-auto h-full">
+<div class="flex items-center gap-8">
+<span class="font-headline-sm text-headline-sm font-bold text-primary">Procurement Support</span>
+<nav class="hidden lg:flex items-center gap-6">
+<a class="text-on-surface-variant font-body-md hover:text-primary transition-colors" href="#">Directory</a>
+<a class="text-on-surface-variant font-body-md hover:text-primary transition-colors" href="#">Regulations</a>
+<a class="text-on-surface-variant font-body-md hover:text-primary transition-colors" href="#">FAQ</a>
+<a class="text-primary border-b-2 border-primary font-bold pb-1 font-body-md" href="#">Helpdesk</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<input class="bg-surface-container-low border-none rounded-full px-4 py-1.5 text-sm w-64 focus:ring-2 focus:ring-primary" placeholder="Cari tiket..." type="text"/>
+<span class="material-symbols-outlined absolute right-3 top-1.5 text-on-surface-variant text-lg">search</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-full"><span class="material-symbols-outlined">language</span></button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-full relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-full"><span class="material-symbols-outlined">account_circle</span></button>
+</div>
+</div>
+</div>
+</header>
+<section class="p-margin-desktop space-y-stack-lg max-w-container-max mx-auto w-full">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-primary">Pusat Bantuan Vendor</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-2">Kelola tiket dukungan teknis dan pantau status penyelesaian masalah Anda.</p>
+</div>
+<div class="flex gap-3">
+<button class="bg-surface-container-lowest border border-outline-variant px-5 py-2.5 rounded font-bold text-label-md flex items-center gap-2 hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined">download</span>
+                        Ekspor Laporan
+                    </button>
+<button class="bg-primary text-on-primary px-6 py-2.5 rounded font-bold text-label-md flex items-center gap-2 shadow-lg shadow-primary/20 hover:brightness-110 transition-all" onclick="openModal()">
+<span class="material-symbols-outlined">add_circle</span>
+                        Buat Tiket Baru
+                    </button>
+</div>
+</div>
+<!-- Bento Stats Grid -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter">
+<div class="bg-surface-container-lowest border border-outline-variant p-6 flex flex-col justify-between h-32 hover:border-primary transition-all">
+<p class="text-label-sm font-label-sm text-on-surface-variant uppercase">Total Tiket</p>
+<div class="flex items-baseline gap-2">
+<span class="text-headline-lg font-headline-lg text-primary">24</span>
+<span class="text-label-sm text-on-surface-variant font-normal">Bulan ini</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-6 flex flex-col justify-between h-32">
+<p class="text-label-sm font-label-sm text-on-surface-variant uppercase">Terbuka</p>
+<div class="flex items-baseline gap-2">
+<span class="text-headline-lg font-headline-lg text-primary">08</span>
+<span class="material-symbols-outlined text-primary text-xl">open_in_new</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-6 flex flex-col justify-between h-32">
+<p class="text-label-sm font-label-sm text-on-surface-variant uppercase">Dalam Proses</p>
+<div class="flex items-baseline gap-2">
+<span class="text-headline-lg font-headline-lg text-secondary">12</span>
+<span class="material-symbols-outlined text-secondary text-xl">pending</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-6 flex flex-col justify-between h-32">
+<p class="text-label-sm font-label-sm text-on-surface-variant uppercase">Selesai</p>
+<div class="flex items-baseline gap-2">
+<span class="text-headline-lg font-headline-lg text-green-700">04</span>
+<span class="material-symbols-outlined text-green-700 text-xl">check_circle</span>
+</div>
+</div>
+</div>
+<!-- Ticket List View -->
+<div class="bg-surface-container-lowest border border-outline-variant overflow-hidden">
+<div class="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-surface-container-low/50">
+<h3 class="font-headline-sm text-headline-sm text-primary">Antrean Tiket Aktif</h3>
+<div class="flex gap-2">
+<button class="px-3 py-1.5 text-label-sm font-bold bg-primary text-on-primary rounded">Semua</button>
+<button class="px-3 py-1.5 text-label-sm font-bold text-on-surface-variant hover:bg-surface-container-high rounded">Urgent</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-lowest text-label-sm font-label-sm text-on-surface-variant uppercase border-b border-outline-variant">
+<th class="px-6 py-4 font-bold">ID Tiket</th>
+<th class="px-6 py-4 font-bold">Subjek &amp; Kategori</th>
+<th class="px-6 py-4 font-bold">Status</th>
+<th class="px-6 py-4 font-bold">Tgl Dibuat</th>
+<th class="px-6 py-4 font-bold">Aksi</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<!-- Ticket 1 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-5 font-bold text-primary">#TK-88210</td>
+<td class="px-6 py-5">
+<p class="font-bold text-on-surface">Masalah Verifikasi Akun SPSE</p>
+<p class="text-label-sm text-on-surface-variant">Akun &amp; Akses</p>
+</td>
+<td class="px-6 py-5">
+<span class="status-badge status-progress">Sedang Diproses</span>
+</td>
+<td class="px-6 py-5 text-label-sm text-on-surface-variant">
+                                    24 Okt 2024, 09:15
+                                </td>
+<td class="px-6 py-5">
+<button class="text-primary hover:underline font-bold text-label-sm">Detail</button>
+</td>
+</tr>
+<!-- Ticket 2 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-5 font-bold text-primary">#TK-88195</td>
+<td class="px-6 py-5">
+<p class="font-bold text-on-surface">Gagal Unggah Dokumen Kualifikasi</p>
+<p class="text-label-sm text-on-surface-variant">Kesalahan Sistem</p>
+</td>
+<td class="px-6 py-5">
+<span class="status-badge status-open">Terbuka</span>
+</td>
+<td class="px-6 py-5 text-label-sm text-on-surface-variant">
+                                    23 Okt 2024, 14:30
+                                </td>
+<td class="px-6 py-5">
+<button class="text-primary hover:underline font-bold text-label-sm">Detail</button>
+</td>
+</tr>
+<!-- Ticket 3 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-5 font-bold text-primary">#TK-88152</td>
+<td class="px-6 py-5">
+<p class="font-bold text-on-surface">Reset Password Admin Vendor</p>
+<p class="text-label-sm text-on-surface-variant">Akun &amp; Akses</p>
+</td>
+<td class="px-6 py-5">
+<span class="status-badge status-resolved">Selesai</span>
+</td>
+<td class="px-6 py-5 text-label-sm text-on-surface-variant">
+                                    22 Okt 2024, 10:00
+                                </td>
+<td class="px-6 py-5">
+<button class="text-primary hover:underline font-bold text-label-sm">Detail</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Featured Guides Section -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<div class="glass-panel p-stack-lg rounded-xl flex gap-6 items-start relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 transition-all group-hover:scale-110"></div>
+<div class="bg-primary-fixed w-16 h-16 shrink-0 rounded flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">menu_book</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-primary mb-2">Panduan Penggunaan SPSE</h4>
+<p class="text-body-md text-on-surface-variant mb-4">Pelajari langkah-langkah teknis penggunaan platform pengadaan nasional secara mendalam.</p>
+<a class="text-primary font-bold flex items-center gap-1 hover:gap-2 transition-all" href="#">Baca Panduan <span class="material-symbols-outlined text-sm">arrow_forward</span></a>
+</div>
+</div>
+<div class="glass-panel p-stack-lg rounded-xl flex gap-6 items-start relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-full -mr-16 -mt-16 transition-all group-hover:scale-110"></div>
+<div class="bg-secondary-fixed w-16 h-16 shrink-0 rounded flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-3xl">security</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-secondary mb-2">Keamanan &amp; Verifikasi</h4>
+<p class="text-body-md text-on-surface-variant mb-4">Informasi mengenai syarat verifikasi faktual dan keamanan data perusahaan Anda.</p>
+<a class="text-secondary font-bold flex items-center gap-1 hover:gap-2 transition-all" href="#">Lihat Persyaratan <span class="material-symbols-outlined text-sm">arrow_forward</span></a>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer (Authority Source: JSON) -->
+<footer class="w-full py-stack-lg px-margin-desktop mt-auto bg-surface-container-highest border-t border-outline-variant">
+<div class="max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-label-sm font-label-sm text-on-surface-variant">© 2024 National Procurement Agency. All rights reserved.</p>
+<div class="flex gap-6">
+<a class="text-on-surface-variant hover:text-on-surface transition-opacity opacity-90 hover:opacity-100 text-label-sm font-label-sm" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-opacity opacity-90 hover:opacity-100 text-label-sm font-label-sm" href="#">Terms of Service</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-opacity opacity-90 hover:opacity-100 text-label-sm font-label-sm" href="#">Accessibility</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-opacity opacity-90 hover:opacity-100 text-label-sm font-label-sm" href="#">Contact Support</a>
+</div>
+</div>
+</footer>
+</main>
+<!-- Modal Form (Buat Tiket Baru) -->
+<div class="fixed inset-0 bg-primary/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4" id="ticketModal">
+<div class="bg-surface-container-lowest w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+<div class="bg-primary p-6 text-on-primary flex justify-between items-center">
+<div>
+<h3 class="font-headline-sm text-headline-sm">Buat Tiket Dukungan Baru</h3>
+<p class="text-label-sm opacity-80 font-normal">Tim teknis kami akan merespons dalam 24 jam kerja.</p>
+</div>
+<button class="text-white/60 hover:text-white transition-colors" onclick="closeModal()">
+<span class="material-symbols-outlined text-3xl">close</span>
+</button>
+</div>
+<form class="p-8 space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-1.5">
+<label class="text-label-md font-bold text-on-surface">Kategori Masalah</label>
+<select class="w-full border-outline-variant focus:border-primary focus:ring-0 rounded-none h-12">
+<option>Akun SPSE &amp; Login</option>
+<option>Verifikasi Perusahaan (SIKaP)</option>
+<option>Kesalahan Sistem / Bug</option>
+<option>Pertanyaan Umum Pengadaan</option>
+</select>
+</div>
+<div class="space-y-1.5">
+<label class="text-label-md font-bold text-on-surface">Prioritas</label>
+<select class="w-full border-outline-variant focus:border-primary focus:ring-0 rounded-none h-12">
+<option>Rendah</option>
+<option>Medium</option>
+<option>Tinggi (Urgent)</option>
+</select>
+</div>
+</div>
+<div class="space-y-1.5">
+<label class="text-label-md font-bold text-on-surface">Subjek Tiket</label>
+<input class="w-full border-outline-variant focus:border-primary focus:ring-0 rounded-none h-12" placeholder="Contoh: Gagal verifikasi SIKaP di LPSE Jawa Timur" type="text"/>
+</div>
+<div class="space-y-1.5">
+<label class="text-label-md font-bold text-on-surface">Deskripsi Detail</label>
+<textarea class="w-full border-outline-variant focus:border-primary focus:ring-0 rounded-none" placeholder="Jelaskan masalah Anda secara detail..." rows="4"></textarea>
+</div>
+<div class="space-y-1.5">
+<label class="text-label-md font-bold text-on-surface">Lampiran (Opsional)</label>
+<div class="border-2 border-dashed border-outline-variant p-6 flex flex-col items-center justify-center gap-2 hover:border-primary transition-colors cursor-pointer group">
+<span class="material-symbols-outlined text-4xl text-outline group-hover:text-primary">upload_file</span>
+<p class="text-label-sm text-on-surface-variant">Klik untuk unggah atau seret file (PNG, JPG, PDF)</p>
+</div>
+</div>
+<div class="flex justify-end gap-4 pt-4 border-t border-outline-variant">
+<button class="px-6 py-2.5 font-bold text-on-surface-variant hover:bg-surface-container-high transition-colors" onclick="closeModal()" type="button">Batal</button>
+<button class="bg-[#C5A059] text-on-secondary-fixed font-bold px-8 py-2.5 rounded shadow-md hover:brightness-110 transition-all" type="submit">Kirim Tiket</button>
+</div>
+</form>
+</div>
+</div>
+<script>
+        function openModal() {
+            document.getElementById('ticketModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeModal() {
+            document.getElementById('ticketModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Atmospheric Micro-interactions
+        document.querySelectorAll('tr').forEach(row => {
+            row.addEventListener('mouseenter', () => {
+                row.style.transform = 'translateX(4px)';
+            });
+            row.addEventListener('mouseleave', () => {
+                row.style.transform = 'translateX(0)';
+            });
+        });
+
+        // Search Bar Focus Effect
+        const searchInput = document.querySelector('input[type="text"]');
+        searchInput?.addEventListener('focus', () => {
+            searchInput.parentElement.classList.add('ring-2', 'ring-primary/20');
+        });
+        searchInput?.addEventListener('blur', () => {
+            searchInput.parentElement.classList.remove('ring-2', 'ring-primary/20');
+        });
+    </script>
+</body></html>
