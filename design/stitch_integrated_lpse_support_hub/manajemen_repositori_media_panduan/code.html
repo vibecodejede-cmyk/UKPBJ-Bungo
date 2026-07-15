@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+
+<html class="light" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Manajemen Konten &amp; Regulasi - Admin CMS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Config Verbatim -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-variant": "#e2e2e5",
+                    "on-secondary-container": "#785a1a",
+                    "surface-container-high": "#e8e8ea",
+                    "primary": "#002869",
+                    "on-error-container": "#93000a",
+                    "surface-bright": "#f9f9fc",
+                    "on-primary-fixed-variant": "#144296",
+                    "surface-dim": "#dadadc",
+                    "on-tertiary-fixed": "#161c23",
+                    "on-tertiary-container": "#a9afb8",
+                    "secondary-fixed-dim": "#e9c176",
+                    "on-error": "#ffffff",
+                    "secondary": "#775a19",
+                    "inverse-surface": "#2f3133",
+                    "surface-tint": "#345baf",
+                    "secondary-fixed": "#ffdea5",
+                    "on-primary-fixed": "#001947",
+                    "inverse-on-surface": "#f0f0f3",
+                    "on-surface-variant": "#434652",
+                    "primary-fixed-dim": "#b1c5ff",
+                    "on-background": "#1a1c1e",
+                    "on-tertiary-fixed-variant": "#41474f",
+                    "surface": "#f9f9fc",
+                    "surface-container-low": "#f3f3f6",
+                    "on-secondary-fixed-variant": "#5d4201",
+                    "on-primary-container": "#8dadff",
+                    "primary-container": "#0b3d91",
+                    "outline": "#747783",
+                    "on-primary": "#ffffff",
+                    "tertiary": "#262d33",
+                    "on-secondary": "#ffffff",
+                    "background": "#f9f9fc",
+                    "tertiary-container": "#3c434a",
+                    "tertiary-fixed-dim": "#c1c7d0",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-primary": "#b1c5ff",
+                    "surface-container": "#eeeef0",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-highest": "#e2e2e5",
+                    "primary-fixed": "#dae2ff",
+                    "error": "#ba1a1a",
+                    "outline-variant": "#c4c6d3",
+                    "tertiary-fixed": "#dde3ec",
+                    "error-container": "#ffdad6",
+                    "secondary-container": "#fed488",
+                    "on-surface": "#1a1c1e",
+                    "on-secondary-fixed": "#261900"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "container-max": "1280px",
+                    "margin-mobile": "1rem",
+                    "margin-desktop": "2.5rem",
+                    "stack-sm": "0.5rem",
+                    "stack-md": "1rem",
+                    "stack-xs": "0.25rem",
+                    "stack-lg": "2rem",
+                    "gutter": "1.5rem"
+            },
+            "fontFamily": {
+                    "headline-md": ["Inter"],
+                    "body-md": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "headline-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "1.4", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                    "label-sm": ["12px", {"lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-sm": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "1.3", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.25", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .status-badge { height: 24px; padding: 0 12px; display: inline-flex; align-items: center; border-radius: 4px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+        .status-open { background-color: #E0F2FE; color: #002869; }
+        .status-in-progress { background-color: #FEF3C7; color: #785a1a; }
+        .status-resolved { background-color: #DCFCE7; color: #166534; }
+        
+        /* Custom Table & Card Styles for "Clean Official" look */
+        .official-card { background: white; border: 1px solid #E2E8F0; border-radius: 0.125rem; }
+        .official-table th { background-color: #F8FAFC; border-bottom: 2px solid #E2E8F0; text-align: left; padding: 12px 16px; }
+        .official-table td { padding: 16px; border-bottom: 1px solid #F1F5F9; }
+        
+        .tab-active { border-bottom: 2px solid #002869; color: #002869; font-weight: 700; }
+    </style>
+</head>
+<body class="text-on-background">
+<!-- TopNavBar (Execution from JSON) -->
+<header class="fixed top-0 left-0 right-0 z-50 bg-surface-container-lowest dark:bg-inverse-surface border-b border-outline-variant dark:border-outline h-16 flex items-center shadow-none">
+<div class="flex justify-between items-center w-full px-margin-desktop max-w-container-max mx-auto h-16">
+<div class="flex items-center gap-stack-md">
+<span class="font-headline-sm text-headline-sm font-bold text-primary dark:text-primary-fixed">Procurement Support</span>
+<nav class="hidden md:flex ml-8 gap-stack-lg">
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Directory</a>
+<a class="font-body-md text-body-md text-primary dark:text-primary-fixed border-b-2 border-primary font-bold pb-1" href="#">Regulations</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">FAQ</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Helpdesk</a>
+</nav>
+</div>
+<div class="flex items-center gap-stack-md">
+<div class="relative hidden lg:block">
+<input class="bg-surface-container border border-outline-variant text-label-md px-4 py-1.5 w-64 focus:ring-2 focus:ring-primary focus:outline-none rounded" placeholder="Cari regulasi..." type="text"/>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant">
+<span class="material-symbols-outlined cursor-pointer hover:text-primary">language</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary">notifications</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary">account_circle</span>
+</div>
+</div>
+</div>
+</header>
+<div class="flex pt-16">
+<!-- SideNavBar (Execution from JSON) -->
+<aside class="fixed left-0 top-16 h-[calc(100vh-64px)] w-[280px] bg-surface-container-low dark:bg-surface-dim border-r border-outline-variant dark:border-outline flex flex-col p-stack-md">
+<div class="mb-stack-lg px-2">
+<p class="font-headline-sm text-headline-sm font-bold text-primary">Admin CMS</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Procurement Portal</p>
+</div>
+<button class="mb-stack-lg w-full bg-secondary-container text-on-secondary-container font-semibold py-3 px-4 flex items-center justify-center gap-2 rounded-lg hover:brightness-95 transition-all">
+<span class="material-symbols-outlined">add</span>
+<span>Tambah Regulasi Baru</span>
+</button>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">confirmation_number</span>
+<span>Ticket Queue</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 font-label-md text-label-md border-l-4 border-on-secondary-container bg-secondary-container text-on-secondary-container font-semibold" href="#">
+<span class="material-symbols-outlined">description</span>
+<span>Regulations</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">store</span>
+<span>Vendor Registry</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">group</span>
+<span>User Management</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="border-t border-outline-variant pt-stack-md mt-auto">
+<a class="flex items-center gap-3 px-4 py-2 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high" href="#">
+<span class="material-symbols-outlined">help</span>
+<span>Support</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high text-error" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span>Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-[280px] flex-1 p-margin-desktop">
+<div class="max-w-container-max mx-auto">
+<!-- Header Actions -->
+<div class="flex justify-between items-end mb-stack-lg">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-primary mb-1">Manajemen Konten &amp; Regulasi</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Kelola dokumen hukum, peraturan pengadaan, dan aset media publikasi.</p>
+</div>
+<div class="flex gap-stack-md">
+<button class="bg-white border border-primary text-primary px-6 py-2.5 font-label-md text-label-md hover:bg-surface-container-low transition-colors">
+                            Ekspor Laporan (CSV)
+                        </button>
+<button class="bg-[#C5A059] text-white px-8 py-2.5 font-label-md text-label-md font-bold hover:brightness-90 transition-all shadow-sm">
+                            Tambah Regulasi Baru
+                        </button>
+</div>
+</div>
+<!-- Tabs Navigation -->
+<div class="flex gap-8 border-b border-outline-variant mb-stack-lg">
+<button class="pb-3 tab-active font-label-md text-label-md flex items-center gap-2">
+<span class="material-symbols-outlined">list_alt</span> Daftar Regulasi
+                    </button>
+<button class="pb-3 font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined">image</span> Galeri Infografis
+                    </button>
+<button class="pb-3 font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined">video_library</span> Video Edukasi
+                    </button>
+</div>
+<!-- Content Grid -->
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Main Table List (Col 8) -->
+<div class="col-span-12 xl:col-span-8 space-y-gutter">
+<div class="official-card overflow-hidden">
+<table class="w-full official-table border-collapse">
+<thead>
+<tr class="text-label-sm">
+<th class="w-12">ID</th>
+<th>Judul Regulasi</th>
+<th>Kategori</th>
+<th>Status</th>
+<th>Terakhir Diubah</th>
+<th class="text-right">Aksi</th>
+</tr>
+</thead>
+<tbody class="text-body-md">
+<tr class="hover:bg-surface-bright transition-colors">
+<td class="text-on-surface-variant font-mono text-xs">#REG-042</td>
+<td>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">description</span>
+<span class="font-semibold">Peraturan Presiden No. 12 Tahun 2021</span>
+</div>
+</td>
+<td>
+<span class="text-label-sm text-on-surface-variant bg-surface-container px-2 py-1">PENGADAAN</span>
+</td>
+<td>
+<span class="status-badge status-resolved">Aktif</span>
+</td>
+<td class="text-on-surface-variant text-sm">12 Okt 2023</td>
+<td class="text-right space-x-2">
+<button class="text-primary hover:bg-primary-fixed-dim p-1.5 transition-colors rounded" title="Edit">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+<button class="text-on-secondary-container hover:bg-secondary-fixed p-1.5 transition-colors rounded" title="Update Status">
+<span class="material-symbols-outlined text-[20px]">sync</span>
+</button>
+<button class="text-error hover:bg-error-container p-1.5 transition-colors rounded" title="Delete">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-bright transition-colors">
+<td class="text-on-surface-variant font-mono text-xs">#REG-039</td>
+<td>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">description</span>
+<span class="font-semibold">Keputusan Menteri Keuangan RI No. 44/2022</span>
+</div>
+</td>
+<td>
+<span class="text-label-sm text-on-surface-variant bg-surface-container px-2 py-1">KEUANGAN</span>
+</td>
+<td>
+<span class="status-badge status-in-progress">Review</span>
+</td>
+<td class="text-on-surface-variant text-sm">05 Des 2023</td>
+<td class="text-right space-x-2">
+<button class="text-primary hover:bg-primary-fixed-dim p-1.5 transition-colors rounded"><span class="material-symbols-outlined text-[20px]">edit</span></button>
+<button class="text-on-secondary-container hover:bg-secondary-fixed p-1.5 transition-colors rounded"><span class="material-symbols-outlined text-[20px]">sync</span></button>
+<button class="text-error hover:bg-error-container p-1.5 transition-colors rounded"><span class="material-symbols-outlined text-[20px]">delete</span></button>
+</td>
+</tr>
+<tr class="hover:bg-surface-bright transition-colors">
+<td class="text-on-surface-variant font-mono text-xs">#REG-031</td>
+<td>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">description</span>
+<span class="font-semibold">Instruksi Presiden Penanganan Darurat</span>
+</div>
+</td>
+<td>
+<span class="text-label-sm text-on-surface-variant bg-surface-container px-2 py-1">DARURAT</span>
+</td>
+<td>
+<span class="status-badge status-open">Draft</span>
+</td>
+<td class="text-on-surface-variant text-sm">20 Jan 2024</td>
+<td class="text-right space-x-2">
+<button class="text-primary hover:bg-primary-fixed-dim p-1.5 transition-colors rounded"><span class="material-symbols-outlined text-[20px]">edit</span></button>
+<button class="text-on-secondary-container hover:bg-secondary-fixed p-1.5 transition-colors rounded"><span class="material-symbols-outlined text-[20px]">sync</span></button>
+<button class="text-error hover:bg-error-container p-1.5 transition-colors rounded"><span class="material-symbols-outlined text-[20px]">delete</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="bg-surface-container-low px-margin-desktop py-3 flex justify-between items-center text-label-sm border-t border-outline-variant">
+<span>Menampilkan 3 dari 124 regulasi</span>
+<div class="flex gap-2">
+<button class="p-1 border border-outline-variant hover:bg-white transition-colors"><span class="material-symbols-outlined text-[18px]">chevron_left</span></button>
+<button class="p-1 border border-outline-variant hover:bg-white transition-colors bg-white font-bold px-3">1</button>
+<button class="p-1 border border-outline-variant hover:bg-white transition-colors px-3">2</button>
+<button class="p-1 border border-outline-variant hover:bg-white transition-colors px-3">3</button>
+<button class="p-1 border border-outline-variant hover:bg-white transition-colors"><span class="material-symbols-outlined text-[18px]">chevron_right</span></button>
+</div>
+</div>
+</div>
+<!-- Media Gallery Preview Section -->
+<div class="official-card p-6">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-sm text-headline-sm text-primary">Galeri Infografis &amp; Aset Media</h3>
+<button class="text-primary font-label-md text-label-md flex items-center gap-1 hover:underline">
+<span class="material-symbols-outlined text-[18px]">open_in_new</span> Lihat Semua Media
+                                </button>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<div class="group relative aspect-video official-card overflow-hidden cursor-pointer">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A clean professional infographic with a Garuda Blue color scheme, showing a flow chart of procurement steps in an Indonesian government context. The lighting is bright and even, emphasizing clarity and official documentation styles with high-contrast text and structured graphic elements." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbkC246znBinbLXyUpvgrE8LF9wuVBM64np25d2YAe9PGKUI0p7XTt8hyGBkNh93nHHKj6bsOqFD1Y6_6_3ruT4sjV8TXoXKutd9kKLzCPZxJ80pwhekELwBPjEEAO1Dzicrd61d1rtUxb6Z4TfeZO--PDLz6-M20hl5cyPJ-V6805CcgsoFGx_19sgp6FtDScxMGVnkrUUA-QTewotqVOMVIfmCvd8V_e5bVbdlJGRyAs2PQJDKwIHpBwVXeBeg7qN23nvyPzhECa"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-white">edit</span>
+<span class="material-symbols-outlined text-white">delete</span>
+</div>
+<div class="absolute bottom-0 left-0 right-0 p-2 bg-black/60 text-white text-[10px] font-bold">ALUR_PENGADAAN.JPG</div>
+</div>
+<div class="group relative aspect-video official-card overflow-hidden cursor-pointer">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A professional media thumbnail for a government regulation update video. It features an Indonesian official standing in a modern office background, with a clean overlay of the text 'Regulasi 2024' in bold white letters against a blue banner. The aesthetic is corporate and trustworthy, with soft studio lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVVScaI-mo85u4n4iFhNSxjYiLZaLvfa2AlnwNDRms20t5WQaEVoMt9iRKN-ceZUCoLlodQpQO2k14W-mGvAO_vZ08HTnETOEHwlQ6ygVMMg4lDpY1xV-NRR3gC7g3M7hYji6OxEWNMGAoTo94kfkyCUf8keoGC1X3134FY3xKaXulhPS0g1Hb_J7fKF-ie7StoG_KeWEcSZZv3YpwmairQPLdszX4ejx_vG7g2kx1d03VY2PEkBjdasWWp6b_0jXOzzctBdRbuMtA"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-4xl">play_circle</span>
+</div>
+<div class="absolute bottom-0 left-0 right-0 p-2 bg-black/60 text-white text-[10px] font-bold">VIDEO_UPDATE_2024.MP4</div>
+</div>
+<div class="group relative aspect-video official-card overflow-hidden cursor-pointer">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="An Indonesian government infographic about e-katalog systems, using a modern flat design style with a professional palette of blue and gold. The composition is clean and organized, with icons representing different digital procurement services, set against a light grey background with subtle patterns." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOd5IYXidUQAt4NJ2EriBlW2U84XWk2GAr-dGzQZSGPdljZwmy9RiPOtqYw3fY25hiWvLGlaxyyQhJ6QQz-s1vX-z8L6vVtUmL7jUuxXqngJurEEXNGaU8rUL53rkX-D8cZpB55yMGMkBbmPKf0XmXIFo6-QB2wsMrvjPtgylnT9WP9DNYFWZ1oUZmqbZt7zFsy3btgIj6Iq6QDGkk9B4_VlVZTIdmVRRWiFIZaipjE1rgl2Sj6NJFC7qHxaQgqSl0eqApx3Rf3bTN"/>
+<div class="absolute bottom-0 left-0 right-0 p-2 bg-black/60 text-white text-[10px] font-bold">E_KATALOG_GUIDE.PNG</div>
+</div>
+<div class="border-2 border-dashed border-outline-variant flex flex-col items-center justify-center text-on-surface-variant hover:border-primary hover:text-primary transition-colors cursor-pointer bg-surface-container-low">
+<span class="material-symbols-outlined text-3xl">add_photo_alternate</span>
+<span class="text-xs font-bold mt-2">Unggah Media</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Sidebar Stats / Filters (Col 4) -->
+<div class="col-span-12 xl:col-span-4 space-y-gutter">
+<div class="official-card p-6">
+<h3 class="font-label-md text-label-md font-bold text-primary border-b border-outline-variant pb-3 mb-4">Statistik Konten</h3>
+<div class="space-y-4">
+<div class="flex justify-between items-center">
+<span class="text-body-md text-on-surface-variant">Total Regulasi</span>
+<span class="font-bold text-headline-sm">1,248</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-body-md text-on-surface-variant">Aset Media</span>
+<span class="font-bold text-headline-sm">312</span>
+</div>
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden mt-4">
+<div class="bg-primary h-full w-[75%]"></div>
+</div>
+<p class="text-label-sm text-on-surface-variant">75% Kapasitas Storage Digunakan (1.5 GB / 2 GB)</p>
+</div>
+</div>
+<div class="official-card p-6">
+<h3 class="font-label-md text-label-md font-bold text-primary border-b border-outline-variant pb-3 mb-4">Filter &amp; Cari</h3>
+<div class="space-y-4">
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">Status Publikasi</label>
+<select class="w-full border border-outline-variant bg-surface-container-low px-3 py-2 text-label-md focus:border-primary focus:ring-0">
+<option>Semua Status</option>
+<option>Aktif</option>
+<option>Draft</option>
+<option>Review</option>
+</select>
+</div>
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">Kategori Dokumen</label>
+<select class="w-full border border-outline-variant bg-surface-container-low px-3 py-2 text-label-md focus:border-primary focus:ring-0">
+<option>Semua Kategori</option>
+<option>Pengadaan</option>
+<option>Keuangan</option>
+<option>SDM</option>
+</select>
+</div>
+<div>
+<label class="block text-label-sm text-on-surface-variant mb-1">Rentang Tanggal</label>
+<div class="flex gap-2">
+<input class="w-1/2 border border-outline-variant bg-surface-container-low px-2 py-2 text-xs" type="date"/>
+<input class="w-1/2 border border-outline-variant bg-surface-container-low px-2 py-2 text-xs" type="date"/>
+</div>
+</div>
+<button class="w-full bg-primary text-white py-2.5 font-label-md text-label-md font-bold hover:brightness-110 transition-all">
+                                    Terapkan Filter
+                                </button>
+</div>
+</div>
+<div class="official-card p-6 bg-primary text-white relative overflow-hidden">
+<div class="relative z-10">
+<h3 class="font-headline-sm text-headline-sm mb-2">Butuh Bantuan?</h3>
+<p class="text-sm opacity-90 mb-4">Tim IT siap membantu manajemen aset media dan sinkronisasi regulasi pusat.</p>
+<button class="bg-white text-primary px-4 py-2 font-bold text-label-sm rounded flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">support_agent</span> Kontak Helpdesk
+                                </button>
+</div>
+<span class="material-symbols-outlined absolute -bottom-4 -right-4 text-9xl opacity-10">policy</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Footer (Execution from JSON) -->
+<footer class="w-full py-stack-lg px-margin-desktop mt-auto bg-surface-container-highest dark:bg-inverse-surface border-t border-outline-variant dark:border-outline">
+<div class="max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center gap-stack-md">
+<div>
+<p class="font-headline-sm text-headline-sm font-bold text-primary">Procurement Support</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1">© 2024 National Procurement Agency. All rights reserved.</p>
+</div>
+<div class="flex gap-stack-lg">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface dark:hover:text-surface-bright transition-opacity opacity-90 hover:opacity-100" href="#">Privacy Policy</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface dark:hover:text-surface-bright transition-opacity opacity-90 hover:opacity-100" href="#">Terms of Service</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface dark:hover:text-surface-bright transition-opacity opacity-90 hover:opacity-100" href="#">Accessibility</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface dark:hover:text-surface-bright transition-opacity opacity-90 hover:opacity-100" href="#">Contact Support</a>
+</div>
+</div>
+</footer>
+<!-- Micro-interactions Script -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabs = document.querySelectorAll('.tab-btn');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('tab-active'));
+                    tab.classList.add('tab-active');
+                });
+            });
+
+            // Mock interaction for Update Status
+            const syncButtons = document.querySelectorAll('button[title="Update Status"]');
+            syncButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.querySelector('span').classList.add('animate-spin');
+                    setTimeout(() => {
+                        this.querySelector('span').classList.remove('animate-spin');
+                    }, 1000);
+                });
+            });
+        });
+    </script>
+</body></html>
