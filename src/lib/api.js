@@ -52,12 +52,29 @@ export async function fetchGuidesByRole(role) {
   return data
 }
 
-export async function fetchGuideVideos(guideId) {
+export async function fetchGuidesByCategory(category) {
   const { data, error } = await supabase
-    .from('guide_videos')
+    .from('guides')
     .select('*')
-    .eq('guide_id', guideId)
+    .eq('is_published', true)
+    .eq('category', category)
+    .order('is_featured', { ascending: false })
     .order('created_at', { ascending: false })
+
+  if (error) throw error
+  return data
+}
+
+export async function fetchGuideVideos(category) {
+  let query = supabase.from('guide_videos').select('*')
+
+  if (category) {
+    query = query.eq('category', category)
+  }
+
+  query = query.order('created_at', { ascending: false })
+
+  const { data, error } = await query
 
   if (error) throw error
   return data

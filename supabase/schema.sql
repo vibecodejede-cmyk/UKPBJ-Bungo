@@ -13,7 +13,8 @@ CREATE TABLE IF NOT EXISTS guides (
   title TEXT NOT NULL,
   description TEXT NOT NULL,
   content TEXT,
-  role TEXT NOT NULL CHECK (role IN ('PPK', 'Vendor', 'Pokja', 'Semua')),
+  role TEXT NOT NULL CHECK (role IN ('PPK', 'Vendor', 'Pokja', 'Admin', 'Semua')),
+  category TEXT NOT NULL DEFAULT 'Panduan Inaproc' CHECK (category IN ('Panduan Inaproc', 'Panduan LPSE')),
   file_url TEXT,
   file_size TEXT,
   file_type TEXT DEFAULT 'pdf',
@@ -27,6 +28,7 @@ CREATE TABLE IF NOT EXISTS guides (
 
 -- Create index for faster queries
 CREATE INDEX IF NOT EXISTS idx_guides_role ON guides(role);
+CREATE INDEX IF NOT EXISTS idx_guides_category ON guides(category);
 CREATE INDEX IF NOT EXISTS idx_guides_published ON guides(is_published);
 CREATE INDEX IF NOT EXISTS idx_guides_featured ON guides(is_featured);
 
@@ -53,8 +55,13 @@ CREATE TABLE IF NOT EXISTS guide_videos (
   video_url TEXT NOT NULL,
   thumbnail_url TEXT,
   duration TEXT,
+  category TEXT NOT NULL DEFAULT 'Panduan Inaproc' CHECK (category IN ('Panduan Inaproc', 'Panduan LPSE')),
+  role TEXT[] NOT NULL DEFAULT '{PPK}' CHECK (role <@ ARRAY['PPK', 'Pejabat Pengadaan', 'Pokja', 'PA', 'Penyedia']::TEXT[]),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
+
+CREATE INDEX IF NOT EXISTS idx_guide_videos_category ON guide_videos(category);
+CREATE INDEX IF NOT EXISTS idx_guide_videos_role ON guide_videos(role);
 
 -- ============================================
 -- 4. ANNOUNCEMENTS TABLE
@@ -163,15 +170,17 @@ INSERT INTO guide_categories (name, slug, description, icon) VALUES
   ('PPK', 'ppk', 'Panduan untuk Pejabat Pembuat Komitmen', 'person'),
   ('Vendor', 'vendor', 'Panduan untuk Penyedia/Vendor', 'business'),
   ('Pokja', 'pokja', 'Panduan untuk Pokja Pemilihan', 'groups'),
+  ('Admin', 'admin', 'Panduan untuk Admin LPSE', 'admin_panel_settings'),
   ('Umum', 'umum', 'Panduan umum untuk semua pengguna', 'public')
 ON CONFLICT (slug) DO NOTHING;
 
-INSERT INTO guides (title, description, content, role, file_url, file_size, image_url, is_featured) VALUES
+INSERT INTO guides (title, description, content, role, category, file_url, file_size, image_url, is_featured) VALUES
   (
     'Buku Saku Digital: Prosedur Pengadaan Barang/Jasa Pemerintah 2024',
     'Panduan komprehensif mengenai tata cara terbaru proses pengadaan mulai dari perencanaan hingga serah terima hasil pekerjaan.',
     'Panduan lengkap untuk PPK dalam melakukan pengadaan barang/jasa sesuai dengan regulasi terbaru...',
     'PPK',
+    'Panduan Inaproc',
     '/docs/buku-saku-digital-2024.pdf',
     '4.8 MB',
     'https://lh3.googleusercontent.com/aida-public/AB6AXuC2SP1KXRhPhKRmQoFj4i7EdKlZ1tZjQDXCuiTjfZzbbc5LAPGE8YnyaxDdZgzD0LBJLKbZk2aqfaWPUzcMDk95WnfvKytFDU7lHr2dRkAymLhOWgd-q8LRCX93GycHGLh3ZzthCxAAO5IOj-32K7fJIJ6rzQB7hQs-vg_PG8a1Cm6xlD0tXd6R4mcUrc2epWWbLcVC9gciHsGJ1cGwWMQJ8aPi5uJ1NkXYjr51SD7izCyOqqcIvfuF0CrwNhnIvghPq0iflhF0tLYT',
@@ -182,6 +191,7 @@ INSERT INTO guides (title, description, content, role, file_url, file_size, imag
     'Langkah-langkah lengkap melakukan pendaftaran dan verifikasi profil badan usaha di Sistem Informasi Kinerja Penyedia.',
     'Panduan pendaftaran akun SIKaP untuk vendor...',
     'Vendor',
+    'Panduan Inaproc',
     '/docs/panduan-sikap.pdf',
     '2.3 MB',
     'https://lh3.googleusercontent.com/aida-public/AB6AXuB9MuI5XBIEdxvIMD15QYLOhR8Snmt72hwTFVYUxJPDhIJU_6cqpWSyrmG7kwVXlnuwYaAw21QW_u-EI9CUZ98zhJpMBaQcI-GoYvWivkAXC07yT4Nx7Tjqynaa2bhJ32kpYXfUdHVKLFo1RUi2_o03JC38QdVmNZVrwgTOSGS1FGfTVM8WuIQrpQG18srbYf9uWBxeYmDTiBgWnf6JxoXt4fxPg1DOydfeCRPnSPcF3njOm-K11DjhsIBvvNX6_UXR3_4rZjH9A9Vo',
@@ -192,6 +202,7 @@ INSERT INTO guides (title, description, content, role, file_url, file_size, imag
     'Modul teknis evaluasi kualifikasi, administrasi, teknis, dan harga untuk Pokja Pemilihan di aplikasi SPSE.',
     'Panduan evaluasi dokumen penawaran untuk Pokja...',
     'Pokja',
+    'Panduan Inaproc',
     '/docs/evaluasi-dokumen.pdf',
     '3.1 MB',
     'https://lh3.googleusercontent.com/aida-public/AB6AXuCxMeEWzXOyWnFHMTqqlBaYpVDM4LHT9v9wHJnK8c1-0Wr0eh9dA8MryhUIcoMcPq23V2anpIAnmH816YcKJl9X5LC6043DW20CFipJSek5vFdUdrr0xh6bm8kuWsuz4yf9DbRQWObSiXI2uCTO0xKiBaQ6jTj5DRc72Yn3WrZcOHYsAsTRD0aS8beFi2SrXpDkFM_ygLWwZkRaAEXlUeCbwJi146JEL7gKLyZ7pw2JCZoxaRpgTNE5xzz3X32xAkZMRE7DB2wdW6FP',
@@ -202,10 +213,88 @@ INSERT INTO guides (title, description, content, role, file_url, file_size, imag
     'Pedoman perhitungan Harga Perkiraan Sendiri (HPS) yang akuntabel sesuai dengan regulasi LKPP terbaru.',
     'Panduan penyusunan HPS dan spesifikasi teknis...',
     'PPK',
+    'Panduan Inaproc',
     '/docs/penyusunan-hps.pdf',
     '2.7 MB',
     'https://lh3.googleusercontent.com/aida-public/AB6AXuDv-qSF15SKFJdSUvsDnEqeFCVMDEh4mHRjzlQhQNd6YJhhSjezne0R4cM-ZLMSADR68PbOHGSMyCLGlfCnvy06iQZ_y6QZvWqgyvD-esGXCMwc5otWOAqc6cwZPl5VRApS0YIWuqPAH7FtewR99hhIsPtp1dC6uf7KJsp7VvEEQEmcRqwxxioEf7x8ZUeNuYXOX6GXiOkyN9kzXF4YNU7aeCOSPtmRZRzZjevCn2QTunDdBry9CbwIjPP39gm_vdPmHOn39h67BKGJ',
     false
+  ),
+  (
+    'Panduan Operasional SPSE v4.5 untuk Pengguna',
+    'Dokumentasi lengkap tata cara penggunaan Sistem Pengadaan Secara Elektronik (SPSE) untuk admin dan pengguna LPSE dalam proses e-tendering dan e-purchasing.',
+    'Panduan operasional SPSE v4.5...',
+    'Admin',
+    'Panduan LPSE',
+    '/docs/panduan-spse-v45.pdf',
+    '12.4 MB',
+    'https://lh3.googleusercontent.com/aida-public/AB6AXuBzvvZpumloD4GKm1xLUf-B4DIXcP63L_W4yh9Mwy_alH13gqz6dvYM2vC6-MPUUEf1BmJuG0KqhVo6EXd0H47Isp293-cf7OOVULnHfNjJ13TxOKvdDfOL50Koua0ZYtrJBXLLckjZSC9kLPzGBzYYWwrCIK75pq9TnTLEMaCqfwtD8SaQdqIPaS9awTqetvWywKS3kK9IqJoPS8herQmgf9AuNuhzoJCLHW7KbBrdPNjiCWhy8ETmYTLoYS3krJLbG8ns-H6MTGba',
+    false
+  ),
+  (
+    'Panduan Registrasi & Aktivasi Akun LPSE',
+    'Langkah pendaftaran, verifikasi, dan aktivasi akun LPSE bagi admin maupun pengguna penyedia dan PPK.',
+    'Panduan registrasi akun LPSE...',
+    'Admin',
+    'Panduan LPSE',
+    '/docs/registrasi-akun-lpse.pdf',
+    '1.8 MB',
+    'https://lh3.googleusercontent.com/aida-public/AB6AXuBzvvZpumloD4GKm1xLUf-B4DIXcP63L_W4yh9Mwy_alH13gqz6dvYM2vC6-MPUUEf1BmJuG0KqhVo6EXd0H47Isp293-cf7OOVULnHfNjJ13TxOKvdDfOL50Koua0ZYtrJBXLLckjZSC9kLPzGBzYYWwrCIK75pq9TnTLEMaCqfwtD8SaQdqIPaS9awTqetvWywKS3kK9IqJoPS8herQmgf9AuNuhzoJCLHW7KbBrdPNjiCWhy8ETmYTLoYS3krJLbG8ns-H6MTGba',
+    false
+  )
+ON CONFLICT DO NOTHING;
+
+-- ============================================
+-- SAMPLE DATA FOR GUIDE VIDEOS (VIDEO TUTORIAL)
+-- Sumber: channel YouTube resmi Inaproc LKPP (https://www.youtube.com/@LKPPinaproc)
+-- ============================================
+INSERT INTO guide_videos (title, description, video_url, duration, category, role) VALUES
+  (
+    'Tutorial Penggunaan Aplikasi Inaproc bagi PPK',
+    'Panduan langkah demi langkah menggunakan aplikasi Inaproc untuk Pejabat Pembuat Komitmen.',
+    'https://www.youtube.com/embed/PLkZp',
+    '12:34',
+    'Panduan Inaproc',
+    '{PPK}'
+  ),
+  (
+    'Panduan Pendaftaran Akun SIKaP bagi Vendor',
+    'Langkah pendaftaran dan verifikasi profil badan usaha di Sistem Informasi Kinerja Penyedia.',
+    'https://www.youtube.com/embed/PLkZt',
+    '09:18',
+    'Panduan Inaproc',
+    '{Penyedia}'
+  ),
+  (
+    'Penyusunan HPS & Spesifikasi Teknis',
+    'Pedoman perhitungan Harga Perkiraan Sendiri (HPS) sesuai regulasi LKPP terbaru.',
+    'https://www.youtube.com/embed/PLkZu',
+    '11:52',
+    'Panduan Inaproc',
+    '{Pejabat Pengadaan}'
+  ),
+  (
+    'Cara Registrasi dan Aktivasi Akun LPSE',
+    'Video panduan pendaftaran, verifikasi, dan aktivasi akun LPSE bagi penyedia dan PPK.',
+    'https://www.youtube.com/embed/PLkZq',
+    '08:21',
+    'Panduan LPSE',
+    '{PA}'
+  ),
+  (
+    'Pengenalan SPSE v4.5 untuk Pengguna',
+    'Pengantar fitur dan alur kerja Sistem Pengadaan Secara Elektronik (SPSE) versi 4.5.',
+    'https://www.youtube.com/embed/PLkZr',
+    '15:47',
+    'Panduan LPSE',
+    '{Pokja}'
+  ),
+  (
+    'Tata Cara Evaluasi Dokumen Penawaran di SPSE',
+    'Modul teknis evaluasi kualifikasi, administrasi, teknis, dan harga untuk Pokja Pemilihan.',
+    'https://www.youtube.com/embed/PLkZs',
+    '10:05',
+    'Panduan LPSE',
+    '{Pokja}'
   )
 ON CONFLICT DO NOTHING;
 

@@ -2,13 +2,15 @@ import { useState, useEffect } from 'react'
 import { Link, NavLink, useSearchParams } from 'react-router-dom'
 import Icon from '../components/Icon'
 import Footer from '../components/Footer'
-import { fetchGuides, fetchFeaturedGuide, fetchGuideVideos } from '../lib/api'
+import { fetchGuides, fetchGuidesByCategory, fetchFeaturedGuide, fetchGuideVideos } from '../lib/api'
 
 const roles = [
   { id: 'all', label: 'Semua Peran', checked: true },
-  { id: 'ppk', label: 'PPK (Pejabat Pembuat Komitmen)', checked: false },
-  { id: 'vendor', label: 'Penyedia / Vendor', checked: false },
-  { id: 'pokja', label: 'Pokja Pemilihan', checked: false },
+  { id: 'ppk', label: 'PPK', checked: false },
+  { id: 'pejabat_pengadaan', label: 'Pejabat Pengadaan', checked: false },
+  { id: 'pokja', label: 'Pokja', checked: false },
+  { id: 'pa', label: 'PA', checked: false },
+  { id: 'penyedia', label: 'Penyedia', checked: false },
 ]
 
 export default function Panduan() {
@@ -18,6 +20,10 @@ export default function Panduan() {
   const [checkedRoles, setCheckedRoles] = useState(
     roles.reduce((acc, r) => ({ ...acc, [r.id]: r.checked }), {}),
   )
+  // contentView: 'panduan' (PDF cards) or 'video' (YouTube tutorials)
+  const [contentView, setContentView] = useState('panduan')
+  // Search query for filtering guides & videos
+  const [searchQuery, setSearchQuery] = useState('')
 
   // Data state
   const [guides, setGuides] = useState([])
@@ -26,36 +32,59 @@ export default function Panduan() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
+  const isLpse = activeTab === 'lpse'
+
   // Fetch data from Supabase
   useEffect(() => {
+    let cancelled = false
     async function loadData() {
+      setLoading(true)
+      setError(null)
+
+      const category = isLpse ? 'Panduan LPSE' : 'Panduan Inaproc'
+
+      // Fetch guides (with fallback if category column not yet migrated)
       try {
-        setLoading(true)
-        setError(null)
-
-        const [guidesData, featuredData] = await Promise.all([
-          fetchGuides(),
-          fetchFeaturedGuide(),
-        ])
-
-        setGuides(guidesData || [])
-        setFeaturedGuide(featuredData)
-
-        // Fetch videos for the featured guide
-        if (featuredData?.id) {
-          const videosData = await fetchGuideVideos(featuredData.id)
-          setVideos(videosData || [])
-        }
+        const guidesData = await fetchGuidesByCategory(category)
+        if (!cancelled) setGuides(guidesData || [])
       } catch (err) {
-        console.error('Error fetching guides:', err)
-        setError('Gagal memuat data panduan. Silakan coba lagi nanti.')
-      } finally {
-        setLoading(false)
+        console.warn('fetchGuidesByCategory failed, falling back:', err?.message)
+        try {
+          const all = await fetchGuides()
+          if (!cancelled) {
+            setGuides((all || []).filter((g) => g.category === category))
+          }
+        } catch (err2) {
+          console.error('Error fetching guides:', err2)
+          if (!cancelled) setError('Gagal memuat data panduan. Silakan coba lagi nanti.')
+        }
       }
+
+      // Fetch featured guide (non-blocking)
+      try {
+        const featuredData = await fetchFeaturedGuide()
+        if (!cancelled) setFeaturedGuide(featuredData)
+      } catch (err) {
+        console.warn('fetchFeaturedGuide failed:', err?.message)
+      }
+
+      // Fetch videos (non-blocking, fallback to empty)
+      try {
+        const videosData = await fetchGuideVideos(category)
+        if (!cancelled) setVideos(videosData || [])
+      } catch (err) {
+        console.warn('fetchGuideVideos failed:', err?.message)
+        if (!cancelled) setVideos([])
+      }
+
+      if (!cancelled) setLoading(false)
     }
 
     loadData()
-  }, [])
+    return () => {
+      cancelled = true
+    }
+  }, [isLpse])
 
   const switchTab = (tab) => {
     setActiveTab(tab)
@@ -63,10 +92,30 @@ export default function Panduan() {
   }
 
   const toggleRole = (id) => {
-    setCheckedRoles((prev) => ({ ...prev, [id]: !prev[id] }))
+    setCheckedRoles((prev) => {
+      if (id === 'all') {
+        const next = !prev.all
+        return roles.reduce((acc, r) => ({ ...acc, [r.id]: next }), {})
+      }
+      const next = { ...prev, [id]: !prev[id] }
+      // If any specific role is unchecked, "all" should be off
+      next.all = roles
+        .filter((r) => r.id !== 'all')
+        .every((r) => next[r.id])
+      return next
+    })
   }
 
-  const isLpse = activeTab === 'lpse'
+  const handleDownload = (guide) => {
+    if (guide?.file_url) {
+      const url = guide.file_url.startsWith('http')
+        ? guide.file_url
+        : `${window.location.origin}${guide.file_url}`
+      window.open(url, '_blank', 'noopener,noreferrer')
+    } else {
+      alert('File panduan belum tersedia untuk diunduh.')
+    }
+  }
 
   // Fallback data if Supabase is empty
   const fallbackFeatured = {
@@ -100,7 +149,62 @@ export default function Panduan() {
   ]
 
   const currentFeatured = featuredGuide || fallbackFeatured
-  const currentGuides = isLpse ? [] : guides.length > 0 ? guides : fallbackGuides
+  const allGuides = guides.length > 0 ? guides : fallbackGuides
+
+  // Map filter ids to actual role values stored in the database (guides & videos)
+  const roleMap = {
+    ppk: 'PPK',
+    pejabat_pengadaan: 'Pejabat Pengadaan',
+    pokja: 'Pokja',
+    pa: 'PA',
+    penyedia: 'Penyedia',
+  }
+  // Equivalent role labels between guides and videos vocabularies
+  const roleEquivalents = {
+    Penyedia: 'Vendor',
+    Vendor: 'Penyedia',
+  }
+  const selectedRoles = roles
+    .filter((r) => r.id !== 'all' && checkedRoles[r.id])
+    .map((r) => roleMap[r.id])
+
+  // Accepted set for guide filtering (includes equivalents like Vendor<->Penyedia)
+  const acceptedGuideRoles = new Set(selectedRoles)
+  selectedRoles.forEach((r) => {
+    if (roleEquivalents[r]) acceptedGuideRoles.add(roleEquivalents[r])
+  })
+
+  // Filter guides by selected roles; "Semua Peran" (all) shows everything
+  const currentGuides = (checkedRoles.all
+    ? allGuides
+    : allGuides.filter((g) => acceptedGuideRoles.has(g.role))
+  ).filter((g) => {
+    if (!searchQuery.trim()) return true
+    const q = searchQuery.toLowerCase()
+    return (
+      (g.title || '').toLowerCase().includes(q) ||
+      (g.description || '').toLowerCase().includes(q) ||
+      (g.role || '').toLowerCase().includes(q)
+    )
+  })
+
+  // Filter videos by selected roles (video.role is an array); "Semua Peran" (all) shows everything
+  const currentVideos = (checkedRoles.all
+    ? videos
+    : videos.filter((v) => {
+        const vRoles = Array.isArray(v.role) ? v.role : v.role ? [v.role] : []
+        return vRoles.some((r) => selectedRoles.includes(r))
+      })
+  ).filter((v) => {
+    if (!searchQuery.trim()) return true
+    const q = searchQuery.toLowerCase()
+    const vRoles = Array.isArray(v.role) ? v.role : v.role ? [v.role] : []
+    return (
+      (v.title || '').toLowerCase().includes(q) ||
+      (v.description || '').toLowerCase().includes(q) ||
+      vRoles.some((r) => r.toLowerCase().includes(q))
+    )
+  })
 
   return (
     <div className="bg-background text-on-background min-h-screen">
@@ -252,10 +356,36 @@ export default function Panduan() {
                 </button>
               </div>
 
+              {/* Content Type Toggle: Panduan PDF vs Video Tutorial */}
+              <div className="flex items-center gap-md mb-lg">
+                <button
+                  className={`font-label-md text-label-md px-lg py-sm rounded-lg transition-all flex items-center gap-sm ${
+                    contentView === 'panduan'
+                      ? 'bg-primary text-on-primary'
+                      : 'bg-white text-on-surface-variant border border-outline-variant hover:bg-surface-container'
+                  }`}
+                  onClick={() => setContentView('panduan')}
+                >
+                  <Icon name="picture_as_pdf" className="text-[18px]" /> Panduan PDF
+                </button>
+                <button
+                  className={`font-label-md text-label-md px-lg py-sm rounded-lg transition-all flex items-center gap-sm ${
+                    contentView === 'video'
+                      ? 'bg-primary text-on-primary'
+                      : 'bg-white text-on-surface-variant border border-outline-variant hover:bg-surface-container'
+                  }`}
+                  onClick={() => setContentView('video')}
+                >
+                  <Icon name="play_circle" className="text-[18px]" /> Video Tutorial
+                </button>
+              </div>
+
               {/* Search Bar */}
               <div className="mb-lg">
                 <div className="relative">
                   <input
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-xl pr-md py-md bg-white border border-outline-variant rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                     placeholder="Cari panduan atau tutorial..."
                     type="text"
@@ -267,95 +397,157 @@ export default function Panduan() {
                 </div>
               </div>
 
-              {/* Panduan Cards List */}
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-md">
-                {/* Featured Large Card */}
-                <div className="md:col-span-2 xl:col-span-2 bg-white border border-outline-variant rounded-xl p-lg institutional-shadow flex flex-col md:flex-row gap-lg group hover:border-primary transition-colors">
-                  <div className="w-full md:w-48 h-48 bg-surface-container rounded-lg flex-shrink-0 flex items-center justify-center">
-                    <Icon name="description" className="text-primary text-[64px]" style={{ fontVariationSettings: "'FILL' 1" }} />
-                  </div>
-                  <div className="flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center gap-sm mb-base">
-                        <span className="bg-secondary-container text-on-secondary-container px-sm py-xs rounded-full font-label-sm text-label-sm">
-                          {currentFeatured.badge}
-                        </span>
-                        <span className="text-outline font-label-sm text-label-sm">{currentFeatured.updated}</span>
+              {/* Panduan Cards List (PDF) */}
+              {contentView === 'panduan' && (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-md">
+                    {/* Featured Large Card */}
+                    <div className="md:col-span-2 xl:col-span-2 bg-white border border-outline-variant rounded-xl p-lg institutional-shadow flex flex-col md:flex-row gap-lg group hover:border-primary transition-colors">
+                      <div className="w-full md:w-48 h-48 bg-surface-container rounded-lg flex-shrink-0 flex items-center justify-center">
+                        <Icon name="description" className="text-primary text-[64px]" style={{ fontVariationSettings: "'FILL' 1" }} />
                       </div>
-                      <h2 className="font-headline-md text-headline-md text-primary mb-sm">{currentFeatured.title}</h2>
-                      <p className="font-body-sm text-body-sm text-on-surface-variant mb-md line-clamp-2">
-                        {currentFeatured.description}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-md">
-                      <button className="bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md flex items-center gap-sm group-hover:bg-primary-container">
-                        <Icon name="download" className="text-[18px]" /> Download PDF
-                      </button>
-                      <span className="font-label-sm text-label-sm text-outline">{currentFeatured.size}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Regular Cards */}
-                {currentGuides.map((guide) => (
-                  <div
-                    key={guide.title}
-                    className="bg-white border border-outline-variant rounded-xl p-md institutional-shadow hover:border-secondary transition-colors"
-                  >
-                    <div className="flex items-start justify-between mb-md">
-                      <Icon name="picture_as_pdf" className="text-error text-[32px]" />
-                      <span className="bg-surface-variant text-on-surface-variant px-sm py-xs rounded font-label-sm text-label-sm">
-                        {guide.role}
-                      </span>
-                    </div>
-                    <h3 className="font-headline-sm text-headline-sm text-primary mb-sm">{guide.title}</h3>
-                    <p className="font-body-sm text-body-sm text-on-surface-variant mb-lg line-clamp-3">
-                      {guide.description}
-                    </p>
-                    <button className="w-full border border-secondary text-secondary py-sm rounded-lg font-label-md text-label-md hover:bg-secondary hover:text-white transition-all flex items-center justify-center gap-sm">
-                      <Icon name="download" className="text-[18px]" /> Download
-                    </button>
-                  </div>
-                ))}
-              </div>
-
-              {/* Video Tutorial Section */}
-              <div className="mt-xl">
-                <div className="flex items-center justify-between mb-lg">
-                  <div className="flex items-center gap-sm">
-                    <Icon name="play_circle" className="text-error text-[32px]" style={{ fontVariationSettings: "'FILL' 1" }} />
-                    <h2 className="font-headline-lg text-headline-lg text-primary">Video Tutorial</h2>
-                  </div>
-                  <a className="text-secondary font-label-md text-label-md hover:underline" href="#">
-                    Lihat Semua Video
-                  </a>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
-                  {currentVideos.map((video) => (
-                    <div
-                      key={video.title}
-                      className="bg-white border border-outline-variant rounded-xl overflow-hidden institutional-shadow group"
-                    >
-                      <div className="relative aspect-video bg-black flex items-center justify-center overflow-hidden">
-                        <div
-                          className="absolute inset-0 bg-cover bg-center opacity-80 group-hover:scale-105 transition-transform duration-500"
-                          style={{ backgroundImage: `url('${video.image}')` }}
-                        />
-                        <button className="relative z-10 w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform">
-                          <Icon name="play_arrow" className="text-primary text-[32px]" style={{ fontVariationSettings: "'FILL' 1" }} />
-                        </button>
-                        <div className="absolute bottom-md right-md bg-black/70 text-white px-sm py-xs rounded font-label-sm text-label-sm">
-                          {video.duration}
+                      <div className="flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-center gap-sm mb-base">
+                            <span className="bg-secondary-container text-on-secondary-container px-sm py-xs rounded-full font-label-sm text-label-sm">
+                              {currentFeatured.badge}
+                            </span>
+                            {currentFeatured.category && (
+                              <span className="bg-tertiary-container text-on-tertiary-container px-sm py-xs rounded-full font-label-sm text-label-sm">
+                                {currentFeatured.category}
+                              </span>
+                            )}
+                            <span className="text-outline font-label-sm text-label-sm">{currentFeatured.updated}</span>
+                          </div>
+                          <h2 className="font-headline-md text-headline-md text-primary mb-sm">{currentFeatured.title}</h2>
+                          <p className="font-body-sm text-body-sm text-on-surface-variant mb-md line-clamp-2">
+                            {currentFeatured.description}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-md">
+                          <button
+                            onClick={() => handleDownload(currentFeatured)}
+                            className="bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md flex items-center gap-sm group-hover:bg-primary-container"
+                          >
+                            <Icon name="download" className="text-[18px]" /> Download PDF
+                          </button>
+                          <span className="font-label-sm text-label-sm text-outline">{currentFeatured.size}</span>
                         </div>
                       </div>
-                      <div className="p-md">
-                        <h3 className="font-headline-sm text-headline-sm text-primary mb-base">{video.title}</h3>
-                        <p className="font-body-sm text-body-sm text-on-surface-variant">{video.description}</p>
-                      </div>
                     </div>
-                  ))}
+
+                    {/* Regular Cards */}
+                    {currentGuides.map((guide) => (
+                      <div
+                        key={guide.title}
+                        className="bg-white border border-outline-variant rounded-xl p-md institutional-shadow hover:border-secondary transition-colors"
+                      >
+                        <div className="flex items-start justify-between mb-md">
+                          <Icon name="picture_as_pdf" className="text-error text-[32px]" />
+                          <div className="flex items-center gap-sm">
+                            {guide.category && (
+                              <span className="bg-tertiary-container text-on-tertiary-container px-sm py-xs rounded font-label-sm text-label-sm">
+                                {guide.category}
+                              </span>
+                            )}
+                            <span className="bg-surface-variant text-on-surface-variant px-sm py-xs rounded font-label-sm text-label-sm">
+                              {guide.role}
+                            </span>
+                          </div>
+                        </div>
+                        <h3 className="font-headline-sm text-headline-sm text-primary mb-sm">{guide.title}</h3>
+                        <p className="font-body-sm text-body-sm text-on-surface-variant mb-lg line-clamp-3">
+                          {guide.description}
+                        </p>
+                        <button
+                          onClick={() => handleDownload(guide)}
+                          className="w-full border border-secondary text-secondary py-sm rounded-lg font-label-md text-label-md hover:bg-secondary hover:text-white transition-all flex items-center justify-center gap-sm"
+                        >
+                          <Icon name="download" className="text-[18px]" /> Download
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  {!loading && currentGuides.length === 0 && (
+                    <div className="bg-surface-container text-on-surface-variant p-lg rounded-xl text-center">
+                      <p className="font-body-md text-body-md">
+                        Tidak ada panduan untuk peran yang dipilih. Silakan ubah filter peran Anda.
+                      </p>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Video Tutorial Section (YouTube Inaproc LKPP) */}
+              {contentView === 'video' && (
+                <div>
+                  <div className="flex items-center justify-between mb-lg">
+                    <div className="flex items-center gap-sm">
+                      <Icon name="play_circle" className="text-error text-[32px]" style={{ fontVariationSettings: "'FILL' 1" }} />
+                      <h2 className="font-headline-lg text-headline-lg text-primary">Video Tutorial</h2>
+                    </div>
+                    <a
+                      className="text-secondary font-label-md text-label-md hover:underline"
+                      href="https://www.youtube.com/@LKPPinaproc"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Lihat Semua Video
+                    </a>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                    {currentVideos.map((video) => (
+                      <div
+                        key={video.id}
+                        className="bg-white border border-outline-variant rounded-xl overflow-hidden institutional-shadow"
+                      >
+                        <div className="relative aspect-video bg-black">
+                          <iframe
+                            className="absolute inset-0 w-full h-full"
+                            src={video.video_url}
+                            title={video.title}
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          />
+                        </div>
+                        <div className="p-md">
+                          <div className="flex items-center justify-between gap-sm mb-base">
+                            <h3 className="font-headline-sm text-headline-sm text-primary">{video.title}</h3>
+                            {video.duration && (
+                              <span className="flex-shrink-0 bg-surface-variant text-on-surface-variant px-sm py-xs rounded font-label-sm text-label-sm">
+                                {video.duration}
+                              </span>
+                            )}
+                          </div>
+                          <p className="font-body-sm text-body-sm text-on-surface-variant">{video.description}</p>
+                          {Array.isArray(video.role) && video.role.length > 0 && (
+                            <div className="flex flex-wrap gap-sm mt-md">
+                              {video.role.map((r) => (
+                                <span
+                                  key={r}
+                                  className="bg-surface-variant text-on-surface-variant px-sm py-xs rounded font-label-sm text-label-sm"
+                                >
+                                  {r}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {!loading && currentVideos.length === 0 && (
+                    <div className="bg-surface-container text-on-surface-variant p-lg rounded-xl text-center">
+                      <p className="font-body-md text-body-md">
+                        Belum ada video tutorial untuk peran yang dipilih.
+                      </p>
+                    </div>
+                  )}
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </section>
