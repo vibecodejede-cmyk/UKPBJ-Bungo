@@ -199,3 +199,30 @@ INSERT INTO announcements (title, excerpt, content, badge, badge_class, date, de
   ('Pemberlakuan Peraturan LKPP Baru Terkait E-Purchasing', 'LKPP resmi merilis aturan turunan mengenai tata cara pembelian elektronik melalui katalog nasional untuk meningkatkan efisiensi belanja negara.', 'Dalam rangka mendukung keterbukaan pasar pengadaan barang/jasa pemerintah, LKPP merilis modul pendaftaran bagi entitas asing yang ingin berpartisipasi dalam Katalog Elektronik Sektoral maupun Nasional.', 'Regulasi', 'bg-primary text-on-primary', '21 Mei 2024', '21 Mei 2024, 14:30 WIB', 'Regulasi', 'Divisi Katalog', 'https://lh3.googleusercontent.com/aida-public/AB6AXuDXXB87V5oiS3-o7jAwboE-fcbq4yUcUsrxrj2v-HiJIrXezZCH1_tdJ5w3x1DzpS9xIIOts10KLk62FlCGi6CqV86bXPMmzMQfGxzrfiA-P7KSxt4ctnkj2jSSzF_kZZTvcwxX0XefjtG2o_VnmBzY7EhRspV_60Esplc9aZv9Ro1koWtGme8LftXLETe6EXjtUy5I-7FcnxDen77_IgiIb-hZZ2xNzgRX4_ru7oDnFp-yeLLdi7L69bOzC_EjrdUAC7euw3uOYSIW', true),
   ('Sosialisasi Penggunaan Portal Inaproc Versi Terbaru 2024', 'Undangan sosialisasi daring untuk Pejabat Pembuat Komitmen (PPK) mengenai fitur-fitur baru pada Dashboard monitoring Inaproc.', 'Kami mengundang seluruh Pejabat Pembuat Komitmen (PPK) untuk menghadiri sesi daring mengenai implementasi mitigasi risiko pada proses tender konstruksi pasca terbitnya Perlem No 12.', 'Kegiatan', 'bg-tertiary-container text-on-tertiary-container', '18 Mei 2024', '18 Mei 2024, 10:00 WIB', 'Kegiatan', 'Biro Pelatihan', 'https://lh3.googleusercontent.com/aida-public/AB6AXuBQm5Kd9uLy0TSXbPXAbyAERpnQiCXH2ory58HASxVMR0ul1SaAu0EaJSlUSuJoyidoKy4W_8BwPDqvCCesQ0ivRLjAUlRJM33h2qp2O1H2h6BppKvfV_4aXGCIpOXGPI3vQ-YG4n7A3yY6txARUQe345oGPS9LrJscmYTTswlnXEJB4bzl4pimDCbZ_MZ1JeSvj9tNVCCrtjUJ1HkyNsdBfZ-UnFu-ZpSf9Rylxf__CBecZVxvs-Q5M8UXMzLQSWT7LBn0M_lq_oqa', true)
 ON CONFLICT DO NOTHING;
+
+-- ============================================
+-- ADMINS (CMS - Kelola Admin)
+-- ============================================
+CREATE TABLE IF NOT EXISTS admins (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  full_name TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,
+  role TEXT NOT NULL DEFAULT 'Editor Panduan' CHECK (role IN ('Super Admin', 'Editor Panduan', 'Editor Regulasi', 'Editor Pengumuman')),
+  status TEXT NOT NULL DEFAULT 'Aktif' CHECK (status IN ('Aktif', 'Nonaktif', 'Terkunci')),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_admins_role ON admins(role);
+CREATE INDEX IF NOT EXISTS idx_admins_status ON admins(status);
+
+ALTER TABLE admins ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Authenticated can manage admins" ON admins
+  FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
+
+-- Seed data for admins
+INSERT INTO admins (full_name, email, role, status) VALUES
+  ('Ahmad Subardjo', 'ahmad.s@lpse.go.id', 'Super Admin', 'Aktif'),
+  ('Siti Aminah', 'siti.a@lpse.go.id', 'Editor Regulasi', 'Aktif'),
+  ('Budi Darmawan', 'budi.d@lpse.go.id', 'Editor Panduan', 'Nonaktif'),
+  ('Ratna Sari', 'ratna.s@lpse.go.id', 'Super Admin', 'Terkunci')
+ON CONFLICT (email) DO NOTHING;

@@ -189,6 +189,62 @@ export async function toggleGuidePublish(id, isPublished) {
 }
 
 // ============================================
+// ADMINS (CMS) API - Kelola Admin
+// ============================================
+// Admin: fetch ALL admins for management table
+export async function fetchAllAdmins() {
+  const { data, error } = await supabase
+    .from('admins')
+    .select('*')
+    .order('created_at', { ascending: true })
+
+  if (error) throw error
+  return data
+}
+
+export async function createAdmin(payload) {
+  const { data, error } = await supabase
+    .from('admins')
+    .insert([
+      {
+        full_name: payload.full_name,
+        email: payload.email,
+        role: payload.role,
+        status: payload.status || 'Aktif',
+      },
+    ])
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+export async function updateAdmin(id, payload) {
+  const { data, error } = await supabase
+    .from('admins')
+    .update({
+      full_name: payload.full_name,
+      email: payload.email,
+      role: payload.role,
+      status: payload.status,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+export async function deleteAdmin(id) {
+  const { error } = await supabase.from('admins').delete().eq('id', id)
+  if (error) throw error
+  return true
+}
+
+// ============================================
 // DASHBOARD ADMIN STATS
 // ============================================
 export async function fetchDashboardStats() {

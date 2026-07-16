@@ -123,6 +123,30 @@ CREATE TABLE IF NOT EXISTS regulations (
 );
 
 -- ============================================
+-- 8. ADMINS TABLE (CMS - Kelola Admin)
+-- ============================================
+CREATE TABLE IF NOT EXISTS admins (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  full_name TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,
+  role TEXT NOT NULL DEFAULT 'Editor Panduan' CHECK (role IN ('Super Admin', 'Editor Panduan', 'Editor Regulasi', 'Editor Pengumuman')),
+  status TEXT NOT NULL DEFAULT 'Aktif' CHECK (status IN ('Aktif', 'Nonaktif', 'Terkunci')),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_admins_role ON admins(role);
+CREATE INDEX IF NOT EXISTS idx_admins_status ON admins(status);
+
+-- Sample data for admins
+INSERT INTO admins (full_name, email, role, status) VALUES
+  ('Ahmad Subardjo', 'ahmad.s@lpse.go.id', 'Super Admin', 'Aktif'),
+  ('Siti Aminah', 'siti.a@lpse.go.id', 'Editor Regulasi', 'Aktif'),
+  ('Budi Darmawan', 'budi.d@lpse.go.id', 'Editor Panduan', 'Nonaktif'),
+  ('Ratna Sari', 'ratna.s@lpse.go.id', 'Super Admin', 'Terkunci')
+ON CONFLICT (email) DO NOTHING;
+
+-- ============================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
 -- ============================================
 
@@ -162,6 +186,11 @@ CREATE POLICY "Public can send contact messages" ON contact_messages
 -- Regulations: Public can read published regulations
 CREATE POLICY "Public can view published regulations" ON regulations
   FOR SELECT USING (is_published = true);
+
+-- Admins: Authenticated users can manage admins
+ALTER TABLE admins ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Authenticated can manage admins" ON admins
+  FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
 
 -- ============================================
 -- SAMPLE DATA FOR GUIDES (PANDUAN)

@@ -13,6 +13,7 @@ import PanduanLpse from './pages/PanduanLpse'
 import PengumumanDetail from './pages/PengumumanDetail'
 import DashboardAdmin from './pages/DashboardAdmin'
 import KelolaPanduan from './pages/KelolaPanduan'
+import KelolaAdmin from './pages/KelolaAdmin'
 
 export default function App() {
   return (
@@ -44,6 +45,7 @@ export default function App() {
       <Route path="/panduan-lpse" element={<PanduanLpse />} />
       <Route path="/dashboard" element={<DashboardAdmin />} />
       <Route path="/kelola-panduan" element={<KelolaPanduan />} />
+      <Route path="/kelola-admin" element={<KelolaAdmin />} />
     </Routes>
   )
 }
