@@ -144,3 +144,150 @@ export async function fetchRegulations() {
   if (error) throw error
   return data
 }
+
+// ============================================
+// GUIDES ADMIN (CMS) API
+// ============================================
+// Admin: fetch ALL guides (including drafts) for management table
+export async function fetchAllGuides() {
+  const { data, error } = await supabase
+    .from('guides')
+    .select('*')
+    .order('updated_at', { ascending: false })
+
+  if (error) throw error
+  return data
+}
+
+export async function createGuide(payload) {
+  const { data, error } = await supabase
+    .from('guides')
+    .insert([payload])
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+export async function deleteGuide(id) {
+  const { error } = await supabase.from('guides').delete().eq('id', id)
+  if (error) throw error
+  return true
+}
+
+export async function toggleGuidePublish(id, isPublished) {
+  const { data, error } = await supabase
+    .from('guides')
+    .update({ is_published: isPublished, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+// ============================================
+// DASHBOARD ADMIN STATS
+// ============================================
+export async function fetchDashboardStats() {
+  const [{ count: totalGuides, error: errGuides }, { count: totalRegulations, error: errReg }, { count: totalAnnouncements, error: errAnn }] = await Promise.all([
+    supabase.from('guides').select('*', { count: 'exact', head: true }).eq('is_published', true),
+    supabase.from('regulations').select('*', { count: 'exact', head: true }).eq('is_published', true),
+    supabase.from('announcements').select('*', { count: 'exact', head: true }).eq('is_published', true),
+  ])
+
+  if (errGuides) throw errGuides
+  if (errReg) throw errReg
+  if (errAnn) throw errAnn
+
+  return {
+    totalGuides: totalGuides ?? 0,
+    totalRegulations: totalRegulations ?? 0,
+    totalAnnouncements: totalAnnouncements ?? 0,
+  }
+}
+
+// ============================================
+// ACTIVITY LOG (derived from recent content changes)
+// ============================================
+export async function fetchActivityLog(limit = 10) {
+  const [guidesRes, regRes, annRes] = await Promise.all([
+    supabase
+      .from('guides')
+      .select('id, title, is_published, created_at, updated_at')
+      .order('updated_at', { ascending: false })
+      .limit(limit),
+    supabase
+      .from('regulations')
+      .select('id, nomor, judul, is_published, created_at, updated_at')
+      .order('updated_at', { ascending: false })
+      .limit(limit),
+    supabase
+      .from('announcements')
+      .select('id, title, author, is_published, created_at, updated_at')
+      .order('updated_at', { ascending: false })
+      .limit(limit),
+  ])
+
+  if (guidesRes.error) throw guidesRes.error
+  if (regRes.error) throw regRes.error
+  if (annRes.error) throw annRes.error
+
+  const now = Date.now()
+  const fmtAgo = (iso) => {
+    const diff = Math.max(0, now - new Date(iso).getTime())
+    const m = Math.floor(diff / 60000)
+    if (m < 1) return 'Baru saja'
+    if (m < 60) return `${m} Menit yang lalu`
+    const h = Math.floor(m / 60)
+    if (h < 24) return `${h} Jam yang lalu`
+    const d = Math.floor(h / 24)
+    return `${d} Hari yang lalu`
+  }
+
+  const g = (guidesRes.data || []).map((x) => ({ ...x, _t: new Date(x.updated_at).getTime(), _k: 'guide' }))
+  const r = (regRes.data || []).map((x) => ({ ...x, _t: new Date(x.updated_at).getTime(), _k: 'reg' }))
+  const an = (annRes.data || []).map((x) => ({ ...x, _t: new Date(x.updated_at).getTime(), _k: 'ann' }))
+
+  const all = [...g, ...r, ...an].sort((x, y) => y._t - x._t).slice(0, limit)
+
+  return all.map((x) => {
+    const isNew = new Date(x.created_at).getTime() === new Date(x.updated_at).getTime()
+    if (x._k === 'guide') {
+      return {
+        id: `guide-${x.id}`,
+        user: 'Admin Pusat',
+        userInitials: 'AP',
+        userColor: 'bg-primary-container',
+        activity: `${isNew ? 'Menambahkan' : 'Memperbarui'} Panduan: ${x.title}`,
+        date: fmtAgo(x.updated_at),
+        status: x.is_published ? 'Berhasil' : 'Draft',
+        statusClass: x.is_published ? 'bg-[#E8F5E9] text-[#2E7D32]' : 'bg-[#ECEFF1] text-[#546E7A]',
+      }
+    }
+    if (x._k === 'reg') {
+      return {
+        id: `reg-${x.id}`,
+        user: 'Update LPSE',
+        userInitials: 'UL',
+        userColor: 'bg-secondary-container',
+        activity: `${isNew ? 'Menambahkan' : 'Memperbarui'} Regulasi: ${x.nomor} ${x.judul}`,
+        date: fmtAgo(x.updated_at),
+        status: x.is_published ? 'Berhasil' : 'Draft',
+        statusClass: x.is_published ? 'bg-[#E8F5E9] text-[#2E7D32]' : 'bg-[#ECEFF1] text-[#546E7A]',
+      }
+    }
+    return {
+      id: `ann-${x.id}`,
+      user: x.author || 'Info Pusat',
+      userInitials: (x.author || 'IP').slice(0, 2).toUpperCase(),
+      userColor: 'bg-tertiary-container',
+      activity: `${isNew ? 'Mempublikasikan' : 'Memperbarui'} Pengumuman: ${x.title}`,
+      date: fmtAgo(x.updated_at),
+      status: x.is_published ? 'Berhasil' : 'Pending',
+      statusClass: x.is_published ? 'bg-[#E8F5E9] text-[#2E7D32]' : 'bg-[#FFF3E0] text-[#EF6C00]',
+    }
+  })
+}

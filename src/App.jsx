@@ -11,6 +11,8 @@ import Pengumuman from './pages/Pengumuman'
 import Kontak from './pages/Kontak'
 import PanduanLpse from './pages/PanduanLpse'
 import PengumumanDetail from './pages/PengumumanDetail'
+import DashboardAdmin from './pages/DashboardAdmin'
+import KelolaPanduan from './pages/KelolaPanduan'
 
 export default function App() {
   return (
@@ -40,6 +42,8 @@ export default function App() {
       <Route path="/pengumuman/:id" element={<PengumumanDetail />} />
       <Route path="/kontak" element={<Kontak />} />
       <Route path="/panduan-lpse" element={<PanduanLpse />} />
+      <Route path="/dashboard" element={<DashboardAdmin />} />
+      <Route path="/kelola-panduan" element={<KelolaPanduan />} />
     </Routes>
   )
 }
