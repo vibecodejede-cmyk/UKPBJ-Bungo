@@ -1,111 +1,14 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, NavLink, useSearchParams } from 'react-router-dom'
 import Icon from '../components/Icon'
 import Footer from '../components/Footer'
+import { fetchGuides, fetchFeaturedGuide, fetchGuideVideos } from '../lib/api'
 
 const roles = [
   { id: 'all', label: 'Semua Peran', checked: true },
   { id: 'ppk', label: 'PPK (Pejabat Pembuat Komitmen)', checked: false },
   { id: 'vendor', label: 'Penyedia / Vendor', checked: false },
   { id: 'pokja', label: 'Pokja Pemilihan', checked: false },
-]
-
-const featuredGuide = {
-  badge: 'PPK',
-  updated: 'Updated 24 Mar 2024',
-  title: 'Buku Saku Digital: Prosedur Pengadaan Barang/Jasa Pemerintah 2024',
-  description:
-    'Panduan komprehensif mengenai tata cara terbaru proses pengadaan mulai dari perencanaan hingga serah terima hasil pekerjaan.',
-  size: '4.8 MB',
-}
-
-const guides = [
-  {
-    role: 'Vendor',
-    title: 'Panduan Pendaftaran Akun SIKaP',
-    description:
-      'Langkah-langkah lengkap melakukan pendaftaran dan verifikasi profil badan usaha di Sistem Informasi Kinerja Penyedia.',
-  },
-  {
-    role: 'Pokja',
-    title: 'Tata Cara Evaluasi Dokumen Penawaran',
-    description:
-      'Modul teknis evaluasi kualifikasi, administrasi, teknis, dan harga untuk Pokja Pemilihan di aplikasi SPSE.',
-  },
-  {
-    role: 'PPK',
-    title: 'Penyusunan HPS & Spesifikasi Teknis',
-    description:
-      'Pedoman perhitungan Harga Perkiraan Sendiri (HPS) yang akuntabel sesuai dengan regulasi LKPP terbaru.',
-  },
-]
-
-const videos = [
-  {
-    image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuC2SP1KXRhPhKRmQoFj4i7EdKlZ1tZjQDXCuiTjfZzbbc5LAPGE8YnyaxDdZgzD0LBJLKbZk2aqfaWPUzcMDk95WnfvKytFDU7lHr2dRkAymLhOWgd-q8LRCX93GycHGLh3ZzthCxAAO5IOj-32K7fJIJ6rzQB7hQs-vg_PG8a1Cm6xlD0tXd6R4mcUrc2epWWbLcVC9gciHsGJ1cGwWMQJ8aPi5uJ1NkXYjr51SD7izCyOqqcIvfuF0CrwNhnIvghPq0iflhF0tLYT',
-    duration: '12:45',
-    title: 'Panduan Pengisian e-Contract bagi PPK',
-    description:
-      'Tutorial langkah-demi-langkah pengisian kontrak secara elektronik di sistem SPSE versi 4.5.',
-  },
-  {
-    image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuB55yitEw1qwEKSj_H7h2Uv4U1Tm7gDeNyKQ9EadfypnTJQ0jh7eOPQZ5W8V4DFO15BVR3zZmcU3Eis4gIYe3VtWey51c_84BSHpdQqGw1yPL0Fzv6hU4A6fR1mgYmTW_kRHtl3Vt7m658i4empQ8OQGqNSDFTlPWJPNy-Ywg2Y49oglPuIHBqA7ckufGPvjINLByormPnKSAXQ0-Bs5Iiw772d8uRhOFWFVNPqGy4AzcLY8qAKZVHkXEimZ4D20ZJ6lAS2mR3kHNJw',
-    duration: '08:20',
-    title: 'Tips Mengikuti Tender untuk Penyedia Baru',
-    description:
-      'Strategi dan persiapan dokumen administrasi agar lolos tahap kualifikasi tender pemerintah.',
-  },
-]
-
-const lpseFeaturedGuide = {
-  badge: 'Admin LPSE',
-  updated: 'Updated 12 Okt 2023',
-  title: 'Panduan Operasional SPSE v4.5 untuk Pengguna',
-  description:
-    'Dokumentasi lengkap tata cara penggunaan Sistem Pengadaan Secara Elektronik (SPSE) untuk admin dan pengguna LPSE dalam proses e-tendering dan e-purchasing.',
-  size: '12.4 MB',
-}
-
-const lpseGuides = [
-  {
-    role: 'Admin',
-    title: 'Panduan Registrasi & Aktivasi Akun LPSE',
-    description:
-      'Langkah pendaftaran, verifikasi, dan aktivasi akun LPSE bagi admin maupun pengguna penyedia dan PPK.',
-  },
-  {
-    role: 'Penyedia',
-    title: 'Cara Mengikuti Tender di SPSE',
-    description:
-      'Panduan mengunggah dokumen penawaran, sanggahan, dan memantau proses evaluasi tender secara elektronik.',
-  },
-  {
-    role: 'PPK',
-    title: 'Pengoperasian e-Contract & e-Purchasing',
-    description:
-      'Modul pembuatan kontrak elektronik dan pembelian langsung melalui katalog elektronik di lingkungan LPSE.',
-  },
-]
-
-const lpseVideos = [
-  {
-    image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuBzvvZpumloD4GKm1xLUf-B4DIXcP63L_W4yh9Mwy_alH13gqz6dvYM2vC6-MPUUEf1BmJuG0KqhVo6EXd0H47Isp293-cf7OOVULnHfNjJ13TxOKvdDfOL50Koua0ZYtrJBXLLckjZSC9kLPzGBzYYWwrCIK75pq9TnTLEMaCqfwtD8SaQdqIPaS9awTqetvWywKS3kK9IqJoPS8herQmgf9AuNuhzoJCLHW7KbBrdPNjiCWhy8ETmYTLoYS3krJLbG8ns-H6MTGba',
-    duration: '12:45',
-    title: 'Modul 3: Evaluasi Penawaran & Penetapan Pemenang',
-    description:
-      'Tutorial operasional evaluasi penawaran dan penetapan pemenang tender secara sistem di SPSE v4.5.',
-  },
-  {
-    image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuB55yitEw1qwEKSj_H7h2Uv4U1Tm7gDeNyKQ9EadfypnTJQ0jh7eOPQZ5W8V4DFO15BVR3zZmcU3Eis4gIYe3VtWey51c_84BSHpdQqGw1yPL0Fzv6hU4A6fR1mgYmTW_kRHtl3Vt7m658i4empQ8OQGqNSDFTlPWJPNy-Ywg2Y49oglPuIHBqA7ckufGPvjINLByormPnKSAXQ0-Bs5Iiw772d8uRhOFWFVNPqGy4AzcLY8qAKZVHkXEimZ4D20ZJ6lAS2mR3kHNJw',
-    duration: '08:20',
-    title: 'Persiapan Dokumen Penawaran untuk Penyedia',
-    description:
-      'Panduan menyusun dan mengunggah dokumen penawaran yang lengkap dan sesuai persyaratan lelang.',
-  },
 ]
 
 export default function Panduan() {
@@ -115,6 +18,44 @@ export default function Panduan() {
   const [checkedRoles, setCheckedRoles] = useState(
     roles.reduce((acc, r) => ({ ...acc, [r.id]: r.checked }), {}),
   )
+
+  // Data state
+  const [guides, setGuides] = useState([])
+  const [featuredGuide, setFeaturedGuide] = useState(null)
+  const [videos, setVideos] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  // Fetch data from Supabase
+  useEffect(() => {
+    async function loadData() {
+      try {
+        setLoading(true)
+        setError(null)
+
+        const [guidesData, featuredData] = await Promise.all([
+          fetchGuides(),
+          fetchFeaturedGuide(),
+        ])
+
+        setGuides(guidesData || [])
+        setFeaturedGuide(featuredData)
+
+        // Fetch videos for the featured guide
+        if (featuredData?.id) {
+          const videosData = await fetchGuideVideos(featuredData.id)
+          setVideos(videosData || [])
+        }
+      } catch (err) {
+        console.error('Error fetching guides:', err)
+        setError('Gagal memuat data panduan. Silakan coba lagi nanti.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadData()
+  }, [])
 
   const switchTab = (tab) => {
     setActiveTab(tab)
@@ -126,9 +67,40 @@ export default function Panduan() {
   }
 
   const isLpse = activeTab === 'lpse'
-  const currentFeatured = isLpse ? lpseFeaturedGuide : featuredGuide
-  const currentGuides = isLpse ? lpseGuides : guides
-  const currentVideos = isLpse ? lpseVideos : videos
+
+  // Fallback data if Supabase is empty
+  const fallbackFeatured = {
+    badge: 'PPK',
+    updated: 'Updated 24 Mar 2024',
+    title: 'Buku Saku Digital: Prosedur Pengadaan Barang/Jasa Pemerintah 2024',
+    description:
+      'Panduan komprehensif mengenai tata cara terbaru proses pengadaan mulai dari perencanaan hingga serah terima hasil pekerjaan.',
+    size: '4.8 MB',
+  }
+
+  const fallbackGuides = [
+    {
+      role: 'Vendor',
+      title: 'Panduan Pendaftaran Akun SIKaP',
+      description:
+        'Langkah-langkah lengkap melakukan pendaftaran dan verifikasi profil badan usaha di Sistem Informasi Kinerja Penyedia.',
+    },
+    {
+      role: 'Pokja',
+      title: 'Tata Cara Evaluasi Dokumen Penawaran',
+      description:
+        'Modul teknis evaluasi kualifikasi, administrasi, teknis, dan harga untuk Pokja Pemilihan di aplikasi SPSE.',
+    },
+    {
+      role: 'PPK',
+      title: 'Penyusunan HPS & Spesifikasi Teknis',
+      description:
+        'Pedoman perhitungan Harga Perkiraan Sendiri (HPS) yang akuntabel sesuai dengan regulasi LKPP terbaru.',
+    },
+  ]
+
+  const currentFeatured = featuredGuide || fallbackFeatured
+  const currentGuides = isLpse ? [] : guides.length > 0 ? guides : fallbackGuides
 
   return (
     <div className="bg-background text-on-background min-h-screen">
@@ -243,6 +215,19 @@ export default function Panduan() {
 
             {/* Content Tabs & List */}
             <div className="flex-1">
+              {loading && (
+                <div className="flex items-center justify-center py-xl">
+                  <div className="flex flex-col items-center gap-md">
+                    <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                    <p className="font-body-sm text-body-sm text-on-surface-variant">Memuat data panduan...</p>
+                  </div>
+                </div>
+              )}
+              {error && (
+                <div className="bg-error-container text-on-error-container p-lg rounded-xl mb-lg">
+                  <p className="font-body-md text-body-md">{error}</p>
+                </div>
+              )}
               {/* Tab Header */}
               <div className="flex items-center gap-lg border-b border-outline-variant mb-lg overflow-x-auto whitespace-nowrap">
                 <button

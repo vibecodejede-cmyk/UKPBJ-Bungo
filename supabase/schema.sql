@@ -1,0 +1,252 @@
+-- ============================================
+-- UKPBJ Kabupaten Bungo - Database Schema
+-- ============================================
+
+-- Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- ============================================
+-- 1. GUIDES (PANDUAN) TABLE
+-- ============================================
+CREATE TABLE IF NOT EXISTS guides (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  title TEXT NOT NULL,
+  description TEXT NOT NULL,
+  content TEXT,
+  role TEXT NOT NULL CHECK (role IN ('PPK', 'Vendor', 'Pokja', 'Semua')),
+  file_url TEXT,
+  file_size TEXT,
+  file_type TEXT DEFAULT 'pdf',
+  image_url TEXT,
+  is_featured BOOLEAN DEFAULT false,
+  is_published BOOLEAN DEFAULT true,
+  view_count INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- Create index for faster queries
+CREATE INDEX IF NOT EXISTS idx_guides_role ON guides(role);
+CREATE INDEX IF NOT EXISTS idx_guides_published ON guides(is_published);
+CREATE INDEX IF NOT EXISTS idx_guides_featured ON guides(is_featured);
+
+-- ============================================
+-- 2. GUIDE CATEGORIES TABLE
+-- ============================================
+CREATE TABLE IF NOT EXISTS guide_categories (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  name TEXT NOT NULL UNIQUE,
+  slug TEXT NOT NULL UNIQUE,
+  description TEXT,
+  icon TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- ============================================
+-- 3. GUIDE VIDEOS TABLE
+-- ============================================
+CREATE TABLE IF NOT EXISTS guide_videos (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  guide_id UUID REFERENCES guides(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  description TEXT,
+  video_url TEXT NOT NULL,
+  thumbnail_url TEXT,
+  duration TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- ============================================
+-- 4. ANNOUNCEMENTS TABLE
+-- ============================================
+CREATE TABLE IF NOT EXISTS announcements (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  title TEXT NOT NULL,
+  excerpt TEXT NOT NULL,
+  content TEXT NOT NULL,
+  badge TEXT NOT NULL,
+  badge_class TEXT NOT NULL,
+  date TEXT NOT NULL,
+  detail_date TEXT NOT NULL,
+  category TEXT NOT NULL,
+  author TEXT NOT NULL,
+  image_url TEXT NOT NULL,
+  is_published BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- ============================================
+-- 5. NEWSLETTER SUBSCRIPTIONS TABLE
+-- ============================================
+CREATE TABLE IF NOT EXISTS newsletter_subscriptions (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  is_active BOOLEAN DEFAULT true,
+  subscribed_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+  unsubscribed_at TIMESTAMP WITH TIME ZONE
+);
+
+-- ============================================
+-- 6. CONTACT MESSAGES TABLE
+-- ============================================
+CREATE TABLE IF NOT EXISTS contact_messages (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  subject TEXT NOT NULL,
+  message TEXT NOT NULL,
+  is_read BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- ============================================
+-- 7. REGULATIONS TABLE
+-- ============================================
+CREATE TABLE IF NOT EXISTS regulations (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  title TEXT NOT NULL,
+  description TEXT NOT NULL,
+  category TEXT NOT NULL,
+  document_url TEXT,
+  publish_date TEXT NOT NULL,
+  is_published BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- ============================================
+-- ROW LEVEL SECURITY (RLS) POLICIES
+-- ============================================
+
+-- Enable RLS on all tables
+ALTER TABLE guides ENABLE ROW LEVEL SECURITY;
+ALTER TABLE guide_categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE guide_videos ENABLE ROW LEVEL SECURITY;
+ALTER TABLE announcements ENABLE ROW LEVEL SECURITY;
+ALTER TABLE newsletter_subscriptions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE regulations ENABLE ROW LEVEL SECURITY;
+
+-- Guides: Public can read published guides
+CREATE POLICY "Public can view published guides" ON guides
+  FOR SELECT USING (is_published = true);
+
+-- Guide categories: Public can read
+CREATE POLICY "Public can view guide categories" ON guide_categories
+  FOR SELECT USING (true);
+
+-- Guide videos: Public can read
+CREATE POLICY "Public can view guide videos" ON guide_videos
+  FOR SELECT USING (true);
+
+-- Announcements: Public can read published announcements
+CREATE POLICY "Public can view published announcements" ON announcements
+  FOR SELECT USING (is_published = true);
+
+-- Newsletter: Public can insert, authenticated can read
+CREATE POLICY "Public can subscribe to newsletter" ON newsletter_subscriptions
+  FOR INSERT WITH CHECK (true);
+
+-- Contact messages: Public can insert
+CREATE POLICY "Public can send contact messages" ON contact_messages
+  FOR INSERT WITH CHECK (true);
+
+-- Regulations: Public can read published regulations
+CREATE POLICY "Public can view published regulations" ON regulations
+  FOR SELECT USING (is_published = true);
+
+-- ============================================
+-- SAMPLE DATA FOR GUIDES (PANDUAN)
+-- ============================================
+INSERT INTO guide_categories (name, slug, description, icon) VALUES
+  ('PPK', 'ppk', 'Panduan untuk Pejabat Pembuat Komitmen', 'person'),
+  ('Vendor', 'vendor', 'Panduan untuk Penyedia/Vendor', 'business'),
+  ('Pokja', 'pokja', 'Panduan untuk Pokja Pemilihan', 'groups'),
+  ('Umum', 'umum', 'Panduan umum untuk semua pengguna', 'public')
+ON CONFLICT (slug) DO NOTHING;
+
+INSERT INTO guides (title, description, content, role, file_url, file_size, image_url, is_featured) VALUES
+  (
+    'Buku Saku Digital: Prosedur Pengadaan Barang/Jasa Pemerintah 2024',
+    'Panduan komprehensif mengenai tata cara terbaru proses pengadaan mulai dari perencanaan hingga serah terima hasil pekerjaan.',
+    'Panduan lengkap untuk PPK dalam melakukan pengadaan barang/jasa sesuai dengan regulasi terbaru...',
+    'PPK',
+    '/docs/buku-saku-digital-2024.pdf',
+    '4.8 MB',
+    'https://lh3.googleusercontent.com/aida-public/AB6AXuC2SP1KXRhPhKRmQoFj4i7EdKlZ1tZjQDXCuiTjfZzbbc5LAPGE8YnyaxDdZgzD0LBJLKbZk2aqfaWPUzcMDk95WnfvKytFDU7lHr2dRkAymLhOWgd-q8LRCX93GycHGLh3ZzthCxAAO5IOj-32K7fJIJ6rzQB7hQs-vg_PG8a1Cm6xlD0tXd6R4mcUrc2epWWbLcVC9gciHsGJ1cGwWMQJ8aPi5uJ1NkXYjr51SD7izCyOqqcIvfuF0CrwNhnIvghPq0iflhF0tLYT',
+    true
+  ),
+  (
+    'Panduan Pendaftaran Akun SIKaP',
+    'Langkah-langkah lengkap melakukan pendaftaran dan verifikasi profil badan usaha di Sistem Informasi Kinerja Penyedia.',
+    'Panduan pendaftaran akun SIKaP untuk vendor...',
+    'Vendor',
+    '/docs/panduan-sikap.pdf',
+    '2.3 MB',
+    'https://lh3.googleusercontent.com/aida-public/AB6AXuB9MuI5XBIEdxvIMD15QYLOhR8Snmt72hwTFVYUxJPDhIJU_6cqpWSyrmG7kwVXlnuwYaAw21QW_u-EI9CUZ98zhJpMBaQcI-GoYvWivkAXC07yT4Nx7Tjqynaa2bhJ32kpYXfUdHVKLFo1RUi2_o03JC38QdVmNZVrwgTOSGS1FGfTVM8WuIQrpQG18srbYf9uWBxeYmDTiBgWnf6JxoXt4fxPg1DOydfeCRPnSPcF3njOm-K11DjhsIBvvNX6_UXR3_4rZjH9A9Vo',
+    false
+  ),
+  (
+    'Tata Cara Evaluasi Dokumen Penawaran',
+    'Modul teknis evaluasi kualifikasi, administrasi, teknis, dan harga untuk Pokja Pemilihan di aplikasi SPSE.',
+    'Panduan evaluasi dokumen penawaran untuk Pokja...',
+    'Pokja',
+    '/docs/evaluasi-dokumen.pdf',
+    '3.1 MB',
+    'https://lh3.googleusercontent.com/aida-public/AB6AXuCxMeEWzXOyWnFHMTqqlBaYpVDM4LHT9v9wHJnK8c1-0Wr0eh9dA8MryhUIcoMcPq23V2anpIAnmH816YcKJl9X5LC6043DW20CFipJSek5vFdUdrr0xh6bm8kuWsuz4yf9DbRQWObSiXI2uCTO0xKiBaQ6jTj5DRc72Yn3WrZcOHYsAsTRD0aS8beFi2SrXpDkFM_ygLWwZkRaAEXlUeCbwJi146JEL7gKLyZ7pw2JCZoxaRpgTNE5xzz3X32xAkZMRE7DB2wdW6FP',
+    false
+  ),
+  (
+    'Penyusunan HPS & Spesifikasi Teknis',
+    'Pedoman perhitungan Harga Perkiraan Sendiri (HPS) yang akuntabel sesuai dengan regulasi LKPP terbaru.',
+    'Panduan penyusunan HPS dan spesifikasi teknis...',
+    'PPK',
+    '/docs/penyusunan-hps.pdf',
+    '2.7 MB',
+    'https://lh3.googleusercontent.com/aida-public/AB6AXuDv-qSF15SKFJdSUvsDnEqeFCVMDEh4mHRjzlQhQNd6YJhhSjezne0R4cM-ZLMSADR68PbOHGSMyCLGlfCnvy06iQZ_y6QZvWqgyvD-esGXCMwc5otWOAqc6cwZPl5VRApS0YIWuqPAH7FtewR99hhIsPtp1dC6uf7KJsp7VvEEQEmcRqwxxioEf7x8ZUeNuYXOX6GXiOkyN9kzXF4YNU7aeCOSPtmRZRzZjevCn2QTunDdBry9CbwIjPP39gm_vdPmHOn39h67BKGJ',
+    false
+  )
+ON CONFLICT DO NOTHING;
+
+-- ============================================
+-- SAMPLE DATA FOR ANNOUNCEMENTS
+-- ============================================
+INSERT INTO announcements (title, excerpt, content, badge, badge_class, date, detail_date, category, author, image_url) VALUES
+  (
+    'Pemeliharaan Rutin Server SPSE Nasional Wilayah Barat',
+    'Pemberitahuan kepada seluruh pengguna jasa SPSE mengenai jadwal pemeliharaan rutin infrastruktur server untuk meningkatkan performa layanan...',
+    'Yth. Para Pengguna Layanan Pengadaan Secara Elektronik (LPSE), Dalam rangka meningkatkan kualitas layanan dan keamanan transaksi elektronik pada aplikasi SPSE...',
+    'Sistem',
+    'bg-secondary text-on-secondary',
+    '24 Mei 2024',
+    '24 Mei 2024, 09:15 WIB',
+    'Informasi Teknis',
+    'Admin Pusat',
+    'https://lh3.googleusercontent.com/aida-public/AB6AXuDv-qSF15SKFJdSUvsDnEqeFCVMDEh4mHRjzlQhQNd6YJhhSjezne0R4cM-ZLMSADR68PbOHGSMyCLGlfCnvy06iQZ_y6QZvWqgyvD-esGXCMwc5otWOAqc6cwZPl5VRApS0YIWuqPAH7FtewR99hhIsPtp1dC6uf7KJsp7VvEEQEmcRqwxxioEf7x8ZUeNuYXOX6GXiOkyN9kzXF4YNU7aeCOSPtmRZRzZjevCn2QTunDdBry9CbwIjPP39gm_vdPmHOn39h67BKGJ'
+  ),
+  (
+    'Pemberlakuan Peraturan LKPP Baru Terkait E-Purchasing',
+    'LKPP resmi merilis aturan turunan mengenai tata cara pembelian elektronik melalui katalog nasional untuk meningkatkan efisiensi belanja negara...',
+    'Dalam rangka mendukung keterbukaan pasar pengadaan barang/jasa pemerintah, LKPP merilis modul pendaftaran bagi entitas asing...',
+    'Regulasi',
+    'bg-primary text-on-primary',
+    '21 Mei 2024',
+    '21 Mei 2024, 14:30 WIB',
+    'Regulasi',
+    'Divisi Katalog',
+    'https://lh3.googleusercontent.com/aida-public/AB6AXuDXXB87V5oiS3-o7jAwboE-fcbq4yUcUsrxrj2v-HiJIrXezZCH1_tdJ5w3x1DzpS9xIIOts10KLk62FlCGi6CqV86bXPMmzMQfGxzrfiA-P7KSxt4ctnkj2jSSzF_kZZTvcwxX0XefjtG2o_VnmBzY7EhRspV_60Esplc9aZv9Ro1koWtGme8LftXLETe6EXjtUy5I-7FcnxDen77_IgiIb-hZZ2xNzgRX4_ru7oDnFp-yeLLdi7L69bOzC_EjrdUAC7euw3uOYSIW'
+  ),
+  (
+    'Sosialisasi Penggunaan Portal Inaproc Versi Terbaru 2024',
+    'Undangan sosialisasi daring untuk Pejabat Pembuat Komitmen (PPK) mengenai fitur-fitur baru pada Dashboard monitoring Inaproc...',
+    'Kami mengundang seluruh Pejabat Pembuat Komitmen (PPK) untuk menghadiri sesi daring mengenai implementasi mitigasi risiko...',
+    'Kegiatan',
+    'bg-tertiary-container text-on-tertiary-container',
+    '18 Mei 2024',
+    '18 Mei 2024, 10:00 WIB',
+    'Kegiatan',
+    'Biro Pelatihan',
+    'https://lh3.googleusercontent.com/aida-public/AB6AXuBQm5Kd9uLy0TSXbPXAbyAERpnQiCXH2ory58HASxVMR0ul1SaAu0EaJSlUSuJoyidoKy4W_8BwPDqvCCesQ0ivRLjAUlRJM33h2qp2O1H2h6BppKvfV_4aXGCIpOXGPI3vQ-YG4n7A3yY6txARUQe345oGPS9LrJscmYTTswlnXEJB4bzl4pimDCbZ_MZ1JeSvj9tNVCCrtjUJ1HkyNsdBfZ-UnFu-ZpSf9Rylxf__CBecZVxvs-Q5M8UXMzLQSWT7LBn0M_lq_oqa'
+  )
+ON CONFLICT DO NOTHING;
