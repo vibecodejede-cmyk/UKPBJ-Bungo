@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import Icon from './Icon'
 
 const shortcuts = [
@@ -5,6 +6,7 @@ const shortcuts = [
     icon: 'menu_book',
     title: 'Panduan Inaproc',
     description: 'Informasi teknis dan alur sistem pengadaan nasional.',
+    to: '/panduan',
     iconBg: 'bg-primary',
     iconText: 'text-on-primary',
     hover: 'hover:bg-primary',
@@ -17,6 +19,7 @@ const shortcuts = [
     icon: 'laptop_mac',
     title: 'Panduan LPSE',
     description: 'Dokumentasi operasional untuk admin dan pengguna LPSE.',
+    to: '#',
     iconBg: 'bg-secondary',
     iconText: 'text-on-secondary',
     hover: 'hover:bg-secondary',
@@ -29,6 +32,7 @@ const shortcuts = [
     icon: 'gavel',
     title: 'Regulasi',
     description: 'Kumpulan aturan, perpres, dan surat edaran pengadaan.',
+    to: '/regulasi',
     iconBg: 'bg-primary-container',
     iconText: 'text-on-primary-container',
     hover: 'hover:bg-primary-container',
@@ -41,6 +45,7 @@ const shortcuts = [
     icon: 'campaign',
     title: 'Pengumuman',
     description: 'Berita terkini dan pemberitahuan sistem penting.',
+    to: '#',
     iconBg: 'bg-tertiary-container',
     iconText: 'text-on-tertiary-container',
     hover: 'hover:bg-tertiary-container',
@@ -57,10 +62,10 @@ export default function ShortcutMenu() {
       <div className="max-w-container-max mx-auto px-gutter">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-lg">
           {shortcuts.map((item) => (
-            <a
+            <Link
               key={item.title}
+              to={item.to}
               className={`group p-lg bg-surface-container-low border border-outline-variant rounded-xl institutional-shadow ${item.hover} transition-all duration-300`}
-              href="#"
             >
               <div
                 className={`w-12 h-12 ${item.iconBg} rounded-lg flex items-center justify-center mb-md ${item.hoverIconBg} transition-colors`}
@@ -73,7 +78,7 @@ export default function ShortcutMenu() {
               <p className={`font-body-sm text-body-sm text-on-surface-variant ${item.hoverDesc}`}>
                 {item.description}
               </p>
-            </a>
+            </Link>
           ))}
         </div>
       </div>
