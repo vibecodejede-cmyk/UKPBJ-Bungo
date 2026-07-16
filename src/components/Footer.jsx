@@ -11,7 +11,11 @@ const footerLinks = [
   { label: 'Help Center', type: 'modal' },
 ]
 
-const partners = ['LKPP', 'KEMENKEU', 'KOMINFO']
+const partners = [
+  { name: 'LKPP', logo: '/logos/lkpp.svg', url: 'https://www.lkpp.go.id' },
+  { name: 'Inaproc', logo: '/logos/inaproc.svg', url: 'https://inaproc.id' },
+  { name: 'LPSE Kabupaten Bungo', logo: '/logos/lpse.svg', url: 'https://spse.inaproc.id/bungokab' },
+]
 
 const modalContent = {
   'Privacy Policy': (
@@ -160,14 +164,24 @@ export default function Footer() {
         </nav>
       </div>
       <div className="max-w-container-max mx-auto px-gutter pb-lg">
-        <div className="flex items-center gap-md grayscale opacity-50">
-          {partners.map((name) => (
-            <div
-              key={name}
-              className="h-8 w-24 bg-on-surface-variant/20 rounded flex items-center justify-center text-[10px] uppercase font-bold text-on-surface-variant"
+        <p className="font-label-xs text-label-xs text-on-surface-variant dark:text-on-surface-variant mb-2">
+          Link Penting
+        </p>
+        <div className="flex items-center gap-md">
+          {partners.map((partner) => (
+            <a
+              key={partner.name}
+              href={partner.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="h-8 w-24 flex items-center justify-center grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-200"
             >
-              {name}
-            </div>
+              <img
+                src={partner.logo}
+                alt={partner.name}
+                className="h-full w-full object-contain"
+              />
+            </a>
           ))}
         </div>
       </div>
