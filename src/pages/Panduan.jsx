@@ -415,11 +415,9 @@ export default function Panduan() {
                       <div className="flex flex-col justify-between">
                         <div>
                           <div className="flex items-center gap-sm mb-base">
-                            <span className="bg-secondary-container text-on-secondary-container px-sm py-xs rounded-full font-label-sm text-label-sm">
-                              {currentFeatured.badge}
-                            </span>
+                            
                             {currentFeatured.category && (
-                              <span className="bg-tertiary-container text-on-tertiary-container px-sm py-xs rounded-full font-label-sm text-label-sm">
+                              <span className="bg-secondary-container text-on-secondary-container px-sm py-xs rounded-full font-label-sm text-label-sm">
                                 {currentFeatured.category}
                               </span>
                             )}
@@ -452,7 +450,7 @@ export default function Panduan() {
                           <Icon name="picture_as_pdf" className="text-error text-[32px]" />
                           <div className="flex items-center gap-sm">
                             {guide.category && (
-                              <span className="bg-tertiary-container text-on-tertiary-container px-sm py-xs rounded font-label-sm text-label-sm">
+                              <span className="bg-secondary-container text-on-secondary-container px-sm py-xs rounded font-label-sm text-label-sm">
                                 {guide.category}
                               </span>
                             )}

@@ -11,13 +11,13 @@ export default function Announcements() {
             <span className="font-label-sm text-label-sm text-secondary uppercase tracking-widest">Update Terkini</span>
             <h2 className="font-headline-lg text-headline-lg text-on-surface mt-base">Pengumuman Terbaru</h2>
           </div>
-          <a
+          <Link
             className="flex items-center gap-xs font-label-md text-label-md text-primary hover:text-secondary transition-colors group"
-            href="#"
+            to="/pengumuman"
           >
             Lihat Semua
             <Icon name="arrow_forward" className="group-hover:translate-x-1 transition-transform" />
-          </a>
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
