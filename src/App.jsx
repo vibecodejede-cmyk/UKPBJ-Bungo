@@ -10,6 +10,8 @@ import Panduan from './pages/Panduan'
 import Regulasi from './pages/Regulasi'
 import Pengumuman from './pages/Pengumuman'
 import Kontak from './pages/Kontak'
+import PanduanLpse from './pages/PanduanLpse'
+import PengumumanDetail from './pages/PengumumanDetail'
 
 export default function App() {
   return (
@@ -37,7 +39,9 @@ export default function App() {
       <Route path="/panduan" element={<Panduan />} />
       <Route path="/regulasi" element={<Regulasi />} />
       <Route path="/pengumuman" element={<Pengumuman />} />
+      <Route path="/pengumuman/:id" element={<PengumumanDetail />} />
       <Route path="/kontak" element={<Kontak />} />
+      <Route path="/panduan-lpse" element={<PanduanLpse />} />
     </Routes>
   )
 }

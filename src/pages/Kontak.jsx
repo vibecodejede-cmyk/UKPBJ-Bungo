@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Icon from '../components/Icon'
+import Footer from '../components/Footer'
 
 const contactInfo = [
   {
@@ -226,36 +227,7 @@ export default function Kontak() {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-surface-dim border-t border-outline-variant">
-        <div className="w-full py-xl px-gutter flex flex-col md:flex-row justify-between items-center max-w-container-max mx-auto">
-          <div className="flex flex-col items-center md:items-start mb-lg md:mb-0">
-            <div className="font-label-md text-label-md font-bold text-on-surface mb-sm">
-              Portal Informasi Pengadaan Barang dan Jasa
-            </div>
-            <p className="font-body-sm text-body-sm text-on-surface-variant text-center md:text-left max-w-xs">
-              © 2026 UKPBJ Kabupaten Bungo. All Rights Reserved. Institutional Government Portal.
-            </p>
-          </div>
-          <div className="flex flex-wrap justify-center gap-md">
-            <a className="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-opacity duration-200" href="#">
-              Privacy Policy
-            </a>
-            <a className="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-opacity duration-200" href="#">
-              Terms of Service
-            </a>
-            <a className="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-opacity duration-200" href="#">
-              Contact Us
-            </a>
-            <a className="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-opacity duration-200" href="#">
-              FAQ
-            </a>
-            <a className="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-opacity duration-200" href="#">
-              Help Center
-            </a>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

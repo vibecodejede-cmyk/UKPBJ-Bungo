@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pembaruan Sistem Keamanan SPSE Versi 4.5 Patch 2024 - UKPBJ Kabupaten Bungo</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-container": "#fefcff",
+                    "surface-dim": "#d0dbed",
+                    "surface-container-high": "#dee9fc",
+                    "surface": "#f8f9ff",
+                    "on-primary-fixed": "#00164e",
+                    "background": "#f8f9ff",
+                    "primary": "#00236f",
+                    "on-secondary-fixed": "#001a42",
+                    "tertiary-container": "#6e2c00",
+                    "on-primary-fixed-variant": "#264191",
+                    "primary-container": "#1e3a8a",
+                    "inverse-surface": "#27313f",
+                    "on-background": "#121c2a",
+                    "on-tertiary-fixed-variant": "#773205",
+                    "on-tertiary-container": "#f39461",
+                    "tertiary-fixed": "#ffdbcb",
+                    "on-tertiary-fixed": "#341100",
+                    "inverse-primary": "#b6c4ff",
+                    "on-primary": "#ffffff",
+                    "outline-variant": "#c5c5d3",
+                    "on-secondary-fixed-variant": "#004395",
+                    "surface-variant": "#d9e3f6",
+                    "outline": "#757682",
+                    "secondary-container": "#2170e4",
+                    "secondary": "#0058be",
+                    "on-error-container": "#93000a",
+                    "inverse-on-surface": "#eaf1ff",
+                    "on-surface-variant": "#444651",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-fixed-dim": "#adc6ff",
+                    "on-error": "#ffffff",
+                    "on-primary-container": "#90a8ff",
+                    "tertiary-fixed-dim": "#ffb691",
+                    "secondary-fixed": "#d8e2ff",
+                    "on-secondary": "#ffffff",
+                    "primary-fixed": "#dce1ff",
+                    "surface-container-low": "#eff4ff",
+                    "surface-container-highest": "#d9e3f6",
+                    "surface-bright": "#f8f9ff",
+                    "primary-fixed-dim": "#b6c4ff",
+                    "on-tertiary": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "tertiary": "#4b1c00",
+                    "surface-tint": "#4059aa",
+                    "surface-container": "#e6eeff",
+                    "on-surface": "#121c2a",
+                    "error": "#ba1a1a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "base": "4px",
+                    "gutter": "24px",
+                    "xl": "48px",
+                    "md": "16px",
+                    "container-max": "1280px",
+                    "lg": "24px",
+                    "xs": "4px",
+                    "sm": "8px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "display-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "display-lg": ["48px", {"lineHeight": "60px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        .institutional-shadow {
+            box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1), 0px 1px 2px rgba(0, 0, 0, 0.06);
+        }
+        .zebra-table tr:nth-child(even) {
+            background-color: #F3F4F6;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+<!-- TopNavBar -->
+<header class="bg-surface border-b border-outline-variant sticky top-0 z-50">
+<div class="flex justify-between items-center w-full px-gutter max-w-container-max mx-auto h-16">
+<div class="flex items-center gap-xl">
+<span class="font-headline-md text-headline-md font-bold text-primary">UKPBJ Kabupaten Bungo</span>
+<nav class="hidden md:flex items-center gap-lg">
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200" href="#">Beranda</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200" href="#">Panduan</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200" href="#">Regulasi</a>
+<a class="font-label-md text-label-md text-primary border-b-2 border-primary pb-1 transition-colors duration-200" href="#">Pengumuman</a>
+<a class="font-label-md text-label-md text-primary border-b-2 border-primary pb-1 transition-colors duration-200" href="#">Kontak</a>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-lg text-body-sm focus:ring-2 focus:ring-primary focus:outline-none w-64" placeholder="Search announcements..." type="text"/>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-container-max mx-auto px-gutter py-md">
+<!-- Breadcrumbs -->
+<nav class="flex items-center gap-xs text-on-surface-variant mb-xl py-sm">
+<a class="font-label-md text-label-md hover:text-primary transition-colors" href="#">Beranda</a>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+<a class="font-label-md text-label-md hover:text-primary transition-colors" href="#">Pengumuman</a>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+<span class="font-label-md text-label-md text-primary truncate max-w-xs sm:max-w-md">Pembaruan Sistem Keamanan SPSE Versi 4.5 Patch 2024</span>
+</nav>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-xl">
+<!-- Main Content Area -->
+<article class="lg:col-span-8">
+<header class="mb-lg">
+<div class="flex flex-wrap items-center gap-md mb-md">
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full font-label-sm text-label-sm">Informasi Teknis</span>
+<div class="flex items-center gap-xs text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-sm">calendar_today</span>
+<span>24 Mei 2024</span>
+</div>
+<div class="flex items-center gap-xs text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-sm">person</span>
+<span>Admin Pusat</span>
+</div>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-primary leading-tight mb-md">Pembaruan Sistem Keamanan SPSE Versi 4.5 Patch 2024</h1>
+</header>
+<div class="rounded-xl overflow-hidden mb-xl institutional-shadow border border-outline-variant">
+<img class="w-full h-80 object-cover" data-alt="A high-tech digital server room background featuring glowing data streams and blue network nodes. The visual style is crisp and modern, reflecting institutional government authority. The lighting is cold and professional with deep blue tones and sharp white highlights, emphasizing a secure and sophisticated technological environment suited for a procurement portal update." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkVQ3S-_CyF0bqdfG-UnxW03FnT8X7yjGdO4EWECyOvM35-c94_XpQ8Ho1QbExCnx8uQZn4s8hzl-LsiqOfZNF28dWmhNYjMzDk9TJL-_1ea0JD3MNrOweiWZsGeINbIJDVt8BDY745oR5C04DuGJDJp-uPEPzBF5bZY-SX46uwdrIW2WvCFTuO9ATJBdlYhvSt7zbXZHh-LDrojepRe1is_I_czG1nrA9eBHvnDAier2Dd8xP6Q6iIDQDEGzX7AfOtGbWVsPqEktT"/>
+</div>
+<div class="prose prose-blue max-w-none text-on-surface-variant">
+<p class="font-body-lg text-body-lg mb-lg text-on-surface">
+                        Sehubungan dengan komitmen kami untuk terus meningkatkan kualitas dan keamanan layanan pengadaan secara elektronik, kami mengumumkan penerapan pembaruan keamanan (patch) terbaru untuk sistem SPSE v4.5.
+                    </p>
+<section class="mb-lg">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-md">Jadwal Pemeliharaan (Maintenance)</h2>
+<div class="bg-surface-container-low p-lg rounded-lg border border-outline-variant mb-md">
+<div class="flex items-start gap-md">
+<span class="material-symbols-outlined text-primary mt-1">info</span>
+<div>
+<p class="font-body-md text-body-md font-bold text-on-surface">Sabtu, 25 Mei 2024</p>
+<p class="font-body-sm text-body-sm">Pukul 21:00 WIB s/d Minggu, 26 Mei 2024 Pukul 06:00 WIB</p>
+<p class="font-body-sm text-body-sm mt-2 italic text-error">Selama durasi ini, akses ke portal LPSE dan aplikasi SPSE akan mengalami gangguan atau tidak dapat diakses untuk sementara waktu.</p>
+</div>
+</div>
+</div>
+</section>
+<section class="mb-lg">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-md">Detail Pembaruan Teknis</h2>
+<ul class="list-disc pl-md space-y-md font-body-md text-body-md">
+<li><span class="font-bold">Peningkatan Protokol Enkripsi:</span> Pembaruan standar TLS untuk menjamin integritas data penawaran.</li>
+<li><span class="font-bold">Patch Kerentanan XSS:</span> Menutup celah keamanan pada formulir isian kualifikasi vendor.</li>
+<li><span class="font-bold">Optimasi Database:</span> Peningkatan kecepatan pemrosesan dokumen tender berukuran besar di atas 100MB.</li>
+<li><span class="font-bold">Sinkronisasi SiRUP:</span> Perbaikan integrasi data antara Sistem Rencana Umum Pengadaan dan SPSE.</li>
+</ul>
+</section>
+<section class="mb-lg">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-md">Instruksi Bagi Pengguna</h2>
+<p class="font-body-md text-body-md mb-md">
+                            Kami menyarankan kepada seluruh pengguna (PPK, Pokja Pemilihan, dan Pelaku Usaha) untuk:
+                        </p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<div class="p-md border border-outline-variant rounded-lg bg-surface">
+<p class="font-label-md text-label-md text-primary mb-1">Simpan Pekerjaan</p>
+<p class="font-body-sm text-body-sm">Pastikan tidak ada proses pengunggahan dokumen yang berjalan 30 menit sebelum jadwal pemeliharaan.</p>
+</div>
+<div class="p-md border border-outline-variant rounded-lg bg-surface">
+<p class="font-label-md text-label-md text-primary mb-1">Pembersihan Cache</p>
+<p class="font-body-sm text-body-sm">Lakukan clear browser cache setelah pemeliharaan selesai untuk mendapatkan versi frontend terbaru.</p>
+</div>
+</div>
+</section>
+</div>
+<!-- Attachments Section -->
+<section class="mt-xl pt-lg border-t border-outline-variant">
+<h3 class="font-label-md text-label-md text-on-surface uppercase tracking-wider mb-md">Lampiran Dokumen</h3>
+<div class="space-y-sm">
+<a class="flex items-center justify-between p-md bg-surface-container border border-outline-variant rounded-lg hover:bg-surface-container-high transition-colors group" href="#">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-error">picture_as_pdf</span>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Surat_Edaran_Patch_Security_2024.pdf</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">1.2 MB • PDF Document</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary">download</span>
+</a>
+<a class="flex items-center justify-between p-md bg-surface-container border border-outline-variant rounded-lg hover:bg-surface-container-high transition-colors group" href="#">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-error">picture_as_pdf</span>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Panduan_Konfigurasi_Keamanan_Lokal.pdf</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">850 KB • PDF Document</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary">download</span>
+</a>
+</div>
+</section>
+</article>
+<!-- Sidebar -->
+<aside class="lg:col-span-4 space-y-xl">
+<!-- Share Section -->
+<section class="bg-white p-lg rounded-xl institutional-shadow border border-outline-variant">
+<h3 class="font-label-md text-label-md text-on-surface mb-md">Bagikan Pengumuman</h3>
+<div class="flex gap-md">
+<button class="flex-1 py-2 rounded-lg border border-outline-variant hover:bg-surface-variant transition-all flex items-center justify-center gap-xs">
+<span class="material-symbols-outlined text-sm">share</span>
+<span class="font-label-sm text-label-sm">Salin Link</span>
+</button>
+<button class="p-2 rounded-lg border border-outline-variant hover:bg-[#1DA1F2] hover:text-white transition-all">
+<svg class="w-5 h-5 fill-current" viewbox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path></svg>
+</button>
+<button class="p-2 rounded-lg border border-outline-variant hover:bg-[#25D366] hover:text-white transition-all">
+<svg class="w-5 h-5 fill-current" viewbox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.417-.003 6.557-5.338 11.892-11.893 11.892-1.997-.001-3.951-.5-5.688-1.448l-6.305 1.652zm6.599-3.835c1.544.917 3.41 1.4 5.338 1.401 5.452 0 9.891-4.438 9.893-9.891.001-2.646-1.03-5.134-2.906-7.01-1.875-1.875-4.361-2.903-7.006-2.904-5.453 0-9.891 4.439-9.893 9.891-.001 1.916.498 3.79 1.443 5.421l-.916 3.344 3.425-.898zm11.385-7.391c-.301-.151-1.78-.878-2.056-.978-.275-.1-.476-.151-.675.151-.201.301-.776.978-.951 1.178-.175.2-.351.226-.653.076-.301-.151-1.273-.469-2.426-1.494-.897-.8-1.501-1.787-1.676-2.088-.176-.301-.019-.463.132-.613.136-.135.301-.351.451-.527.151-.176.201-.301.301-.503.1-.2.05-.376-.025-.527-.075-.151-.675-1.632-.925-2.235-.243-.587-.488-.507-.675-.517-.174-.01-.374-.011-.574-.011-.2 0-.526.075-.801.376-.275.301-1.052 1.029-1.052 2.51 0 1.48 1.077 2.912 1.227 3.113.151.2 2.12 3.237 5.136 4.537.717.31 1.277.494 1.714.633.72.228 1.375.196 1.892.119.577-.086 1.78-.727 2.031-1.43.251-.703.251-1.305.176-1.43-.076-.125-.276-.201-.577-.352z"></path></svg>
+</button>
+</div>
+</section>
+<!-- Recent Announcements Section -->
+<section>
+<div class="flex items-center justify-between mb-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Pengumuman Lainnya</h3>
+<a class="font-label-sm text-label-sm text-secondary hover:underline" href="#">Lihat Semua</a>
+</div>
+<div class="space-y-md">
+<!-- Side Item 1 -->
+<a class="group block bg-white border border-outline-variant rounded-xl overflow-hidden institutional-shadow hover:border-primary transition-all" href="#">
+<div class="flex gap-md p-md">
+<div class="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-surface-dim">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" data-alt="A close up image of professional business documents with architectural blueprints and a fountain pen on a clean, white surface. High-key natural lighting creates a professional and trustworthy corporate atmosphere. The colors are muted and institutional with subtle blue accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyv1F6sYUeAGjeY7YedmroukSXe6Q8laxR_95Qt0Ar3Mv-7XiisW2fnqyx8PYJeGBqpgLsND4MA_HQlgKatPdxt0TOnI0RfEnR3RpWRZrhtCQhqAfEY_sV05igqe6qqDzmujcKaIzaE2qTVYqv9wGSMm2vAGt59U7pImGQCp3wMXyTy0bOIQkt1bQfIrvi0S8pUmSnolgapBz-mNgYVMYNZ4NrHInZ46EHorYtaCTDwJ_h28afrEBxGjPh-ZkN45sHoht9DwRd__XU"/>
+</div>
+<div class="flex flex-col justify-center">
+<span class="font-label-sm text-[10px] text-secondary uppercase tracking-widest mb-1">Pelelangan</span>
+<h4 class="font-label-md text-label-md text-on-surface line-clamp-2 leading-tight group-hover:text-primary transition-colors">Hasil Evaluasi Tender Pembangunan Gedung Arsip Nasional</h4>
+<p class="font-body-sm text-[11px] text-on-surface-variant mt-1">22 Mei 2024</p>
+</div>
+</div>
+</a>
+<!-- Side Item 2 -->
+<a class="group block bg-white border border-outline-variant rounded-xl overflow-hidden institutional-shadow hover:border-primary transition-all" href="#">
+<div class="flex gap-md p-md">
+<div class="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-surface-dim">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" data-alt="A macro shot of a laptop keyboard in a modern office, focusing on the power button and professional workspace. Cool blue evening light illuminates the high-quality aluminum texture of the device. The composition is minimal and modern, conveying a sense of corporate efficiency and technical stability." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9MuI5XBIEdxvIMD15QYLOhR8Snmt72hwTFVYUxJPDhIJU_6cqpWSyrmG7kwVXlnuwYaAw21QW_u-EI9CUZ98zhJpMBaQcI-GoYvWivkAXC07yT4Nx7Tjqynaa2bhJ32kpYXfUdHVKLFo1RUi2_o03JC38QdVmNZVrwgTOSGS1FGfTVM8WuIQrpQG18srbYf9uWBxeYmDTiBgWnf6JxoXt4fxPg1DOydfeCRPnSPcF3njOm-K11DjhsIBvvNX6_UXR3_4rZjH9A9Vo"/>
+</div>
+<div class="flex flex-col justify-center">
+<span class="font-label-sm text-[10px] text-secondary uppercase tracking-widest mb-1">Informasi</span>
+<h4 class="font-label-md text-label-md text-on-surface line-clamp-2 leading-tight group-hover:text-primary transition-colors">Panduan Registrasi Akun Pelaku Usaha Terintegrasi OSS</h4>
+<p class="font-body-sm text-[11px] text-on-surface-variant mt-1">20 Mei 2024</p>
+</div>
+</div>
+</a>
+<!-- Side Item 3 -->
+<a class="group block bg-white border border-outline-variant rounded-xl overflow-hidden institutional-shadow hover:border-primary transition-all" href="#">
+<div class="flex gap-md p-md">
+<div class="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-surface-dim">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" data-alt="A diverse team of professionals in a bright, modern government office meeting around a large digital interactive screen showing procurement data charts. The lighting is soft and airy, filling the room with a sense of transparency and collaboration. The design aesthetic is clean, professional, and contemporary." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxMeEWzXOyWnFHMTqqlBaYpVDM4LHT9v9wHJnK8c1-0Wr0eh9dA8MryhUIcoMcPq23V2anpIAnmH816YcKJl9X5LC6043DW20CFipJSek5vFdUdrr0xh6bm8kuWsuz4yf9DbRQWObSiXI2uCTO0xKiBaQ6jTj5DRc72Yn3WrZcOHYsAsTRD0aS8beFi2SrXpDkFM_ygLWwZkRaAEXlUeCbwJi146JEL7gKLyZ7pw2JCZoxaRpgTNE5xzz3X32xAkZMRE7DB2wdW6FP"/>
+</div>
+<div class="flex flex-col justify-center">
+<span class="font-label-sm text-[10px] text-secondary uppercase tracking-widest mb-1">Kegiatan</span>
+<h4 class="font-label-md text-label-md text-on-surface line-clamp-2 leading-tight group-hover:text-primary transition-colors">Bimbingan Teknis Peningkatan Kapasitas Pokja Pemilihan Daerah</h4>
+<p class="font-body-sm text-[11px] text-on-surface-variant mt-1">18 Mei 2024</p>
+</div>
+</div>
+</a>
+</div>
+</section>
+<!-- Support Card -->
+<div class="bg-primary-container p-lg rounded-xl text-on-primary-container">
+<h3 class="font-headline-sm text-headline-sm mb-sm">Butuh Bantuan?</h3>
+<p class="font-body-sm text-body-sm mb-lg opacity-90">Hubungi Helpdesk kami jika Anda mengalami kesulitan teknis saat pembaruan sistem berlangsung.</p>
+<a class="inline-flex items-center gap-xs font-label-md text-label-md bg-white text-primary px-lg py-2 rounded-lg hover:bg-surface-bright transition-all" href="#">
+<span class="material-symbols-outlined text-sm">support_agent</span>
+                        Hubungi Support
+                    </a>
+</div>
+</aside>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-dim mt-xl border-t border-outline-variant">
+<div class="w-full py-xl px-gutter flex flex-col md:flex-row justify-between items-start md:items-center max-w-container-max mx-auto gap-xl">
+<div class="flex flex-col gap-sm">
+<span class="font-label-md text-label-md font-bold text-on-surface">Portal Informasi Pengadaan Barang dan Jasa</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant max-w-md">© 2026 UKPBJ Kabupaten Bungo. All Rights Reserved. Institutional Government Portal. Sistem Pengadaan Secara Elektronik Nasional.</p>
+</div>
+<nav class="flex flex-wrap gap-lg">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-opacity duration-200" href="#">Privacy Policy</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-opacity duration-200" href="#">Terms of Service</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-opacity duration-200" href="#">Contact Us</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-opacity duration-200" href="#">FAQ</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-opacity duration-200" href="#">Help Center</a>
+</nav>
+</div>
+
+</footer>
+<script>
+        // Micro-interactions: Fade in effect on scroll
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('opacity-100', 'translate-y-0');
+                    entry.target.classList.remove('opacity-0', 'translate-y-4');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('article, aside section').forEach(el => {
+            el.classList.add('transition-all', 'duration-700', 'opacity-0', 'translate-y-4');
+            observer.observe(el);
+        });
+
+        // Simple Smooth Scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body></html>

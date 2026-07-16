@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useSearchParams } from 'react-router-dom'
 import Icon from '../components/Icon'
+import Footer from '../components/Footer'
 
 const roles = [
   { id: 'all', label: 'Semua Peran', checked: true },
@@ -58,17 +59,76 @@ const videos = [
   },
 ]
 
+const lpseFeaturedGuide = {
+  badge: 'Admin LPSE',
+  updated: 'Updated 12 Okt 2023',
+  title: 'Panduan Operasional SPSE v4.5 untuk Pengguna',
+  description:
+    'Dokumentasi lengkap tata cara penggunaan Sistem Pengadaan Secara Elektronik (SPSE) untuk admin dan pengguna LPSE dalam proses e-tendering dan e-purchasing.',
+  size: '12.4 MB',
+}
+
+const lpseGuides = [
+  {
+    role: 'Admin',
+    title: 'Panduan Registrasi & Aktivasi Akun LPSE',
+    description:
+      'Langkah pendaftaran, verifikasi, dan aktivasi akun LPSE bagi admin maupun pengguna penyedia dan PPK.',
+  },
+  {
+    role: 'Penyedia',
+    title: 'Cara Mengikuti Tender di SPSE',
+    description:
+      'Panduan mengunggah dokumen penawaran, sanggahan, dan memantau proses evaluasi tender secara elektronik.',
+  },
+  {
+    role: 'PPK',
+    title: 'Pengoperasian e-Contract & e-Purchasing',
+    description:
+      'Modul pembuatan kontrak elektronik dan pembelian langsung melalui katalog elektronik di lingkungan LPSE.',
+  },
+]
+
+const lpseVideos = [
+  {
+    image:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuBzvvZpumloD4GKm1xLUf-B4DIXcP63L_W4yh9Mwy_alH13gqz6dvYM2vC6-MPUUEf1BmJuG0KqhVo6EXd0H47Isp293-cf7OOVULnHfNjJ13TxOKvdDfOL50Koua0ZYtrJBXLLckjZSC9kLPzGBzYYWwrCIK75pq9TnTLEMaCqfwtD8SaQdqIPaS9awTqetvWywKS3kK9IqJoPS8herQmgf9AuNuhzoJCLHW7KbBrdPNjiCWhy8ETmYTLoYS3krJLbG8ns-H6MTGba',
+    duration: '12:45',
+    title: 'Modul 3: Evaluasi Penawaran & Penetapan Pemenang',
+    description:
+      'Tutorial operasional evaluasi penawaran dan penetapan pemenang tender secara sistem di SPSE v4.5.',
+  },
+  {
+    image:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuB55yitEw1qwEKSj_H7h2Uv4U1Tm7gDeNyKQ9EadfypnTJQ0jh7eOPQZ5W8V4DFO15BVR3zZmcU3Eis4gIYe3VtWey51c_84BSHpdQqGw1yPL0Fzv6hU4A6fR1mgYmTW_kRHtl3Vt7m658i4empQ8OQGqNSDFTlPWJPNy-Ywg2Y49oglPuIHBqA7ckufGPvjINLByormPnKSAXQ0-Bs5Iiw772d8uRhOFWFVNPqGy4AzcLY8qAKZVHkXEimZ4D20ZJ6lAS2mR3kHNJw',
+    duration: '08:20',
+    title: 'Persiapan Dokumen Penawaran untuk Penyedia',
+    description:
+      'Panduan menyusun dan mengunggah dokumen penawaran yang lengkap dan sesuai persyaratan lelang.',
+  },
+]
+
 export default function Panduan() {
-  const [activeTab, setActiveTab] = useState('inaproc')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const initialTab = searchParams.get('tab') === 'lpse' ? 'lpse' : 'inaproc'
+  const [activeTab, setActiveTab] = useState(initialTab)
   const [checkedRoles, setCheckedRoles] = useState(
     roles.reduce((acc, r) => ({ ...acc, [r.id]: r.checked }), {}),
   )
 
-  const switchTab = (tab) => setActiveTab(tab)
+  const switchTab = (tab) => {
+    setActiveTab(tab)
+    setSearchParams(tab === 'lpse' ? { tab: 'lpse' } : {}, { replace: true })
+  }
 
   const toggleRole = (id) => {
     setCheckedRoles((prev) => ({ ...prev, [id]: !prev[id] }))
   }
+
+  const isLpse = activeTab === 'lpse'
+  const currentFeatured = isLpse ? lpseFeaturedGuide : featuredGuide
+  const currentGuides = isLpse ? lpseGuides : guides
+  const currentVideos = isLpse ? lpseVideos : videos
 
   return (
     <div className="bg-background text-on-background min-h-screen">
@@ -233,26 +293,26 @@ export default function Panduan() {
                     <div>
                       <div className="flex items-center gap-sm mb-base">
                         <span className="bg-secondary-container text-on-secondary-container px-sm py-xs rounded-full font-label-sm text-label-sm">
-                          {featuredGuide.badge}
+                          {currentFeatured.badge}
                         </span>
-                        <span className="text-outline font-label-sm text-label-sm">{featuredGuide.updated}</span>
+                        <span className="text-outline font-label-sm text-label-sm">{currentFeatured.updated}</span>
                       </div>
-                      <h2 className="font-headline-md text-headline-md text-primary mb-sm">{featuredGuide.title}</h2>
+                      <h2 className="font-headline-md text-headline-md text-primary mb-sm">{currentFeatured.title}</h2>
                       <p className="font-body-sm text-body-sm text-on-surface-variant mb-md line-clamp-2">
-                        {featuredGuide.description}
+                        {currentFeatured.description}
                       </p>
                     </div>
                     <div className="flex items-center gap-md">
                       <button className="bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md flex items-center gap-sm group-hover:bg-primary-container">
                         <Icon name="download" className="text-[18px]" /> Download PDF
                       </button>
-                      <span className="font-label-sm text-label-sm text-outline">{featuredGuide.size}</span>
+                      <span className="font-label-sm text-label-sm text-outline">{currentFeatured.size}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Regular Cards */}
-                {guides.map((guide) => (
+                {currentGuides.map((guide) => (
                   <div
                     key={guide.title}
                     className="bg-white border border-outline-variant rounded-xl p-md institutional-shadow hover:border-secondary transition-colors"
@@ -286,7 +346,7 @@ export default function Panduan() {
                   </a>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
-                  {videos.map((video) => (
+                  {currentVideos.map((video) => (
                     <div
                       key={video.title}
                       className="bg-white border border-outline-variant rounded-xl overflow-hidden institutional-shadow group"
@@ -316,34 +376,7 @@ export default function Panduan() {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-surface-dim border-t border-outline-variant">
-        <div className="w-full py-xl px-gutter flex flex-col md:flex-row justify-between items-center max-w-container-max mx-auto gap-lg">
-          <div className="flex flex-col items-center md:items-start gap-sm">
-            <span className="font-label-md text-label-md font-bold text-on-surface">Portal Informasi Pengadaan Barang dan Jasa</span>
-            <p className="font-body-sm text-body-sm text-on-surface-variant text-center md:text-left">
-              © 2026 UKPBJ Kabupaten Bungo. All Rights Reserved. Institutional Government Portal.
-            </p>
-          </div>
-          <div className="flex flex-wrap justify-center gap-md">
-            <a className="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-opacity duration-200" href="#">
-              Privacy Policy
-            </a>
-            <a className="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-opacity duration-200" href="#">
-              Terms of Service
-            </a>
-            <a className="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-opacity duration-200" href="#">
-              Contact Us
-            </a>
-            <a className="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-opacity duration-200" href="#">
-              FAQ
-            </a>
-            <a className="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-opacity duration-200" href="#">
-              Help Center
-            </a>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

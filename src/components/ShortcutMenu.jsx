@@ -19,7 +19,7 @@ const shortcuts = [
     icon: 'laptop_mac',
     title: 'Panduan LPSE',
     description: 'Dokumentasi operasional untuk admin dan pengguna LPSE.',
-    to: '#',
+    to: '/panduan?tab=lpse',
     iconBg: 'bg-secondary',
     iconText: 'text-on-secondary',
     hover: 'hover:bg-secondary',
