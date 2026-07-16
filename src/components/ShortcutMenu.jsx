@@ -45,7 +45,7 @@ const shortcuts = [
     icon: 'campaign',
     title: 'Pengumuman',
     description: 'Berita terkini dan pemberitahuan sistem penting.',
-    to: '#',
+    to: '/pengumuman',
     iconBg: 'bg-tertiary-container',
     iconText: 'text-on-tertiary-container',
     hover: 'hover:bg-tertiary-container',

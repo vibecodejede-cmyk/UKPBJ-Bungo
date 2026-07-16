@@ -5,7 +5,7 @@ const navItems = [
   { label: 'Beranda', to: '/', active: true },
   { label: 'Panduan', to: '/panduan' },
   { label: 'Regulasi', to: '/regulasi' },
-  { label: 'Pengumuman', to: '#' },
+  { label: 'Pengumuman', to: '/pengumuman' },
   { label: 'Kontak', to: '#' },
 ]
 
