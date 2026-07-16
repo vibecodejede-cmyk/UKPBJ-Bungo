@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+
+<html class="light" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Kelola Regulasi | Inaproc &amp; LPSE Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary": "#0058be",
+                    "on-secondary-fixed": "#001a42",
+                    "surface-container": "#e6eeff",
+                    "on-secondary": "#ffffff",
+                    "primary-fixed": "#dce1ff",
+                    "surface-container-high": "#dee9fc",
+                    "secondary-container": "#2170e4",
+                    "inverse-on-surface": "#eaf1ff",
+                    "primary": "#00236f",
+                    "tertiary-fixed": "#ffdbcb",
+                    "on-error": "#ffffff",
+                    "tertiary-container": "#6e2c00",
+                    "inverse-primary": "#b6c4ff",
+                    "on-surface-variant": "#444651",
+                    "primary-container": "#1e3a8a",
+                    "surface-bright": "#f8f9ff",
+                    "on-tertiary-fixed-variant": "#773205",
+                    "on-error-container": "#93000a",
+                    "error": "#ba1a1a",
+                    "on-secondary-container": "#fefcff",
+                    "outline": "#757682",
+                    "on-tertiary-container": "#f39461",
+                    "tertiary-fixed-dim": "#ffb691",
+                    "secondary-fixed": "#d8e2ff",
+                    "error-container": "#ffdad6",
+                    "surface-tint": "#4059aa",
+                    "on-primary-fixed": "#00164e",
+                    "on-surface": "#121c2a",
+                    "surface-container-highest": "#d9e3f6",
+                    "on-primary": "#ffffff",
+                    "surface-container-low": "#eff4ff",
+                    "surface-variant": "#d9e3f6",
+                    "on-secondary-fixed-variant": "#004395",
+                    "inverse-surface": "#27313f",
+                    "background": "#f8f9ff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary-fixed": "#341100",
+                    "surface-dim": "#d0dbed",
+                    "outline-variant": "#c5c5d3",
+                    "primary-fixed-dim": "#b6c4ff",
+                    "on-primary-fixed-variant": "#264191",
+                    "surface": "#f8f9ff",
+                    "secondary-fixed-dim": "#adc6ff",
+                    "on-background": "#121c2a",
+                    "tertiary": "#4b1c00",
+                    "on-primary-container": "#90a8ff",
+                    "on-tertiary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "48px",
+                    "gutter": "24px",
+                    "lg": "24px",
+                    "md": "16px",
+                    "container-max": "1280px",
+                    "sm": "8px",
+                    "base": "4px",
+                    "xs": "4px"
+            },
+            "fontFamily": {
+                    "headline-sm": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "body-md": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "headline-md": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "display-lg": ["48px", {"lineHeight": "60px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9ff; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .institutional-shadow {
+            box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1), 0px 1px 2px rgba(0, 0, 0, 0.06);
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+    </style>
+</head>
+<body class="flex min-h-screen overflow-hidden">
+<!-- SideNavBar Anchor -->
+<aside class="flex flex-col h-screen py-md px-sm border-r border-outline-variant bg-surface-container dark:bg-surface-container-high docked full-height left-0 w-64 shrink-0">
+<div class="mb-xl px-md">
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary dark:text-inverse-primary">Admin Panel</h1>
+<p class="text-on-surface-variant font-label-sm">System Administrator</p>
+</div>
+<nav class="flex-1 space-y-1 px-md overflow-y-auto custom-scrollbar">
+<a class="flex items-center gap-md p-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-variant transition-all duration-200 ease-in-out rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md p-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-variant transition-all duration-200 ease-in-out rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span class="font-label-md text-label-md">Manage Guides</span>
+</a>
+<a class="flex items-center gap-md p-md bg-secondary-container text-on-secondary-container rounded-lg font-bold transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="gavel">gavel</span>
+<span class="font-label-md text-label-md">Manage Regulations</span>
+</a>
+<a class="flex items-center gap-md p-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-variant transition-all duration-200 ease-in-out rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="campaign">campaign</span>
+<span class="font-label-md text-label-md">Manage Announcements</span>
+</a>
+<div class="pt-xl mt-xl border-t border-outline-variant">
+<a class="flex items-center gap-md p-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-variant transition-all duration-200 ease-in-out rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+<a class="flex items-center gap-md p-md text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-variant transition-all duration-200 ease-in-out rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-label-md text-label-md">Logout</span>
+</a>
+</div>
+</nav>
+<div class="mt-auto px-md pt-md">
+<button class="w-full bg-primary text-on-primary py-md rounded-lg font-label-md text-label-md flex items-center justify-center gap-sm hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                New Entry
+            </button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 h-screen overflow-y-auto flex flex-col">
+<!-- Header -->
+<header class="h-16 flex items-center justify-between px-gutter border-b border-outline-variant bg-surface sticky top-0 z-20">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary" data-icon="gavel">gavel</span>
+<h2 class="font-headline-md text-headline-md text-primary font-bold">Kelola Regulasi</h2>
+</div>
+<button class="bg-primary hover:bg-primary-container text-on-primary px-lg py-md rounded-lg font-label-md text-label-md transition-colors flex items-center gap-sm institutional-shadow" onclick="toggleForm()">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+                Tambah Regulasi Baru
+            </button>
+</header>
+<div class="p-gutter max-w-container-max mx-auto w-full space-y-lg">
+<!-- Bento Stats Summary (Atmospheric UI) -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-md">
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant institutional-shadow flex items-center gap-md">
+<div class="w-12 h-12 bg-primary-fixed rounded-full flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+</div>
+<div>
+<p class="font-label-sm text-on-surface-variant">Total Regulasi</p>
+<p class="font-headline-sm text-headline-sm text-primary">124</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant institutional-shadow flex items-center gap-md">
+<div class="w-12 h-12 bg-tertiary-fixed rounded-full flex items-center justify-center text-tertiary-container">
+<span class="material-symbols-outlined" data-icon="check_circle">check_circle</span>
+</div>
+<div>
+<p class="font-label-sm text-on-surface-variant">Berlaku</p>
+<p class="font-headline-sm text-headline-sm text-primary">112</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant institutional-shadow flex items-center gap-md">
+<div class="w-12 h-12 bg-error-container rounded-full flex items-center justify-center text-error">
+<span class="material-symbols-outlined" data-icon="cancel">cancel</span>
+</div>
+<div>
+<p class="font-label-sm text-on-surface-variant">Tidak Berlaku</p>
+<p class="font-headline-sm text-headline-sm text-primary">12</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant institutional-shadow flex items-center gap-md">
+<div class="w-12 h-12 bg-secondary-fixed rounded-full flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" data-icon="update">update</span>
+</div>
+<div>
+<p class="font-label-sm text-on-surface-variant">Update Terbaru</p>
+<p class="font-headline-sm text-headline-sm text-primary">2 Hari Lalu</p>
+</div>
+</div>
+</div>
+<!-- Management Section -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start">
+<!-- Data Table (Institutional Standard) -->
+<div class="lg:col-span-8 bg-surface-container-lowest rounded-xl border border-outline-variant institutional-shadow overflow-hidden">
+<div class="p-md border-b border-outline-variant flex justify-between items-center bg-surface-bright">
+<h3 class="font-label-md text-label-md text-primary">DAFTAR REGULASI</h3>
+<div class="relative">
+<input class="bg-surface text-body-sm px-lg py-sm rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary w-64" placeholder="Cari regulasi..." type="text"/>
+<span class="material-symbols-outlined absolute right-3 top-2 text-on-surface-variant text-body-sm" data-icon="search">search</span>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-high">
+<th class="p-md font-label-md text-label-md text-on-surface border-b border-outline-variant w-16">No.</th>
+<th class="p-md font-label-md text-label-md text-on-surface border-b border-outline-variant">Tahun</th>
+<th class="p-md font-label-md text-label-md text-on-surface border-b border-outline-variant">Judul / Tentang Peraturan</th>
+<th class="p-md font-label-md text-label-md text-on-surface border-b border-outline-variant text-center">Status</th>
+<th class="p-md font-label-md text-label-md text-on-surface border-b border-outline-variant text-right">Aksi</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="p-md font-body-sm text-on-surface">P10/2023</td>
+<td class="p-md font-body-sm text-on-surface">2023</td>
+<td class="p-md font-body-sm text-on-surface leading-snug">Pedoman Teknis Pengadaan Barang Milik Negara Melalui Marketplace Pemerintah</td>
+<td class="p-md text-center">
+<span class="inline-flex items-center px-sm py-xs rounded-full bg-green-100 text-green-700 text-[10px] font-bold uppercase tracking-wider">Berlaku</span>
+</td>
+<td class="p-md text-right">
+<button class="text-secondary hover:underline font-label-sm">Edit</button>
+</td>
+</tr>
+<tr class="bg-surface-container-lowest hover:bg-surface-container-low transition-colors">
+<td class="p-md font-body-sm text-on-surface">P02/2021</td>
+<td class="p-md font-body-sm text-on-surface">2021</td>
+<td class="p-md font-body-sm text-on-surface leading-snug">Tata Cara Penyelenggaraan Sertifikasi Kompetensi Pengadaan Barang/Jasa</td>
+<td class="p-md text-center">
+<span class="inline-flex items-center px-sm py-xs rounded-full bg-green-100 text-green-700 text-[10px] font-bold uppercase tracking-wider">Berlaku</span>
+</td>
+<td class="p-md text-right">
+<button class="text-secondary hover:underline font-label-sm">Edit</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="p-md font-body-sm text-on-surface">P05/2018</td>
+<td class="p-md font-body-sm text-on-surface">2018</td>
+<td class="p-md font-body-sm text-on-surface leading-snug">Penyelesaian Sengketa Kontrak Melalui Arbitrase dan Alternatif Penyelesaian Sengketa</td>
+<td class="p-md text-center">
+<span class="inline-flex items-center px-sm py-xs rounded-full bg-red-100 text-red-700 text-[10px] font-bold uppercase tracking-wider">Tidak Berlaku</span>
+</td>
+<td class="p-md text-right">
+<button class="text-secondary hover:underline font-label-sm">Edit</button>
+</td>
+</tr>
+<tr class="bg-surface-container-lowest hover:bg-surface-container-low transition-colors">
+<td class="p-md font-body-sm text-on-surface">P12/2021</td>
+<td class="p-md font-body-sm text-on-surface">2021</td>
+<td class="p-md font-body-sm text-on-surface leading-snug">Pedoman Pelaksanaan Pengadaan Barang/Jasa Pemerintah Melalui Penyedia</td>
+<td class="p-md text-center">
+<span class="inline-flex items-center px-sm py-xs rounded-full bg-green-100 text-green-700 text-[10px] font-bold uppercase tracking-wider">Berlaku</span>
+</td>
+<td class="p-md text-right">
+<button class="text-secondary hover:underline font-label-sm">Edit</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="p-md font-body-sm text-on-surface">P08/2020</td>
+<td class="p-md font-body-sm text-on-surface">2020</td>
+<td class="p-md font-body-sm text-on-surface leading-snug">Perubahan Atas Peraturan Lembaga Nomor 13 Tahun 2018 Tentang Pengadaan Barang/Jasa Dalam Penanganan Keadaan Darurat</td>
+<td class="p-md text-center">
+<span class="inline-flex items-center px-sm py-xs rounded-full bg-green-100 text-green-700 text-[10px] font-bold uppercase tracking-wider">Berlaku</span>
+</td>
+<td class="p-md text-right">
+<button class="text-secondary hover:underline font-label-sm">Edit</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-md border-t border-outline-variant flex items-center justify-between">
+<span class="text-body-sm text-on-surface-variant">Menampilkan 5 dari 124 regulasi</span>
+<div class="flex gap-sm">
+<button class="p-xs rounded border border-outline-variant hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="p-xs rounded border border-outline-variant hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Form Section (Side Panel) -->
+<div class="lg:col-span-4 space-y-md" id="regulationForm">
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant institutional-shadow p-lg">
+<div class="flex items-center justify-between mb-lg">
+<h3 class="font-headline-sm text-headline-sm text-primary">Detail Regulasi</h3>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" data-icon="info" title="Lengkapi data regulasi untuk mempublikasikan.">info</span>
+</div>
+<form class="space-y-md">
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs">Nomor Peraturan</label>
+<input class="w-full px-md py-md border border-outline-variant rounded-lg bg-surface focus:ring-2 focus:ring-primary focus:outline-none font-body-sm" placeholder="Contoh: P10/2023" type="text"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs">Tahun Terbit</label>
+<select class="w-full px-md py-md border border-outline-variant rounded-lg bg-surface focus:ring-2 focus:ring-primary focus:outline-none font-body-sm">
+<option>2024</option>
+<option>2023</option>
+<option>2022</option>
+<option>2021</option>
+<option>2020</option>
+</select>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs">Judul / Tentang</label>
+<textarea class="w-full px-md py-md border border-outline-variant rounded-lg bg-surface focus:ring-2 focus:ring-primary focus:outline-none font-body-sm resize-none" placeholder="Masukkan judul lengkap peraturan..." rows="4"></textarea>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs">Status Keberlakuan</label>
+<div class="flex gap-md mt-sm">
+<label class="flex items-center gap-sm cursor-pointer group">
+<input checked="" class="text-primary focus:ring-primary h-4 w-4" name="status" type="radio"/>
+<span class="font-body-sm text-on-surface group-hover:text-primary">Berlaku</span>
+</label>
+<label class="flex items-center gap-sm cursor-pointer group">
+<input class="text-primary focus:ring-primary h-4 w-4" name="status" type="radio"/>
+<span class="font-body-sm text-on-surface group-hover:text-primary">Tidak Berlaku</span>
+</label>
+</div>
+</div>
+<div class="pt-sm">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs">Upload Dokumen (PDF)</label>
+<div class="border-2 border-dashed border-outline-variant rounded-xl p-lg flex flex-col items-center justify-center bg-surface-bright group hover:border-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors text-[32px] mb-sm" data-icon="upload_file">upload_file</span>
+<p class="font-label-sm text-on-surface-variant text-center">Klik atau seret file PDF di sini</p>
+<p class="text-[10px] text-outline mt-xs uppercase">Maksimum 20MB</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-md pt-lg">
+<button class="border border-outline-variant text-on-surface hover:bg-surface-variant py-md rounded-lg font-label-md text-label-md transition-colors" type="button">Batal</button>
+<button class="bg-primary text-on-primary hover:bg-primary-container py-md rounded-lg font-label-md text-label-md transition-colors institutional-shadow" type="submit">Simpan</button>
+</div>
+<div class="pt-base">
+<button class="w-full text-error hover:bg-error-container/20 py-md rounded-lg font-label-md text-label-md transition-colors border border-transparent hover:border-error-container" type="button">Hapus Regulasi</button>
+</div>
+</form>
+</div>
+<!-- Atmospheric Tip -->
+<div class="bg-primary-container/10 p-md rounded-xl border border-primary/20 flex gap-md">
+<span class="material-symbols-outlined text-primary" data-icon="lightbulb">lightbulb</span>
+<p class="font-body-sm text-primary leading-tight">Pastikan dokumen PDF yang diunggah telah ditandatangani secara digital atau merupakan salinan resmi yang sah.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer Anchor -->
+<footer class="mt-auto w-full py-lg px-gutter flex flex-col md:flex-row justify-between items-center max-w-container-max mx-auto bg-surface-dim dark:bg-inverse-surface border-t border-outline-variant">
+<p class="font-body-sm text-body-sm text-on-surface-variant dark:text-on-surface-variant">© 2024 Inaproc &amp; LPSE. All Rights Reserved. Institutional Government Portal.</p>
+<div class="flex gap-lg mt-md md:mt-0">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-opacity" href="#">Privacy Policy</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-opacity" href="#">Terms of Service</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-opacity" href="#">Contact Us</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-opacity" href="#">Help Center</a>
+</div>
+</footer>
+</main>
+<script>
+        function toggleForm() {
+            const form = document.getElementById('regulationForm');
+            form.classList.add('animate-pulse');
+            setTimeout(() => {
+                form.classList.remove('animate-pulse');
+                form.querySelector('input').focus();
+            }, 300);
+        }
+
+        // Zebra striping enhancement
+        document.querySelectorAll('tbody tr').forEach((tr, index) => {
+            if (index % 2 !== 0) {
+                tr.classList.add('bg-surface-container-lowest');
+            }
+        });
+    </script>
+</body></html>
