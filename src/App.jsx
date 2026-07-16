@@ -9,6 +9,7 @@ import Footer from './components/Footer'
 import Panduan from './pages/Panduan'
 import Regulasi from './pages/Regulasi'
 import Pengumuman from './pages/Pengumuman'
+import Kontak from './pages/Kontak'
 
 export default function App() {
   return (
@@ -36,6 +37,7 @@ export default function App() {
       <Route path="/panduan" element={<Panduan />} />
       <Route path="/regulasi" element={<Regulasi />} />
       <Route path="/pengumuman" element={<Pengumuman />} />
+      <Route path="/kontak" element={<Kontak />} />
     </Routes>
   )
 }

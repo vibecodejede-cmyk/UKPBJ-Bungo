@@ -6,7 +6,7 @@ const navItems = [
   { label: 'Panduan', to: '/panduan' },
   { label: 'Regulasi', to: '/regulasi' },
   { label: 'Pengumuman', to: '/pengumuman' },
-  { label: 'Kontak', to: '#' },
+  { label: 'Kontak', to: '/kontak' },
 ]
 
 export default function Header() {
@@ -23,29 +23,19 @@ export default function Header() {
         </div>
 
         <nav className="hidden md:flex items-center gap-lg">
-          {navItems.map((item) =>
-            item.to.startsWith('/') ? (
-              <NavLink
-                key={item.label}
-                to={item.to}
-                className={({ isActive }) =>
-                  isActive
-                    ? 'font-label-md text-label-md text-primary dark:text-inverse-primary border-b-2 border-primary dark:border-inverse-primary pb-1 transition-colors duration-200'
-                    : 'font-label-md text-label-md text-on-surface-variant dark:text-on-surface-variant hover:text-secondary dark:hover:text-secondary-fixed transition-colors duration-200'
-                }
-              >
-                {item.label}
-              </NavLink>
-            ) : (
-              <a
-                key={item.label}
-                href={item.to}
-                className="font-label-md text-label-md text-on-surface-variant dark:text-on-surface-variant hover:text-secondary dark:hover:text-secondary-fixed transition-colors duration-200"
-              >
-                {item.label}
-              </a>
-            ),
-          )}
+          {navItems.map((item) => (
+            <NavLink
+              key={item.label}
+              to={item.to}
+              className={({ isActive }) =>
+                isActive
+                  ? 'font-label-md text-label-md text-primary dark:text-inverse-primary border-b-2 border-primary dark:border-inverse-primary pb-1 transition-colors duration-200'
+                  : 'font-label-md text-label-md text-on-surface-variant dark:text-on-surface-variant hover:text-secondary dark:hover:text-secondary-fixed transition-colors duration-200'
+              }
+            >
+              {item.label}
+            </NavLink>
+          ))}
         </nav>
 
         <div className="flex items-center gap-md">
