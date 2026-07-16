@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+
+<html class="light" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pengumuman - Inaproc &amp; LPSE</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary": "#0058be",
+                    "on-secondary-fixed": "#001a42",
+                    "surface-container": "#e6eeff",
+                    "on-secondary": "#ffffff",
+                    "primary-fixed": "#dce1ff",
+                    "surface-container-high": "#dee9fc",
+                    "secondary-container": "#2170e4",
+                    "inverse-on-surface": "#eaf1ff",
+                    "primary": "#00236f",
+                    "tertiary-fixed": "#ffdbcb",
+                    "on-error": "#ffffff",
+                    "tertiary-container": "#6e2c00",
+                    "inverse-primary": "#b6c4ff",
+                    "on-surface-variant": "#444651",
+                    "primary-container": "#1e3a8a",
+                    "surface-bright": "#f8f9ff",
+                    "on-tertiary-fixed-variant": "#773205",
+                    "on-error-container": "#93000a",
+                    "error": "#ba1a1a",
+                    "on-secondary-container": "#fefcff",
+                    "outline": "#757682",
+                    "on-tertiary-container": "#f39461",
+                    "tertiary-fixed-dim": "#ffb691",
+                    "secondary-fixed": "#d8e2ff",
+                    "error-container": "#ffdad6",
+                    "surface-tint": "#4059aa",
+                    "on-primary-fixed": "#00164e",
+                    "on-surface": "#121c2a",
+                    "surface-container-highest": "#d9e3f6",
+                    "on-primary": "#ffffff",
+                    "surface-container-low": "#eff4ff",
+                    "surface-variant": "#d9e3f6",
+                    "on-secondary-fixed-variant": "#004395",
+                    "inverse-surface": "#27313f",
+                    "background": "#f8f9ff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary-fixed": "#341100",
+                    "surface-dim": "#d0dbed",
+                    "outline-variant": "#c5c5d3",
+                    "primary-fixed-dim": "#b6c4ff",
+                    "on-primary-fixed-variant": "#264191",
+                    "surface": "#f8f9ff",
+                    "secondary-fixed-dim": "#adc6ff",
+                    "on-background": "#121c2a",
+                    "tertiary": "#4b1c00",
+                    "on-primary-container": "#90a8ff",
+                    "on-tertiary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "48px",
+                    "gutter": "24px",
+                    "lg": "24px",
+                    "md": "16px",
+                    "container-max": "1280px",
+                    "sm": "8px",
+                    "base": "4px",
+                    "xs": "4px"
+            },
+            "fontFamily": {
+                    "headline-sm": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "body-md": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-md": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "display-lg": ["48px", {"lineHeight": "60px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9ff; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .institutional-shadow {
+            box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1), 0px 1px 2px rgba(0, 0, 0, 0.06);
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+<!-- TopNavBar -->
+<header class="bg-surface border-b border-outline-variant sticky top-0 z-50">
+<div class="flex justify-between items-center w-full px-gutter max-w-container-max mx-auto h-16">
+<div class="font-headline-md text-headline-md font-bold text-primary">Inaproc &amp; LPSE</div>
+<nav class="hidden md:flex items-center space-x-lg">
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200" href="#">Home</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200" href="#">Guides</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200" href="#">Regulations</a>
+<a class="font-label-md text-label-md text-primary border-b-2 border-primary pb-1 transition-colors duration-200" href="#">Announcements</a>
+</nav>
+<div class="flex items-center space-x-md">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-body-sm w-64" placeholder="Cari pengumuman..." type="text"/>
+</div>
+<button class="bg-primary text-on-primary font-label-md text-label-md px-md py-2 rounded-lg hover:bg-primary-container transition-colors duration-200">Login</button>
+</div>
+</div>
+</header>
+<main class="max-w-container-max mx-auto px-gutter py-xl">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-lg">
+<!-- Left Column: Announcement Feed -->
+<div class="lg:col-span-7 space-y-md">
+<div class="flex items-center justify-between mb-md">
+<h1 class="font-headline-lg text-headline-lg text-primary">Daftar Pengumuman</h1>
+<div class="flex space-x-sm">
+<button class="p-2 border border-outline-variant rounded-lg hover:bg-surface-variant">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+<button class="p-2 border border-outline-variant rounded-lg hover:bg-surface-variant">
+<span class="material-symbols-outlined">sort</span>
+</button>
+</div>
+</div>
+<div class="space-y-md">
+<!-- Announcement Item 1 (Active/Selected Example) -->
+<div class="cursor-pointer group bg-surface-container-lowest border-2 border-primary institutional-shadow p-lg rounded-xl transition-all hover:translate-y-[-2px]" onclick="showDetail(0)">
+<div class="flex justify-between items-start mb-sm">
+<span class="font-label-sm text-label-sm px-2 py-1 bg-secondary-container text-on-secondary-container rounded-full">TERBARU</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">24 Mei 2024</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">Pembaruan Sistem Keamanan SPSE Versi 4.5 Patch 2024</h2>
+<p class="mt-sm font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Sehubungan dengan adanya pemeliharaan rutin dan peningkatan fitur keamanan pada server produksi, kami informasikan bahwa akan dilakukan downtime terjadwal...</p>
+<div class="mt-md flex items-center text-primary font-label-md text-label-md">
+<span>Lihat Detail</span>
+<span class="material-symbols-outlined ml-1 text-[18px]">arrow_forward</span>
+</div>
+</div>
+<!-- Announcement Item 2 -->
+<div class="cursor-pointer group bg-surface-container-lowest border border-outline-variant institutional-shadow p-lg rounded-xl transition-all hover:border-secondary hover:translate-y-[-2px]" onclick="showDetail(1)">
+<div class="flex justify-between items-start mb-sm">
+<span class="font-label-sm text-label-sm px-2 py-1 bg-surface-variant text-on-surface-variant rounded-full">TEKNIS</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">20 Mei 2024</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">Panduan Registrasi Penyedia Luar Negeri pada Katalog Elektronik</h2>
+<p class="mt-sm font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Dalam rangka mendukung keterbukaan pasar pengadaan barang/jasa pemerintah, LKPP merilis modul pendaftaran bagi entitas asing yang ingin berpartisipasi...</p>
+</div>
+<!-- Announcement Item 3 -->
+<div class="cursor-pointer group bg-surface-container-lowest border border-outline-variant institutional-shadow p-lg rounded-xl transition-all hover:border-secondary hover:translate-y-[-2px]" onclick="showDetail(2)">
+<div class="flex justify-between items-start mb-sm">
+<span class="font-label-sm text-label-sm px-2 py-1 bg-surface-variant text-on-surface-variant rounded-full">LEGAL</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">15 Mei 2024</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">Sosialisasi Peraturan Lembaga No. 12 Tahun 2024 Tentang Mitigasi Risiko</h2>
+<p class="mt-sm font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Kami mengundang seluruh Pejabat Pembuat Komitmen (PPK) untuk menghadiri sesi daring mengenai implementasi mitigasi risiko pada proses tender konstruksi...</p>
+</div>
+<!-- Announcement Item 4 -->
+<div class="cursor-pointer group bg-surface-container-lowest border border-outline-variant institutional-shadow p-lg rounded-xl transition-all hover:border-secondary hover:translate-y-[-2px]" onclick="showDetail(3)">
+<div class="flex justify-between items-start mb-sm">
+<span class="font-label-sm text-label-sm px-2 py-1 bg-surface-variant text-on-surface-variant rounded-full">MAINTENANCE</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">10 Mei 2024</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">Jadwal Pemeliharaan Data Center Nasional (DCN) Minggu Ke-2</h2>
+<p class="mt-sm font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Informasi pemadaman sementara layanan Inaproc selama 4 jam pada hari Sabtu mendatang untuk migrasi database storage...</p>
+</div>
+</div>
+<div class="pt-lg flex justify-center">
+<button class="flex items-center space-x-sm px-lg py-sm border border-primary text-primary font-label-md text-label-md rounded-lg hover:bg-surface-container-low transition-colors">
+<span>Muat Lebih Banyak</span>
+<span class="material-symbols-outlined">expand_more</span>
+</button>
+</div>
+</div>
+<!-- Right Column: Detail View Placeholder -->
+<div class="lg:col-span-5">
+<div class="sticky top-24">
+<div class="bg-surface-container-lowest border border-outline-variant institutional-shadow rounded-xl overflow-hidden flex flex-col max-h-[calc(100vh-140px)]" id="announcement-detail">
+<!-- Header Image -->
+<div class="h-48 w-full bg-surface-variant relative overflow-hidden">
+<div class="w-full h-full bg-cover bg-center opacity-80" data-alt="A professional government office setting with high-end technology infrastructure. Modern servers are illuminated by cool blue lights in a sterile, organized environment. The atmosphere is professional, emphasizing national digital security and high-stakes administrative management with a bright, minimalist corporate aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDGBsYMGZxz4eSgsmcVZYWnFrRynf5Ur2kZpKz2mPrr__eEk6B6fqsGOpHys1jNW5v1jO7s6zGOB_i_dMeJMhhWER0HHWMd9YORWbonlj1hAkx5mO-xqdR1YCU741LTa_q-p5bVcIkETbxIu841xH4lDmfEtvjr1SABM8rz681nW3IBWkE2dKoC0rdn-U7OOyWRMd18XVNRfb4B7uRkuwgdSwRjswEXGRdV-r43ZWWHlLpsPypbnllNJNKKU7zC4RXx4_TUabsfvuq-')"></div>
+<div class="absolute bottom-0 left-0 right-0 p-lg bg-gradient-to-t from-black/60 to-transparent">
+<span class="font-label-sm text-label-sm px-2 py-1 bg-primary text-on-primary rounded uppercase">Informasi Teknis</span>
+</div>
+</div>
+<!-- Content -->
+<div class="p-lg overflow-y-auto custom-scrollbar">
+<div class="flex items-center text-on-surface-variant font-label-sm text-label-sm mb-md">
+<span class="material-symbols-outlined text-[16px] mr-1">calendar_month</span>
+<span>24 Mei 2024, 09:15 WIB</span>
+<span class="mx-2">•</span>
+<span class="material-symbols-outlined text-[16px] mr-1">person</span>
+<span>Admin Pusat</span>
+</div>
+<h1 class="font-headline-md text-headline-md text-primary mb-md">Pembaruan Sistem Keamanan SPSE Versi 4.5 Patch 2024</h1>
+<div class="space-y-md font-body-md text-body-md text-on-surface">
+<p>Yth. Para Pengguna Layanan Pengadaan Secara Elektronik (LPSE),</p>
+<p>Dalam rangka meningkatkan kualitas layanan dan keamanan transaksi elektronik pada aplikasi SPSE, kami informasikan bahwa akan dilaksanakan pemeliharaan sistem pada:</p>
+<ul class="list-disc pl-lg space-y-base text-body-sm">
+<li><strong>Hari/Tanggal:</strong> Sabtu, 25 Mei 2024</li>
+<li><strong>Waktu:</strong> 22.00 WIB s.d Minggu, 26 Mei 2024 04.00 WIB</li>
+<li><strong>Agenda:</strong> Penerapan Security Patch 2024 dan Optimasi Database</li>
+</ul>
+<p>Selama proses pemeliharaan tersebut, aplikasi SPSE tidak dapat diakses untuk sementara waktu. Kami menyarankan para pelaku usaha dan panitia pengadaan untuk mengatur ulang jadwal jika ada batas akhir pemasukan dokumen yang bertepatan dengan waktu tersebut.</p>
+<p>Demikian informasi ini disampaikan. Mohon maaf atas ketidaknyamanan yang ditimbulkan.</p>
+<p class="font-bold">Direktorat Pengembangan Sistem Pengadaan Secara Elektronik - LKPP</p>
+</div>
+<!-- Attachments -->
+<div class="mt-xl pt-lg border-t border-outline-variant">
+<h3 class="font-label-md text-label-md text-on-surface-variant mb-md uppercase">Lampiran Dokumen</h3>
+<div class="space-y-sm">
+<div class="flex items-center justify-between p-md border border-outline-variant rounded-lg hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div class="flex items-center">
+<span class="material-symbols-outlined text-error mr-md">picture_as_pdf</span>
+<div>
+<div class="font-label-md text-label-md">Surat_Edaran_Pembaruan_SPSE.pdf</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">1.2 MB</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary">download</span>
+</div>
+<div class="flex items-center justify-between p-md border border-outline-variant rounded-lg hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div class="flex items-center">
+<span class="material-symbols-outlined text-secondary mr-md">article</span>
+<div>
+<div class="font-label-md text-label-md">Panduan_Konfigurasi_Patch_45.docx</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">450 KB</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary">download</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer Actions -->
+<div class="p-md bg-surface-container-high flex justify-between items-center">
+<button class="text-secondary font-label-md text-label-md flex items-center">
+<span class="material-symbols-outlined mr-sm">share</span>
+                                Bagikan
+                            </button>
+<button class="bg-secondary text-on-secondary px-lg py-2 rounded-lg font-label-md text-label-md hover:bg-secondary-container transition-colors">
+                                Cetak Pengumuman
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-dim border-t border-outline-variant mt-xl">
+<div class="w-full py-xl px-gutter flex flex-col md:flex-row justify-between items-start max-w-container-max mx-auto gap-lg">
+<div class="max-w-sm">
+<div class="font-label-md text-label-md font-bold text-on-surface mb-md">Inaproc &amp; LPSE</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-md">Portal resmi pengadaan barang dan jasa pemerintah Republik Indonesia yang kredibel, transparan, dan akuntabel.</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">© 2024 Inaproc &amp; LPSE. All Rights Reserved. Institutional Government Portal.</p>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-xl w-full md:w-auto">
+<div class="flex flex-col space-y-sm">
+<h4 class="font-label-md text-label-md font-bold text-on-surface mb-xs">Layanan</h4>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-opacity duration-200" href="#">Katalog Elektronik</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-opacity duration-200" href="#">E-Tendering</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-opacity duration-200" href="#">Sikap</a>
+</div>
+<div class="flex flex-col space-y-sm">
+<h4 class="font-label-md text-label-md font-bold text-on-surface mb-xs">Dukungan</h4>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-opacity duration-200" href="#">Help Center</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-opacity duration-200" href="#">FAQ</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-opacity duration-200" href="#">Contact Us</a>
+</div>
+<div class="flex flex-col space-y-sm">
+<h4 class="font-label-md text-label-md font-bold text-on-surface mb-xs">Kebijakan</h4>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-opacity duration-200" href="#">Privacy Policy</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-opacity duration-200" href="#">Terms of Service</a>
+</div>
+</div>
+</div>
+</footer>
+<script>
+        const announcements = [
+            {
+                title: "Pembaruan Sistem Keamanan SPSE Versi 4.5 Patch 2024",
+                date: "24 Mei 2024, 09:15 WIB",
+                category: "Informasi Teknis",
+                author: "Admin Pusat",
+                content: "Yth. Para Pengguna Layanan Pengadaan Secara Elektronik (LPSE), Dalam rangka meningkatkan kualitas layanan dan keamanan transaksi elektronik pada aplikasi SPSE, kami informasikan bahwa akan dilaksanakan pemeliharaan sistem..."
+            },
+            {
+                title: "Panduan Registrasi Penyedia Luar Negeri pada Katalog Elektronik",
+                date: "20 Mei 2024, 14:30 WIB",
+                category: "Panduan",
+                author: "Divisi Katalog",
+                content: "Dalam rangka mendukung keterbukaan pasar pengadaan barang/jasa pemerintah, LKPP merilis modul pendaftaran bagi entitas asing yang ingin berpartisipasi dalam Katalog Elektronik Sektoral maupun Nasional..."
+            },
+            {
+                title: "Sosialisasi Peraturan Lembaga No. 12 Tahun 2024 Tentang Mitigasi Risiko",
+                date: "15 Mei 2024, 10:00 WIB",
+                category: "Regulasi",
+                author: "Biro Hukum",
+                content: "Kami mengundang seluruh Pejabat Pembuat Komitmen (PPK) untuk menghadiri sesi daring mengenai implementasi mitigasi risiko pada proses tender konstruksi pasca terbitnya Perlem No 12..."
+            },
+            {
+                title: "Jadwal Pemeliharaan Data Center Nasional (DCN) Minggu Ke-2",
+                date: "10 Mei 2024, 16:45 WIB",
+                category: "Pemeliharaan",
+                author: "IT Support",
+                content: "Informasi pemadaman sementara layanan Inaproc selama 4 jam pada hari Sabtu mendatang untuk migrasi database storage di Data Center Nasional (DCN). Semua sistem akan offline sementara..."
+            }
+        ];
+
+        function showDetail(index) {
+            const detailContainer = document.getElementById('announcement-detail');
+            const data = announcements[index];
+            
+            // Add a simple fade-out/in effect
+            detailContainer.classList.add('opacity-50');
+            
+            setTimeout(() => {
+                // Update UI based on data
+                detailContainer.querySelector('h1').innerText = data.title;
+                detailContainer.querySelector('.font-label-sm span:nth-child(2)').innerText = data.date;
+                detailContainer.querySelector('.font-label-sm span:last-child').innerText = data.author;
+                detailContainer.querySelector('.bg-primary').innerText = data.category;
+                
+                // Update first paragraph for demo
+                const paragraphs = detailContainer.querySelectorAll('.space-y-md p');
+                if(paragraphs.length > 1) {
+                    paragraphs[1].innerText = data.content;
+                }
+
+                detailContainer.classList.remove('opacity-50');
+                
+                // Toggle active state in list
+                const listItems = document.querySelectorAll('.lg\\:col-span-7 .cursor-pointer');
+                listItems.forEach((item, idx) => {
+                    if(idx === index) {
+                        item.classList.add('border-primary');
+                        item.classList.remove('border-outline-variant');
+                        item.querySelector('h2').classList.add('text-primary');
+                    } else {
+                        item.classList.remove('border-primary');
+                        item.classList.add('border-outline-variant');
+                        item.querySelector('h2').classList.remove('text-primary');
+                    }
+                });
+            }, 150);
+        }
+    </script>
+</body></html>
