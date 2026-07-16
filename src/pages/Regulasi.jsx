@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 import Icon from '../components/Icon'
 
 const regulations = [
@@ -99,18 +99,26 @@ export default function Regulasi() {
             >
               Regulasi
             </Link>
-            <a
-              className="font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200"
-              href="#"
+            <NavLink
+              to="/pengumuman"
+              className={({ isActive }) =>
+                isActive
+                  ? 'font-label-md text-label-md text-primary border-b-2 border-primary pb-1 transition-colors duration-200'
+                  : 'font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200'
+              }
             >
               Pengumuman
-            </a>
-            <a
-              className="font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200"
-              href="#"
+            </NavLink>
+            <NavLink
+              to="/kontak"
+              className={({ isActive }) =>
+                isActive
+                  ? 'font-label-md text-label-md text-primary border-b-2 border-primary pb-1 transition-colors duration-200'
+                  : 'font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200'
+              }
             >
               Kontak
-            </a>
+            </NavLink>
           </nav>
         </div>
       </header>
