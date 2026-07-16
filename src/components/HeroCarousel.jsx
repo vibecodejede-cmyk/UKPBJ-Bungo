@@ -1,8 +1,11 @@
 import { useEffect, useState, useCallback } from 'react'
+import { Link } from 'react-router-dom'
 import Icon from './Icon'
+import { fetchAnnouncements } from '../lib/api'
 
-const slides = [
+const fallbackSlides = [
   {
+    id: 'fallback-1',
     image:
       'https://lh3.googleusercontent.com/aida-public/AB6AXuDdM8DrrAIWTVwF56rnv98cnGymh1RweHCGOogDz9abXth8kFiFlB5QUf3naLwhdt-4C1evf9GjeXgvff5IymQ-kwJFqW5D4Nb-0YyDV-L_9cA2wagwNRWJ9WOL01Cot5bAtsG8fL0q9vXfZZCHI85UDhRjywykBOK0E6Z7s5R54cDbCWOOqosn8TCyKZ1XWDoVfAOMRf7Irp385XvE0f_XFdmPexypyxRCANCkxbudHnOwbsL1LtSWjwTcOJ-IgumTo1RE449_XWcN',
     alt: 'Modernisasi Pengadaan Nasional',
@@ -11,6 +14,7 @@ const slides = [
       'Transformasi digital menuju sistem pengadaan yang lebih cepat, transparan, dan akuntabel di seluruh Indonesia.',
   },
   {
+    id: 'fallback-2',
     image:
       'https://lh3.googleusercontent.com/aida-public/AB6AXuC5hPWtI4-ubrJXk3BVgt6GcX3CJ_GLlFy5Ca3Gf5fTw-XH3dq2F_10gAXzI-wvWNJTo-BQ4il6GBKGZxSfqqo1zAt8SHZqa44smF0Gez4WpiiXtzjNQqV033WKKEZUwHlA3vTcYn1RG2H7tvqy19hHzUaajRDC-81Z1eYQzO18RuB9Rzr4RbnaVHCWgrnUGhXI5IROLG9ruVhpq7mcHNPwMrGUEPwdCxa-pbf6VNbR8xlkQb929YqR7t34wl9FRczPtFUGiwnigYfb',
     alt: 'Layanan Publik Terintegrasi',
@@ -19,6 +23,7 @@ const slides = [
       'Akses satu pintu untuk semua kebutuhan pengadaan barang dan jasa pemerintah yang terintegrasi penuh dengan sistem nasional.',
   },
   {
+    id: 'fallback-3',
     image:
       'https://lh3.googleusercontent.com/aida-public/AB6AXuD-OEqZOftsh1gERgHOHv2FYqKPsA2K5nD6HJdERnxB8a0_qkaBiFni2qYeXqNKqi1zbimAOzlX0Xrd9jHIZ7ZhyrwxPL9GGX_ENaCRYRSjkVFIQ7kzV_sTrt1WQJmyNHoELYZS26prLpVnFKYDJuaBYKJtOeVmsGM5lnSLHCcZJrth7USfMj5wtM-ASdgkjtg9rsEbA6oFrkFtXcS5DWbpAX74oaQp6cAKFUW3sNd6t1-CNGwt7SPCfo09ugLrUp0huG3QC01ZW9tU',
     alt: 'Transparansi Data Regulasi',
@@ -31,8 +36,36 @@ const slides = [
 const AUTOPLAY_MS = 5000
 
 export default function HeroCarousel() {
+  const [slides, setSlides] = useState(fallbackSlides)
   const [current, setCurrent] = useState(0)
   const total = slides.length
+
+  // Fetch slides from announcements table in Supabase
+  useEffect(() => {
+    let cancelled = false
+    async function loadSlides() {
+      try {
+        const data = await fetchAnnouncements()
+        if (!cancelled && data && data.length > 0) {
+          const mapped = data.map((a) => ({
+            id: a.id,
+            image: a.image_url,
+            alt: a.title,
+            title: a.title,
+            description: a.excerpt,
+          }))
+          setSlides(mapped)
+          setCurrent(0)
+        }
+      } catch (err) {
+        console.warn('fetchAnnouncements failed, using fallback slides:', err?.message)
+      }
+    }
+    loadSlides()
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const moveSlide = useCallback(
     (direction) => {
@@ -46,21 +79,24 @@ export default function HeroCarousel() {
   useEffect(() => {
     const id = setInterval(() => moveSlide(1), AUTOPLAY_MS)
     return () => clearInterval(id)
-  }, [moveSlide])
+  }, [moveSlide, total])
 
   return (
     <div className="carousel-container" id="hero-carousel">
       {slides.map((slide, index) => (
-        <div key={index} className={`slide ${index === current ? 'active' : ''}`}>
+        <div key={slide.id} className={`slide ${index === current ? 'active' : ''}`}>
           <img alt={slide.alt} className="w-full h-full object-cover" src={slide.image} />
           <div className="absolute inset-0 slide-overlay flex items-center">
             <div className="max-w-container-max mx-auto px-gutter w-full text-white">
-              <div className="max-w-2xl">
-                <h2 className="font-display-lg text-display-lg mb-md text-on-primary">{slide.title}</h2>
-                <p className="font-body-lg text-body-lg mb-xl text-primary-fixed">{slide.description}</p>
-                <button className="bg-secondary text-on-secondary px-xl py-lg rounded-lg font-label-md text-label-md hover:bg-secondary-container transition-all">
+              <div className="max-w-4xl pr-md lg:pr-xl pb-24 lg:pb-28 lg:pl-[10%]">
+                <h2 className="font-display-lg text-display-lg mb-md text-on-primary leading-tight">{slide.title}</h2>
+                <p className="font-body-lg text-body-lg mb-xl text-primary-fixed leading-relaxed">{slide.description}</p>
+                <Link
+                  to={`/pengumuman/${slide.id}`}
+                  className="bg-secondary text-on-secondary px-xl py-lg rounded-lg font-label-md text-label-md hover:bg-secondary-container transition-all inline-block"
+                >
                   Selengkapnya
-                </button>
+                </Link>
               </div>
             </div>
           </div>

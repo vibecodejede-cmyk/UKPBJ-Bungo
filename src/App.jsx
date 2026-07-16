@@ -1,7 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import Header from './components/Header'
 import HeroCarousel from './components/HeroCarousel'
-import SearchBar from './components/SearchBar'
 import ShortcutMenu from './components/ShortcutMenu'
 import Announcements from './components/Announcements'
 import Newsletter from './components/Newsletter'
@@ -25,7 +24,6 @@ export default function App() {
               {/* Enhanced Hero Section with Slideshow */}
               <section className="relative">
                 <HeroCarousel />
-                <SearchBar />
               </section>
 
               <ShortcutMenu />

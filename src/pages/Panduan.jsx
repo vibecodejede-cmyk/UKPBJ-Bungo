@@ -22,8 +22,8 @@ export default function Panduan() {
   )
   // contentView: 'panduan' (PDF cards) or 'video' (YouTube tutorials)
   const [contentView, setContentView] = useState('panduan')
-  // Search query for filtering guides & videos
-  const [searchQuery, setSearchQuery] = useState('')
+  // Search query for filtering guides & videos (initialized from URL ?q=)
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '')
 
   // Data state
   const [guides, setGuides] = useState([])
@@ -85,6 +85,12 @@ export default function Panduan() {
       cancelled = true
     }
   }, [isLpse])
+
+  // Sync search query with URL ?q= param (so header search navigates here)
+  useEffect(() => {
+    const q = searchParams.get('q') || ''
+    setSearchQuery(q)
+  }, [searchParams])
 
   const switchTab = (tab) => {
     setActiveTab(tab)

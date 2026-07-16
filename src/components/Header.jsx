@@ -1,4 +1,5 @@
-import { Link, NavLink } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import Icon from './Icon'
 
 const navItems = [
@@ -10,6 +11,16 @@ const navItems = [
 ]
 
 export default function Header() {
+  const [query, setQuery] = useState('')
+  const navigate = useNavigate()
+
+  const handleSearch = (e) => {
+    e.preventDefault()
+    const q = query.trim()
+    // Navigate to Panduan page which filters guides & videos from the database by this query
+    navigate(q ? `/panduan?q=${encodeURIComponent(q)}` : '/panduan')
+  }
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-surface dark:bg-surface-dim border-b border-outline-variant dark:border-outline h-16 flex items-center transition-colors duration-200">
       <div className="flex justify-between items-center w-full px-gutter max-w-container-max mx-auto h-full">
@@ -39,14 +50,19 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-md">
-          <div className="hidden lg:flex items-center bg-surface-container-low px-sm py-xs rounded-lg border border-outline-variant">
+          <form
+            className="hidden lg:flex items-center bg-surface-container-low px-sm py-xs rounded-lg border border-outline-variant"
+            onSubmit={handleSearch}
+          >
             <Icon name="search" className="text-outline" />
             <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
               className="bg-transparent border-none focus:ring-0 text-sm w-32 xl:w-48"
-              placeholder="Search..."
+              placeholder="Cari panduan..."
               type="text"
             />
-          </div>
+          </form>
         </div>
       </div>
     </header>

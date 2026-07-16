@@ -57,6 +57,12 @@ body {
   );
 }
 
+/* Keep hero text clear of side arrows & bottom dots and improve legibility */
+.slide-overlay h2,
+.slide-overlay p {
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+
 /* Material Symbols icon helper */
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined';
