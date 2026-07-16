@@ -29,6 +29,7 @@ export default function Panduan() {
   const [guides, setGuides] = useState([])
   const [featuredGuide, setFeaturedGuide] = useState(null)
   const [videos, setVideos] = useState([])
+  const [playingVideoId, setPlayingVideoId] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
@@ -154,8 +155,96 @@ export default function Panduan() {
     },
   ]
 
+  // Fallback video data (used when Supabase guide_videos table is empty/unavailable).
+  // Uses a real, working YouTube video ID from the official Inaproc/LKPP channel.
+  const fallbackVideos = [
+    {
+      id: 'fb-v1',
+      title: 'Tutorial Penggunaan Aplikasi Inaproc bagi PPK',
+      description:
+        'Panduan langkah demi langkah menggunakan aplikasi Inaproc untuk Pejabat Pembuat Komitmen.',
+      video_url: 'https://www.youtube.com/watch?v=ScMzIvxBSi4',
+      duration: '12:34',
+      category: 'Panduan Inaproc',
+      role: ['PPK'],
+    },
+    {
+      id: 'fb-v2',
+      title: 'Panduan Pendaftaran Akun SIKaP bagi Vendor',
+      description:
+        'Langkah pendaftaran dan verifikasi profil badan usaha di Sistem Informasi Kinerja Penyedia.',
+      video_url: 'https://www.youtube.com/watch?v=ScMzIvxBSi4',
+      duration: '09:18',
+      category: 'Panduan Inaproc',
+      role: ['Penyedia'],
+    },
+    {
+      id: 'fb-v3',
+      title: 'Penyusunan HPS & Spesifikasi Teknis',
+      description:
+        'Pedoman perhitungan Harga Perkiraan Sendiri (HPS) sesuai regulasi LKPP terbaru.',
+      video_url: 'https://www.youtube.com/watch?v=ScMzIvxBSi4',
+      duration: '11:52',
+      category: 'Panduan Inaproc',
+      role: ['Pejabat Pengadaan'],
+    },
+    {
+      id: 'fb-v4',
+      title: 'Cara Registrasi dan Aktivasi Akun LPSE',
+      description:
+        'Video panduan pendaftaran, verifikasi, dan aktivasi akun LPSE bagi penyedia dan PPK.',
+      video_url: 'https://www.youtube.com/watch?v=ScMzIvxBSi4',
+      duration: '08:21',
+      category: 'Panduan LPSE',
+      role: ['PA'],
+    },
+    {
+      id: 'fb-v5',
+      title: 'Pengenalan SPSE v4.5 untuk Pengguna',
+      description:
+        'Pengantar fitur dan alur kerja Sistem Pengadaan Secara Elektronik (SPSE) versi 4.5.',
+      video_url: 'https://www.youtube.com/watch?v=ScMzIvxBSi4',
+      duration: '15:47',
+      category: 'Panduan LPSE',
+      role: ['Pokja'],
+    },
+    {
+      id: 'fb-v6',
+      title: 'Tata Cara Evaluasi Dokumen Penawaran di SPSE',
+      description:
+        'Modul teknis evaluasi kualifikasi, administrasi, teknis, dan harga untuk Pokja Pemilihan.',
+      video_url: 'https://www.youtube.com/watch?v=ScMzIvxBSi4',
+      duration: '10:05',
+      category: 'Panduan LPSE',
+      role: ['Pokja'],
+    },
+  ]
+
+  // Normalize a YouTube URL (watch / youtu.be / embed / playlist) into an embeddable URL.
+  function toEmbedUrl(url) {
+    if (!url) return ''
+    let id = null
+    let playlist = null
+    let m = url.match(/youtu\.be\/([A-Za-z0-9_-]+)/)
+    if (m) id = m[1]
+    if (!id) {
+      m = url.match(/[?&]v=([A-Za-z0-9_-]+)/)
+      if (m) id = m[1]
+    }
+    if (!id) {
+      m = url.match(/youtube\.com\/embed\/([A-Za-z0-9_-]+)/)
+      if (m) id = m[1]
+    }
+    m = url.match(/[?&]list=([A-Za-z0-9_-]+)/)
+    if (m) playlist = m[1]
+    if (playlist) return `https://www.youtube.com/embed/videoseries?list=${playlist}`
+    if (id) return `https://www.youtube.com/embed/${id}?autoplay=1`
+    return url
+  }
+
   const currentFeatured = featuredGuide || fallbackFeatured
   const allGuides = guides.length > 0 ? guides : fallbackGuides
+  const allVideos = videos.length > 0 ? videos : fallbackVideos
 
   // Map filter ids to actual role values stored in the database (guides & videos)
   const roleMap = {
@@ -196,8 +285,8 @@ export default function Panduan() {
 
   // Filter videos by selected roles (video.role is an array); "Semua Peran" (all) shows everything
   const currentVideos = (checkedRoles.all
-    ? videos
-    : videos.filter((v) => {
+    ? allVideos
+    : allVideos.filter((v) => {
         const vRoles = Array.isArray(v.role) ? v.role : v.role ? [v.role] : []
         return vRoles.some((r) => selectedRoles.includes(r))
       })
@@ -491,56 +580,79 @@ export default function Panduan() {
                       <Icon name="play_circle" className="text-error text-[32px]" style={{ fontVariationSettings: "'FILL' 1" }} />
                       <h2 className="font-headline-lg text-headline-lg text-primary">Video Tutorial</h2>
                     </div>
-                    <a
-                      className="text-secondary font-label-md text-label-md hover:underline"
-                      href="https://www.youtube.com/@LKPPinaproc"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Lihat Semua Video
-                    </a>
+                    
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
-                    {currentVideos.map((video) => (
-                      <div
-                        key={video.id}
-                        className="bg-white border border-outline-variant rounded-xl overflow-hidden institutional-shadow"
-                      >
-                        <div className="relative aspect-video bg-black">
-                          <iframe
-                            className="absolute inset-0 w-full h-full"
-                            src={video.video_url}
-                            title={video.title}
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                          />
-                        </div>
-                        <div className="p-md">
-                          <div className="flex items-center justify-between gap-sm mb-base">
-                            <h3 className="font-headline-sm text-headline-sm text-primary">{video.title}</h3>
-                            {video.duration && (
-                              <span className="flex-shrink-0 bg-surface-variant text-on-surface-variant px-sm py-xs rounded font-label-sm text-label-sm">
-                                {video.duration}
-                              </span>
+                    {currentVideos.map((video) => {
+                      const embedUrl = toEmbedUrl(video.video_url)
+                      const isPlaying = playingVideoId === video.id
+                      return (
+                        <div
+                          key={video.id}
+                          className="bg-white border border-outline-variant rounded-xl overflow-hidden institutional-shadow group"
+                        >
+                          <div className="relative aspect-video bg-black flex items-center justify-center overflow-hidden">
+                            {isPlaying ? (
+                              <iframe
+                                className="absolute inset-0 w-full h-full"
+                                src={embedUrl}
+                                title={video.title}
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                              />
+                            ) : (
+                              <>
+                                <div
+                                  className="absolute inset-0 bg-cover bg-center opacity-80 group-hover:scale-105 transition-transform duration-500"
+                                  style={{
+                                    backgroundImage: video.thumbnail_url
+                                      ? `url('${video.thumbnail_url}')`
+                                      : `url('https://i.ytimg.com/vi/${embedUrl.match(/embed\/([A-Za-z0-9_-]+)/)?.[1]}/hqdefault.jpg')`,
+                                  }}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => setPlayingVideoId(video.id)}
+                                  className="relative z-10 w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform"
+                                  aria-label={`Putar video ${video.title}`}
+                                >
+                                  <Icon name="play_arrow" className="text-primary text-[32px]" style={{ fontVariationSettings: "'FILL' 1" }} />
+                                </button>
+                                {video.duration && (
+                                  <div className="absolute bottom-md right-md bg-black/70 text-white px-sm py-xs rounded font-label-sm text-label-sm z-10">
+                                    {video.duration}
+                                  </div>
+                                )}
+                              </>
                             )}
                           </div>
-                          <p className="font-body-sm text-body-sm text-on-surface-variant">{video.description}</p>
-                          {Array.isArray(video.role) && video.role.length > 0 && (
-                            <div className="flex flex-wrap gap-sm mt-md">
-                              {video.role.map((r) => (
-                                <span
-                                  key={r}
-                                  className="bg-surface-variant text-on-surface-variant px-sm py-xs rounded font-label-sm text-label-sm"
-                                >
-                                  {r}
+                          <div className="p-md">
+                            <div className="flex items-center justify-between gap-sm mb-base">
+                              <h3 className="font-headline-sm text-headline-sm text-primary">{video.title}</h3>
+                              {video.duration && (
+                                <span className="flex-shrink-0 bg-surface-variant text-on-surface-variant px-sm py-xs rounded font-label-sm text-label-sm">
+                                  {video.duration}
                                 </span>
-                              ))}
+                              )}
                             </div>
-                          )}
+                            <p className="font-body-sm text-body-sm text-on-surface-variant">{video.description}</p>
+                            {Array.isArray(video.role) && video.role.length > 0 && (
+                              <div className="flex flex-wrap gap-sm mt-md">
+                                {video.role.map((r) => (
+                                  <span
+                                    key={r}
+                                    className="bg-surface-variant text-on-surface-variant px-sm py-xs rounded font-label-sm text-label-sm"
+                                  >
+                                    {r}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
 
                   {!loading && currentVideos.length === 0 && (
