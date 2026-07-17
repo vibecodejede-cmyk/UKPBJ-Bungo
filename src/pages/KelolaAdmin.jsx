@@ -60,12 +60,34 @@ const EMPTY_FORM = {
   status: 'Aktif',
 }
 
+const SETUP_SQL = `-- Jalankan di Supabase SQL Editor untuk membuat tabel admins
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE TABLE IF NOT EXISTS admins (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  full_name TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,
+  role TEXT NOT NULL DEFAULT 'Editor Panduan' CHECK (role IN ('Super Admin','Editor Panduan','Editor Regulasi','Editor Pengumuman')),
+  status TEXT NOT NULL DEFAULT 'Aktif' CHECK (status IN ('Aktif','Nonaktif','Terkunci')),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+ALTER TABLE admins ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public can manage admins" ON admins;
+CREATE POLICY "Public can manage admins" ON admins FOR ALL USING (true) WITH CHECK (true);
+INSERT INTO admins (full_name, email, role, status) VALUES
+  ('Ahmad Subardjo','ahmad.s@lpse.go.id','Super Admin','Aktif'),
+  ('Siti Aminah','siti.a@lpse.go.id','Editor Regulasi','Aktif'),
+  ('Budi Darmawan','budi.d@lpse.go.id','Editor Panduan','Nonaktif'),
+  ('Ratna Sari','ratna.s@lpse.go.id','Super Admin','Terkunci')
+ON CONFLICT (email) DO NOTHING;`
+
 export default function KelolaAdmin() {
   const [admins, setAdmins] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [search, setSearch] = useState('')
   const [saving, setSaving] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   // form state (right panel)
   const [form, setForm] = useState(EMPTY_FORM)
@@ -75,7 +97,14 @@ export default function KelolaAdmin() {
       const data = await fetchAllAdmins()
       setAdmins(data || [])
     } catch (e) {
-      setError(e.message || 'Gagal memuat data admin')
+      const msg = e?.message || ''
+      if (/relation "admins" does not exist|does not exist|42P01/.test(msg)) {
+        setError(
+          'Tabel "admins" belum ada di database Supabase. Jalankan SQL di supabase/admins.sql melalui Supabase SQL Editor, lalu refresh halaman ini.'
+        )
+      } else {
+        setError(msg || 'Gagal memuat data admin')
+      }
     } finally {
       setLoading(false)
     }
@@ -230,9 +259,30 @@ export default function KelolaAdmin() {
           {/* Left: Content Area */}
           <div className="flex-1 space-y-lg min-w-0">
             {error && (
-              <div className="bg-error-container text-on-error-container border border-error rounded-xl p-md font-body-sm">
-                {error}
-                <button className="ml-2 underline" onClick={() => setError(null)}>Tutup</button>
+              <div className="bg-error-container text-on-error-container border border-error rounded-xl p-md font-body-sm space-y-md">
+                <div className="flex items-start justify-between gap-md">
+                  <p>{error}</p>
+                  <button className="underline shrink-0" onClick={() => setError(null)}>Tutup</button>
+                </div>
+                {error.includes('admins') && (
+                  <div className="space-y-2">
+                    <div className="flex justify-end">
+                      <button
+                        className="px-3 py-1 rounded border border-error bg-surface text-on-error-container font-label-md hover:bg-surface-variant transition-colors"
+                        onClick={() => {
+                          navigator.clipboard?.writeText(SETUP_SQL)
+                          setCopied(true)
+                          setTimeout(() => setCopied(false), 2000)
+                        }}
+                      >
+                        {copied ? 'Tersalin!' : 'Salin SQL'}
+                      </button>
+                    </div>
+                    <pre className="bg-surface-container-lowest text-on-surface text-label-sm rounded-lg p-md overflow-x-auto custom-scrollbar whitespace-pre-wrap">
+{SETUP_SQL}
+                    </pre>
+                  </div>
+                )}
               </div>
             )}
 
@@ -442,16 +492,7 @@ export default function KelolaAdmin() {
               </form>
             </div>
 
-            {/* Atmospheric Background Element */}
-            <div className="mt-lg p-lg rounded-xl bg-primary text-on-primary overflow-hidden relative">
-              <div className="relative z-10">
-                <Icon name="security" className="text-4xl mb-2" />
-                <h5 className="font-headline-sm">Keamanan Portal</h5>
-                <p className="text-body-sm opacity-90 mt-2">
-                  Pastikan semua admin mengikuti protokol keamanan LPSE dengan mengganti kata sandi secara berkala.
-                </p>
-              </div>
-            </div>
+            
           </aside>
         </div>
       </main>

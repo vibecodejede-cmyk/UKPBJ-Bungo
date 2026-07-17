@@ -187,10 +187,10 @@ CREATE POLICY "Public can send contact messages" ON contact_messages
 CREATE POLICY "Public can view published regulations" ON regulations
   FOR SELECT USING (is_published = true);
 
--- Admins: Authenticated users can manage admins
+-- Admins: Public can manage admins (for development)
 ALTER TABLE admins ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Authenticated can manage admins" ON admins
-  FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "Public can manage admins" ON admins
+  FOR ALL USING (true) WITH CHECK (true);
 
 -- ============================================
 -- SAMPLE DATA FOR GUIDES (PANDUAN)
