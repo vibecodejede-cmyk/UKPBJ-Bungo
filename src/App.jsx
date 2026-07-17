@@ -14,6 +14,7 @@ import PengumumanDetail from './pages/PengumumanDetail'
 import DashboardAdmin from './pages/DashboardAdmin'
 import KelolaPanduan from './pages/KelolaPanduan'
 import KelolaAdmin from './pages/KelolaAdmin'
+import KelolaRegulasi from './pages/KelolaRegulasi'
 import LoginAdmin from './pages/LoginAdmin'
 
 export default function App() {
@@ -47,6 +48,7 @@ export default function App() {
       <Route path="/login" element={<LoginAdmin />} />
       <Route path="/dashboard" element={<DashboardAdmin />} />
       <Route path="/kelola-panduan" element={<KelolaPanduan />} />
+      <Route path="/kelola-regulasi" element={<KelolaRegulasi />} />
       <Route path="/kelola-admin" element={<KelolaAdmin />} />
     </Routes>
   )

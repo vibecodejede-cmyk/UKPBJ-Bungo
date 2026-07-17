@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import Icon from '../components/Icon'
+import SettingsModal from '../components/SettingsModal'
 import {
   fetchAllAdmins,
   createAdmin,
@@ -88,6 +89,7 @@ export default function KelolaAdmin() {
   const [search, setSearch] = useState('')
   const [saving, setSaving] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
 
   // form state (right panel)
   const [form, setForm] = useState(EMPTY_FORM)
@@ -221,10 +223,13 @@ export default function KelolaAdmin() {
           </a>
         </nav>
         <div className="pt-xl border-t border-outline-variant space-y-1">
-          <a className="flex items-center px-sm py-2 text-on-surface-variant hover:bg-surface-variant rounded-lg transition-all duration-200" href="#">
+          <button
+            className="w-full flex items-center px-sm py-2 text-on-surface-variant hover:bg-surface-variant rounded-lg transition-all duration-200"
+            onClick={() => setSettingsOpen(true)}
+          >
             <Icon name="settings" className="mr-3" />
             <span className="font-label-md text-label-md">Settings</span>
-          </a>
+          </button>
           <a className="flex items-center px-sm py-2 text-on-surface-variant hover:bg-surface-variant rounded-lg transition-all duration-200" href="#">
             <Icon name="logout" className="mr-3" />
             <span className="font-label-md text-label-md">Logout</span>
@@ -496,6 +501,9 @@ export default function KelolaAdmin() {
           </aside>
         </div>
       </main>
+
+      {/* Settings Modal */}
+      <SettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </div>
   )
 }

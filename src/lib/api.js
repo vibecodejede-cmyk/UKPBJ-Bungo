@@ -163,6 +163,78 @@ export async function fetchRegulations() {
 }
 
 // ============================================
+// REGULATIONS ADMIN (CMS) API - Kelola Regulasi
+// ============================================
+// Admin: fetch ALL regulations (including drafts) for management table
+export async function fetchAllRegulations() {
+  const { data, error } = await supabase
+    .from('regulations')
+    .select('*')
+    .order('publish_date', { ascending: false })
+
+  if (error) throw error
+  return data
+}
+
+export async function createRegulation(payload) {
+  const { data, error } = await supabase
+    .from('regulations')
+    .insert([
+      {
+        title: payload.title,
+        description: payload.description || null,
+        category: payload.category || 'Umum',
+        document_url: payload.document_url || null,
+        publish_date: payload.publish_date || new Date().toISOString().slice(0, 10),
+        is_published: payload.is_published ?? true,
+      },
+    ])
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+export async function updateRegulation(id, payload) {
+  const { data, error } = await supabase
+    .from('regulations')
+    .update({
+      title: payload.title,
+      description: payload.description ?? null,
+      category: payload.category || 'Umum',
+      document_url: payload.document_url || null,
+      publish_date: payload.publish_date,
+      is_published: payload.is_published ?? true,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+export async function deleteRegulation(id) {
+  const { error } = await supabase.from('regulations').delete().eq('id', id)
+  if (error) throw error
+  return true
+}
+
+export async function toggleRegulationPublish(id, isPublished) {
+  const { data, error } = await supabase
+    .from('regulations')
+    .update({ is_published: isPublished, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+// ============================================
 // GUIDES ADMIN (CMS) API
 // ============================================
 // Admin: fetch ALL guides (including drafts) for management table

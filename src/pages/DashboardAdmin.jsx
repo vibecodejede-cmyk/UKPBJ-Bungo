@@ -126,7 +126,7 @@ export default function DashboardAdmin() {
   const navItems = [
     { to: '/dashboard', icon: 'dashboard', label: 'Dashboard' },
     { to: '/kelola-panduan', icon: 'menu_book', label: 'Kelola Panduan' },
-    { to: '/regulasi', icon: 'gavel', label: 'Kelola Regulasi' },
+    { to: '/kelola-regulasi', icon: 'gavel', label: 'Kelola Regulasi' },
     { to: '/pengumuman', icon: 'campaign', label: 'Kelola Pengumuman' },
   ]
   if (isSuperAdmin) {

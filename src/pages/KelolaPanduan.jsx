@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Icon from '../components/Icon'
 import Modal from '../components/Modal'
+import SettingsModal from '../components/SettingsModal'
 import {
   fetchAllGuides,
   createGuide,
@@ -56,6 +57,7 @@ export default function KelolaPanduan() {
   const [error, setError] = useState(null)
   const [search, setSearch] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
   const [saving, setSaving] = useState(false)
 
   // form state
@@ -187,10 +189,13 @@ export default function KelolaPanduan() {
             <Icon name="add" className="text-[20px]" />
             New Entry
           </button>
-          <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg" href="#">
+          <button
+            className="w-full flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg"
+            onClick={() => setSettingsOpen(true)}
+          >
             <Icon name="settings" />
             <span className="font-label-md text-label-md">Settings</span>
-          </a>
+          </button>
           <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg" href="#">
             <Icon name="logout" />
             <span className="font-label-md text-label-md">Logout</span>
@@ -455,6 +460,9 @@ export default function KelolaPanduan() {
           </div>
         </form>
       </Modal>
+
+      {/* Settings Modal */}
+      <SettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </div>
   )
 }
