@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import Icon from '../components/Icon'
 import Modal from '../components/Modal'
 import SettingsModal from '../components/SettingsModal'
+import NotificationBell from '../components/NotificationBell'
 import { getAdminSession } from '../lib/session'
 import {
   fetchAllRegulations,
@@ -218,13 +219,16 @@ export default function KelolaRegulasi() {
             <Icon name="gavel" className="text-primary text-[24px]" />
             <h2 className="font-headline-md text-headline-md text-primary font-bold">Kelola Regulasi</h2>
           </div>
-          <button
-            className="bg-primary hover:bg-primary-container text-on-primary px-lg py-md rounded-lg font-label-md text-label-md transition-colors flex items-center gap-sm institutional-shadow"
-            onClick={openCreate}
-          >
-            <Icon name="add_circle" className="text-[20px]" />
-            Tambah Regulasi Baru
-          </button>
+          <div className="flex items-center gap-md">
+            <NotificationBell />
+            <button
+              className="bg-primary hover:bg-primary-container text-on-primary px-lg py-md rounded-lg font-label-md text-label-md transition-colors flex items-center gap-sm institutional-shadow"
+              onClick={openCreate}
+            >
+              <Icon name="add_circle" className="text-[20px]" />
+              Tambah Regulasi Baru
+            </button>
+          </div>
         </header>
 
         <div className="flex-1 p-gutter overflow-y-auto bg-surface-container-lowest space-y-lg">

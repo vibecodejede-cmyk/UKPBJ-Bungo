@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Kelola Pesan Masuk - Inaproc &amp; LPSE Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-surface": "#121c2a",
+                    "inverse-on-surface": "#eaf1ff",
+                    "surface-dim": "#d0dbed",
+                    "on-primary-fixed": "#00164e",
+                    "error-container": "#ffdad6",
+                    "surface": "#f8f9ff",
+                    "primary-fixed": "#dce1ff",
+                    "on-surface-variant": "#444651",
+                    "on-error": "#ffffff",
+                    "inverse-surface": "#27313f",
+                    "primary": "#00236f",
+                    "secondary": "#0058be",
+                    "tertiary": "#4b1c00",
+                    "secondary-fixed": "#d8e2ff",
+                    "tertiary-fixed": "#ffdbcb",
+                    "on-primary": "#ffffff",
+                    "tertiary-container": "#6e2c00",
+                    "on-tertiary-fixed-variant": "#773205",
+                    "inverse-primary": "#b6c4ff",
+                    "outline": "#757682",
+                    "on-secondary-fixed": "#001a42",
+                    "on-secondary": "#ffffff",
+                    "surface-container": "#e6eeff",
+                    "surface-container-highest": "#d9e3f6",
+                    "secondary-fixed-dim": "#adc6ff",
+                    "on-secondary-fixed-variant": "#004395",
+                    "tertiary-fixed-dim": "#ffb691",
+                    "on-primary-container": "#90a8ff",
+                    "error": "#ba1a1a",
+                    "outline-variant": "#c5c5d3",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-tint": "#4059aa",
+                    "secondary-container": "#2170e4",
+                    "surface-container-low": "#eff4ff",
+                    "on-primary-fixed-variant": "#264191",
+                    "background": "#f8f9ff",
+                    "primary-fixed-dim": "#b6c4ff",
+                    "on-tertiary-container": "#f39461",
+                    "on-background": "#121c2a",
+                    "surface-bright": "#f8f9ff",
+                    "on-error-container": "#93000a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "48px",
+                    "container-max": "1280px",
+                    "sm": "8px",
+                    "gutter": "24px",
+                    "xs": "4px",
+                    "md": "16px",
+                    "lg": "24px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "body-md": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "label-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "60px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9ff; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .active-message { border-left: 4px solid #00236f; background-color: #e6eeff; }
+    </style>
+</head>
+<body class="flex overflow-hidden h-screen">
+<!-- Sidebar Navigation -->
+<aside class="flex flex-col h-screen py-md px-sm border-r border-outline-variant bg-surface-container dark:bg-surface-container-high w-64 shrink-0">
+<div class="mb-xl px-sm">
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary dark:text-inverse-primary">Admin Panel</h1>
+<p class="text-on-surface-variant font-label-sm text-label-sm">System Administrator</p>
+</div>
+<nav class="flex-1 space-y-1 overflow-y-auto scrollbar-hide">
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-variant rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm bg-secondary-container text-on-secondary-container rounded-lg font-bold transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="mail">mail</span>
+<span class="font-label-md text-label-md">Kelola Pesan Masuk</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-variant rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span class="font-label-md text-label-md">Manage Guides</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-variant rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="gavel">gavel</span>
+<span class="font-label-md text-label-md">Manage Regulations</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-variant rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="campaign">campaign</span>
+<span class="font-label-md text-label-md">Manage Announcements</span>
+</a>
+</nav>
+<div class="mt-auto space-y-1 pt-md">
+<button class="w-full flex items-center justify-center gap-sm bg-primary text-white py-sm rounded-lg font-label-md text-label-md hover:bg-opacity-90 transition-all mb-lg">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+<span>New Entry</span>
+</button>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-label-md text-label-md">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col min-w-0 bg-surface">
+<!-- Header -->
+<header class="h-16 flex justify-between items-center px-gutter border-b border-outline-variant bg-surface sticky top-0 z-10">
+<div class="flex items-center gap-md">
+<h2 class="font-headline-md text-headline-md text-primary font-bold">Kelola Pesan Masuk</h2>
+<div class="h-6 w-px bg-outline-variant"></div>
+<div class="flex items-center gap-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]" data-icon="group">group</span>
+<span class="text-label-md font-label-md">Pelayanan Publik</span>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="relative hidden md:block">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]" data-icon="search">search</span>
+<input class="pl-xl pr-md py-xs bg-surface-container-low border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none w-64 text-body-sm font-body-sm" placeholder="Cari pesan atau pengirim..." type="text"/>
+</div>
+<button class="relative p-sm rounded-full hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A professional close-up headshot of a government administrator wearing formal Indonesian batik, with a neutral soft-focus office background, lit with professional even lighting for an institutional corporate profile." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCD2igCfCq7KyP92rTTYEgGyLdOhOyutuT1Tk9P-Ft3xmj4Vua6KYsvjqKTyMNtkyUIJ9Npr9ZB6JpOhtW2hvnwGPhErOTuvR8ph0xmGUTfcaseJxJvBZZZSDcANqMzZkz2LndH6zAFF6ShmrzHAxVhG3cN1IVAed7VoXOaODZQQNLrRqzKaud3ApWce3pdsGmkjjWV3eltbUHVksiHDBZXudJCOBTe9eQp_7NDAWz-FkXYY4sHWMyUoCgDz50mLQOs0KTv6Z67QqJf"/>
+</div>
+</div>
+</header>
+<!-- Search and Filter Bar (Secondary) -->
+<div class="px-gutter py-md bg-surface flex flex-wrap gap-md items-center justify-between shadow-sm">
+<div class="flex gap-sm">
+<button class="px-md py-xs bg-primary text-white rounded-full font-label-sm text-label-sm">Semua</button>
+<button class="px-md py-xs bg-surface-container-highest text-on-surface-variant rounded-full font-label-sm text-label-sm hover:bg-outline-variant transition-colors">Belum Dibaca</button>
+<button class="px-md py-xs bg-surface-container-highest text-on-surface-variant rounded-full font-label-sm text-label-sm hover:bg-outline-variant transition-colors">Sudah Dibalas</button>
+<button class="px-md py-xs bg-surface-container-highest text-on-surface-variant rounded-full font-label-sm text-label-sm hover:bg-outline-variant transition-colors">Arsip</button>
+</div>
+<div class="flex items-center gap-sm">
+<span class="text-label-sm font-label-sm text-on-surface-variant">Urutkan:</span>
+<select class="bg-surface border border-outline-variant rounded-lg px-sm py-xs text-label-sm font-label-sm focus:ring-1 focus:ring-primary outline-none">
+<option>Terbaru</option>
+<option>Terlama</option>
+<option>Status</option>
+</select>
+</div>
+</div>
+<!-- Desktop Split View -->
+<div class="flex-1 flex overflow-hidden">
+<!-- Message List -->
+<div class="w-full md:w-[420px] shrink-0 border-r border-outline-variant overflow-y-auto bg-white">
+<div class="divide-y divide-outline-variant">
+<!-- Message Item 1 (Selected) -->
+<div class="p-md hover:bg-surface-container-low cursor-pointer active-message transition-colors" onclick="selectMessage(this)">
+<div class="flex justify-between items-start mb-xs">
+<span class="font-label-md text-label-md text-primary font-bold">Budi Santoso</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant">10:45 AM</span>
+</div>
+<h4 class="font-label-md text-label-md text-on-surface line-clamp-1 mb-xs">Pertanyaan terkait Tender LPSE-2024-001</h4>
+<p class="text-body-sm font-body-sm text-on-surface-variant line-clamp-2 mb-sm">Mohon info untuk kelengkapan dokumen administrasi...</p>
+<div class="flex gap-xs">
+<span class="px-sm py-px bg-error-container text-on-error-container rounded-full text-[10px] font-bold uppercase tracking-wider">Belum Dibaca</span>
+<span class="px-sm py-px bg-surface-container-highest text-on-surface-variant rounded-full text-[10px] font-bold uppercase tracking-wider">Mendesak</span>
+</div>
+</div>
+<!-- Message Item 2 -->
+<div class="p-md hover:bg-surface-container-low cursor-pointer transition-colors" onclick="selectMessage(this)">
+<div class="flex justify-between items-start mb-xs">
+<span class="font-label-md text-label-md text-on-surface">Siti Aminah</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant">Kemarin</span>
+</div>
+<h4 class="font-label-md text-label-md text-on-surface line-clamp-1 mb-xs">Kendala Upload File Penawaran</h4>
+<p class="text-body-sm font-body-sm text-on-surface-variant line-clamp-2 mb-sm">Saya mengalami kegagalan sistem saat mengunggah file penawaran pada pukul 14.00...</p>
+<div class="flex gap-xs">
+<span class="px-sm py-px bg-secondary-container text-on-secondary-container rounded-full text-[10px] font-bold uppercase tracking-wider">Sudah Dibalas</span>
+</div>
+</div>
+<!-- Message Item 3 -->
+<div class="p-md hover:bg-surface-container-low cursor-pointer transition-colors" onclick="selectMessage(this)">
+<div class="flex justify-between items-start mb-xs">
+<span class="font-label-md text-label-md text-on-surface">PT. Maju Bersama</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant">24 Okt</span>
+</div>
+<h4 class="font-label-md text-label-md text-on-surface line-clamp-1 mb-xs">Konfirmasi Pendaftaran Vendor</h4>
+<p class="text-body-sm font-body-sm text-on-surface-variant line-clamp-2 mb-sm">Kami telah mengirimkan berkas fisik melalui pos, mohon konfirmasi...</p>
+<div class="flex gap-xs">
+<span class="px-sm py-px bg-secondary-container text-on-secondary-container rounded-full text-[10px] font-bold uppercase tracking-wider">Sudah Dibalas</span>
+</div>
+</div>
+<!-- Message Item 4 -->
+<div class="p-md hover:bg-surface-container-low cursor-pointer transition-colors" onclick="selectMessage(this)">
+<div class="flex justify-between items-start mb-xs">
+<span class="font-label-md text-label-md text-primary font-bold">Ahmad Fauzi</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant">23 Okt</span>
+</div>
+<h4 class="font-label-md text-label-md text-on-surface line-clamp-1 mb-xs">Lupa Password Akun Inaproc</h4>
+<p class="text-body-sm font-body-sm text-on-surface-variant line-clamp-2 mb-sm">Sore admin, saya tidak bisa login karena lupa password dan email pemulihan...</p>
+<div class="flex gap-xs">
+<span class="px-sm py-px bg-error-container text-on-error-container rounded-full text-[10px] font-bold uppercase tracking-wider">Belum Dibaca</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Detail Panel -->
+<div class="hidden md:flex flex-1 flex-col bg-surface overflow-hidden">
+<!-- Toolbar Detail -->
+<div class="h-14 flex items-center justify-between px-lg border-b border-outline-variant bg-white">
+<div class="flex gap-sm">
+<button class="p-sm rounded-full hover:bg-surface-container transition-colors text-on-surface-variant" title="Arsip">
+<span class="material-symbols-outlined" data-icon="archive">archive</span>
+</button>
+<button class="p-sm rounded-full hover:bg-surface-container transition-colors text-on-surface-variant" title="Hapus">
+<span class="material-symbols-outlined" data-icon="delete">delete</span>
+</button>
+<button class="p-sm rounded-full hover:bg-surface-container transition-colors text-on-surface-variant" title="Tandai Belum Dibaca">
+<span class="material-symbols-outlined" data-icon="mark_as_unread">mark_as_unread</span>
+</button>
+</div>
+<div class="flex items-center gap-md">
+<span class="text-label-sm font-label-sm text-on-surface-variant">1 dari 24 Pesan</span>
+<div class="flex gap-xs">
+<button class="p-xs rounded hover:bg-surface-container text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="p-xs rounded hover:bg-surface-container text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Message Content -->
+<div class="flex-1 overflow-y-auto p-xl">
+<div class="max-w-3xl mx-auto">
+<div class="mb-lg">
+<h3 class="font-headline-lg text-headline-lg text-on-surface mb-md">Pertanyaan terkait Tender LPSE-2024-001</h3>
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white font-bold text-lg">B</div>
+<div class="flex-1">
+<div class="flex justify-between items-center">
+<p class="font-label-md text-label-md text-on-surface">Budi Santoso <span class="font-normal text-on-surface-variant">&lt;budi.santoso@vendor-indonesia.id&gt;</span></p>
+<span class="text-label-sm font-label-sm text-on-surface-variant">26 Oktober 2024, 10:45 AM</span>
+</div>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Kepada: Helpdesk Inaproc</p>
+</div>
+</div>
+</div>
+<article class="prose max-w-none text-on-surface-variant font-body-md text-body-md space-y-md">
+<p>Yth. Admin Inaproc &amp; LPSE,</p>
+<p>Sehubungan dengan Pengumuman Tender Pekerjaan Konstruksi Jembatan (Kode: LPSE-2024-001), kami dari tim teknis ingin menanyakan rincian lebih lanjut terkait dokumen administrasi yang harus diunggah.</p>
+<p>Pada poin 4.2 disebutkan mengenai Surat Keterangan Dukungan Bank sebesar 10% dari Nilai Pagu, namun pada lampiran teknis tertulis 15%. Mohon konfirmasi mana yang menjadi acuan utama untuk kami persiapkan.</p>
+<p>Selain itu, apakah diperkenankan menggunakan Sertifikat Badan Usaha (SBU) yang sedang dalam proses perpanjangan dengan melampirkan bukti pengurusan?</p>
+<p>Terima kasih atas perhatian dan kerja samanya.</p>
+<p>Hormat kami,<br/><strong>Budi Santoso</strong><br/>Manajer Operasional</p>
+</article>
+<div class="mt-xl pt-lg border-t border-outline-variant">
+<h5 class="font-label-md text-label-md text-on-surface mb-sm">Lampiran (1 file)</h5>
+<div class="flex items-center gap-md p-sm bg-white border border-outline-variant rounded-lg w-fit hover:border-primary cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-primary" data-icon="description">description</span>
+<div class="flex flex-col">
+<span class="text-label-sm font-label-sm text-on-surface">surat_permohonan.pdf</span>
+<span class="text-[10px] text-on-surface-variant uppercase">PDF • 1.2 MB</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px] ml-md" data-icon="download">download</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Reply Action Area -->
+<div class="p-lg bg-white border-t border-outline-variant">
+<div class="max-w-3xl mx-auto border border-outline-variant rounded-xl focus-within:ring-2 focus-within:ring-primary overflow-hidden transition-all shadow-sm">
+<div class="flex items-center gap-md px-md py-sm bg-surface-container-low border-b border-outline-variant">
+<button class="p-xs hover:bg-surface-variant rounded"><span class="material-symbols-outlined text-[20px]" data-icon="format_bold">format_bold</span></button>
+<button class="p-xs hover:bg-surface-variant rounded"><span class="material-symbols-outlined text-[20px]" data-icon="format_italic">format_italic</span></button>
+<button class="p-xs hover:bg-surface-variant rounded"><span class="material-symbols-outlined text-[20px]" data-icon="format_list_bulleted">format_list_bulleted</span></button>
+<button class="p-xs hover:bg-surface-variant rounded"><span class="material-symbols-outlined text-[20px]" data-icon="attach_file">attach_file</span></button>
+<div class="flex-1"></div>
+<span class="text-label-sm font-label-sm text-on-surface-variant">Balas ke: budi.santoso@vendor-indonesia.id</span>
+</div>
+<textarea class="w-full p-md outline-none border-none resize-none font-body-sm text-body-sm" placeholder="Tulis balasan Anda di sini..." rows="4"></textarea>
+<div class="flex justify-end p-md bg-white">
+<button class="flex items-center gap-sm px-lg py-sm bg-primary text-white rounded-lg font-label-md text-label-md hover:bg-opacity-90 shadow-md">
+<span class="material-symbols-outlined" data-icon="send">send</span>
+<span>Balas</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer (from JSON) -->
+<footer class="bg-surface-dim dark:bg-inverse-surface border-t border-outline-variant mt-auto">
+<div class="w-full py-md px-gutter flex flex-col md:flex-row justify-between items-center max-w-container-max mx-auto">
+<span class="font-label-md text-label-md font-bold text-on-surface dark:text-inverse-on-surface">Inaproc &amp; LPSE</span>
+<p class="font-body-sm text-body-sm text-on-surface dark:text-inverse-on-surface mt-2 md:mt-0">© 2024 Inaproc &amp; LPSE. All Rights Reserved. Institutional Government Portal.</p>
+<div class="flex gap-md mt-4 md:mt-0">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-opacity duration-200" href="#">Privacy Policy</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-opacity duration-200" href="#">Terms of Service</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-opacity duration-200" href="#">Help Center</a>
+</div>
+</div>
+</footer>
+</main>
+<script>
+        function selectMessage(element) {
+            // Clear current active state
+            document.querySelectorAll('.active-message').forEach(el => {
+                el.classList.remove('active-message');
+                el.querySelector('.font-bold')?.classList.remove('text-primary');
+            });
+            
+            // Set new active state
+            element.classList.add('active-message');
+            // Mocking the detail change
+            const sender = element.querySelector('.font-label-md').innerText;
+            const subject = element.querySelector('h4').innerText;
+            
+            // In a real app, this would trigger a data refresh for the detail view
+            console.log("Selected message from: " + sender);
+        }
+
+        // Add interaction for buttons
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                ripple.classList.add('ripple');
+                this.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+    </script>
+</body></html>

@@ -78,3 +78,9 @@ body {
   -webkit-font-feature-settings: 'liga';
   -webkit-font-smoothing: antialiased;
 }
+
+/* Active message state for inbox */
+.active-message {
+  border-left: 4px solid #00236f;
+  background-color: #e6eeff;
+}

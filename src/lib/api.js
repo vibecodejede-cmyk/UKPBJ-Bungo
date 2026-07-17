@@ -122,6 +122,85 @@ export async function fetchAnnouncementById(id) {
   return data
 }
 
+// Admin: fetch ALL announcements (including drafts) for management table
+export async function fetchAllAnnouncements() {
+  const { data, error } = await supabase
+    .from('announcements')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+  return data
+}
+
+export async function createAnnouncement(payload) {
+  const { data, error } = await supabase
+    .from('announcements')
+    .insert([
+      {
+        title: payload.title,
+        excerpt: payload.excerpt || payload.title,
+        content: payload.content || '',
+        badge: payload.badge || 'Info',
+        badge_class: payload.badge_class || 'bg-secondary text-on-secondary',
+        date: payload.date || new Date().toLocaleDateString('id-ID'),
+        detail_date: payload.detail_date || new Date().toLocaleDateString('id-ID'),
+        category: payload.category || 'Umum',
+        author: payload.author || 'Admin',
+        image_url: payload.image_url || '',
+        is_published: payload.is_published ?? true,
+      },
+    ])
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+export async function updateAnnouncement(id, payload) {
+  const { data, error } = await supabase
+    .from('announcements')
+    .update({
+      title: payload.title,
+      excerpt: payload.excerpt || payload.title,
+      content: payload.content || '',
+      badge: payload.badge || 'Info',
+      badge_class: payload.badge_class || 'bg-secondary text-on-secondary',
+      date: payload.date,
+      detail_date: payload.detail_date,
+      category: payload.category || 'Umum',
+      author: payload.author || 'Admin',
+      image_url: payload.image_url || '',
+      is_published: payload.is_published ?? true,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+export async function deleteAnnouncement(id) {
+  const { error } = await supabase.from('announcements').delete().eq('id', id)
+  if (error) throw error
+  return true
+}
+
+export async function toggleAnnouncementPublish(id, isPublished) {
+  const { data, error } = await supabase
+    .from('announcements')
+    .update({ is_published: isPublished, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
 // ============================================
 // NEWSLETTER API
 // ============================================
@@ -136,13 +215,121 @@ export async function subscribeNewsletter(email) {
 }
 
 // ============================================
-// CONTACT API
+// CONTACT API (table: pesan_masuk)
 // ============================================
 export async function submitContactMessage(name, email, subject, message) {
   const { data, error } = await supabase
-    .from('contact_messages')
+    .from('pesan_masuk')
     .insert([{ name, email, subject, message }])
     .select()
+
+  if (error) {
+    console.error('Error submitting contact message:', error)
+    throw new Error(error.message || 'Gagal mengirim pesan. Pastikan tabel pesan_masuk memiliki kolom email, name, subject, dan message.')
+  }
+  return data
+}
+
+// Fetch all incoming messages (for admin notifications / inbox).
+export async function fetchContactMessages() {
+  const { data, error } = await supabase
+    .from('pesan_masuk')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+  return data
+}
+
+// Update a contact message (e.g., mark as read)
+export async function updateContactMessage(id, updates) {
+  const { data, error } = await supabase
+    .from('pesan_masuk')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+// Delete a contact message
+export async function deleteContactMessage(id) {
+  const { error } = await supabase
+    .from('pesan_masuk')
+    .delete()
+    .eq('id', id)
+
+  if (error) throw error
+  return true
+}
+
+// Reply to a contact message
+export async function replyToMessage(id, replyText) {
+  const { data, error } = await supabase
+    .from('pesan_masuk')
+    .update({
+      is_replied: true,
+      is_read: true,
+      reply_text: replyText,
+      replied_at: new Date().toISOString(),
+    })
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+// Archive a contact message
+export async function archiveMessage(id) {
+  const { data, error } = await supabase
+    .from('pesan_masuk')
+    .update({ is_archived: true })
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+// Unarchive a contact message
+export async function unarchiveMessage(id) {
+  const { data, error } = await supabase
+    .from('pesan_masuk')
+    .update({ is_archived: false })
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+// Mark message as read
+export async function markAsRead(id) {
+  const { data, error } = await supabase
+    .from('pesan_masuk')
+    .update({ is_read: true })
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+// Mark message as unread
+export async function markAsUnread(id) {
+  const { data, error } = await supabase
+    .from('pesan_masuk')
+    .update({ is_read: false })
+    .eq('id', id)
+    .select()
+    .single()
 
   if (error) throw error
   return data

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Icon from '../components/Icon'
 import SettingsModal from '../components/SettingsModal'
+import NotificationBell from '../components/NotificationBell'
 import {
   fetchAllAdmins,
   createAdmin,
@@ -250,13 +251,16 @@ export default function KelolaAdmin() {
               </nav>
               <h2 className="font-headline-md text-headline-md text-on-surface">Kelola Admin</h2>
             </div>
-            <button
-              className="bg-primary text-on-primary px-lg py-2 rounded-lg font-label-md institution-shadow hover:brightness-90 transition-all flex items-center gap-2"
-              onClick={resetForm}
-            >
-              <Icon name="person_add" />
-              Tambah Admin Baru
-            </button>
+            <div className="flex items-center gap-md">
+              <NotificationBell />
+              <button
+                className="bg-primary text-on-primary px-lg py-2 rounded-lg font-label-md institution-shadow hover:brightness-90 transition-all flex items-center gap-2"
+                onClick={resetForm}
+              >
+                <Icon name="person_add" />
+                Tambah Admin Baru
+              </button>
+            </div>
           </div>
         </header>
 

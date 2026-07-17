@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import Icon from '../components/Icon'
 import Modal from '../components/Modal'
 import SettingsModal from '../components/SettingsModal'
+import NotificationBell from '../components/NotificationBell'
 import {
   fetchAllGuides,
   createGuide,
@@ -215,13 +216,16 @@ export default function KelolaPanduan() {
               <span>Guides Management</span>
             </div>
           </div>
-          <button
-            className="flex items-center gap-sm bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm"
-            onClick={() => setModalOpen(true)}
-          >
-            <Icon name="add_circle" className="text-[20px]" />
-            Tambah Panduan Baru
-          </button>
+          <div className="flex items-center gap-md">
+            <NotificationBell />
+            <button
+              className="flex items-center gap-sm bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm"
+              onClick={() => setModalOpen(true)}
+            >
+              <Icon name="add_circle" className="text-[20px]" />
+              Tambah Panduan Baru
+            </button>
+          </div>
         </header>
 
         {/* Content Canvas */}

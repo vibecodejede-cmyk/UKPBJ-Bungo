@@ -95,9 +95,9 @@ CREATE TABLE IF NOT EXISTS newsletter_subscriptions (
 );
 
 -- ============================================
--- 6. CONTACT MESSAGES TABLE
+-- 6. CONTACT MESSAGES TABLE (pesan_masuk)
 -- ============================================
-CREATE TABLE IF NOT EXISTS contact_messages (
+CREATE TABLE IF NOT EXISTS pesan_masuk (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   name TEXT NOT NULL,
   email TEXT NOT NULL,
@@ -156,7 +156,7 @@ ALTER TABLE guide_categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE guide_videos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE announcements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE newsletter_subscriptions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE pesan_masuk ENABLE ROW LEVEL SECURITY;
 ALTER TABLE regulations ENABLE ROW LEVEL SECURITY;
 
 -- Guides: Public can read published guides
@@ -179,8 +179,8 @@ CREATE POLICY "Public can view published announcements" ON announcements
 CREATE POLICY "Public can subscribe to newsletter" ON newsletter_subscriptions
   FOR INSERT WITH CHECK (true);
 
--- Contact messages: Public can insert
-CREATE POLICY "Public can send contact messages" ON contact_messages
+-- Pesan Masuk: Public can insert (from Kontak form)
+CREATE POLICY "Public can send pesan masuk" ON pesan_masuk
   FOR INSERT WITH CHECK (true);
 
 -- Regulations: Public can read published regulations

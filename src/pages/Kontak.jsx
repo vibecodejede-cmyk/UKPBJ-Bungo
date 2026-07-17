@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Icon from '../components/Icon'
 import Footer from '../components/Footer'
+import { submitContactMessage } from '../lib/api'
 
 const contactInfo = [
   {
@@ -30,17 +31,102 @@ const contactInfo = [
   },
 ]
 
-export default function Kontak() {
-  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' })
-  const [submitted, setSubmitted] = useState(false)
+// Field limits (security / abuse prevention)
+const LIMITS = {
+  name: 60,
+  email: 120,
+  subject: 120,
+  message: 2000,
+}
 
-  const handleChange = (e) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+// Basic sanitizer: trim + collapse excessive whitespace + cap length.
+function sanitize(value, max) {
+  return String(value || '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, max)
+}
+
+// Per-field validation. Returns an errors object (empty = valid).
+function validate(values) {
+  const errors = {}
+  const name = values.name.trim()
+  const email = values.email.trim()
+  const subject = values.subject.trim()
+  const message = values.message.trim()
+
+  if (!name) {
+    errors.name = 'Nama lengkap wajib diisi.'
+  } else if (name.length < 3) {
+    errors.name = 'Nama minimal 3 karakter.'
+  } else if (!/^[a-zA-Z\s.'-]+$/.test(name)) {
+    errors.name = 'Nama hanya boleh berisi huruf, spasi, titik, dan tanda hubung.'
   }
 
-  const handleSubmit = (e) => {
+  if (!email) {
+    errors.email = 'Email wajib diisi.'
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errors.email = 'Format email tidak valid.'
+  }
+
+  if (!subject) {
+    errors.subject = 'Subjek wajib diisi.'
+  } else if (subject.length < 3) {
+    errors.subject = 'Subjek minimal 3 karakter.'
+  }
+
+  if (!message) {
+    errors.message = 'Pesan wajib diisi.'
+  } else if (message.length < 10) {
+    errors.message = 'Pesan minimal 10 karakter.'
+  }
+
+  return errors
+}
+
+export default function Kontak() {
+  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' })
+  const [errors, setErrors] = useState({})
+  const [submitted, setSubmitted] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [sendError, setSendError] = useState(null)
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    // Enforce max length per field as the user types (security guard)
+    setForm((prev) => ({ ...prev, [name]: value.slice(0, LIMITS[name] || 2000) }))
+    // Clear a field's error as the user corrects it
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: undefined }))
+    }
+  }
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    setSubmitted(true)
+    setSendError(null)
+
+    const sanitized = {
+      name: sanitize(form.name, LIMITS.name),
+      email: sanitize(form.email, LIMITS.email),
+      subject: sanitize(form.subject, LIMITS.subject),
+      message: sanitize(form.message, LIMITS.message),
+    }
+
+    const validationErrors = validate(sanitized)
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors)
+      return
+    }
+
+    setSending(true)
+    try {
+      await submitContactMessage(sanitized.name, sanitized.email, sanitized.subject, sanitized.message)
+      setSubmitted(true)
+    } catch (err) {
+      setSendError(err.message || 'Gagal mengirim pesan. Coba lagi.')
+    } finally {
+      setSending(false)
+    }
   }
 
   return (
@@ -123,72 +209,114 @@ export default function Kontak() {
                   </button>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-md">
+                <form onSubmit={handleSubmit} className="space-y-md" noValidate>
                   <div>
                     <label className="block font-label-sm text-label-sm text-on-surface-variant mb-xs" htmlFor="name">
-                      Nama Lengkap
+                      Nama Lengkap <span className="text-error">*</span>
                     </label>
                     <input
                       id="name"
                       name="name"
                       value={form.name}
                       onChange={handleChange}
+                      maxLength={LIMITS.name}
                       required
-                      className="w-full px-md py-sm border border-outline-variant rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent outline-none transition-all bg-surface"
+                      aria-invalid={!!errors.name}
+                      className={`w-full px-md py-sm border rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent outline-none transition-all bg-surface ${
+                        errors.name ? 'border-error' : 'border-outline-variant'
+                      }`}
                       placeholder="Nama Anda"
                       type="text"
                     />
+                    {errors.name && (
+                      <p className="mt-xs font-label-sm text-label-sm text-error">{errors.name}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block font-label-sm text-label-sm text-on-surface-variant mb-xs" htmlFor="email">
-                      Email
+                      Email <span className="text-error">*</span>
                     </label>
                     <input
                       id="email"
                       name="email"
                       value={form.email}
                       onChange={handleChange}
+                      maxLength={LIMITS.email}
                       required
-                      className="w-full px-md py-sm border border-outline-variant rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent outline-none transition-all bg-surface"
+                      aria-invalid={!!errors.email}
+                      className={`w-full px-md py-sm border rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent outline-none transition-all bg-surface ${
+                        errors.email ? 'border-error' : 'border-outline-variant'
+                      }`}
                       placeholder="alamat@email.com"
                       type="email"
                     />
+                    {errors.email && (
+                      <p className="mt-xs font-label-sm text-label-sm text-error">{errors.email}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block font-label-sm text-label-sm text-on-surface-variant mb-xs" htmlFor="subject">
-                      Subjek
+                      Subjek <span className="text-error">*</span>
                     </label>
                     <input
                       id="subject"
                       name="subject"
                       value={form.subject}
                       onChange={handleChange}
-                      className="w-full px-md py-sm border border-outline-variant rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent outline-none transition-all bg-surface"
+                      maxLength={LIMITS.subject}
+                      required
+                      aria-invalid={!!errors.subject}
+                      className={`w-full px-md py-sm border rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent outline-none transition-all bg-surface ${
+                        errors.subject ? 'border-error' : 'border-outline-variant'
+                      }`}
                       placeholder="Subjek pesan"
                       type="text"
                     />
+                    {errors.subject && (
+                      <p className="mt-xs font-label-sm text-label-sm text-error">{errors.subject}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block font-label-sm text-label-sm text-on-surface-variant mb-xs" htmlFor="message">
-                      Pesan
+                      Pesan <span className="text-error">*</span>
                     </label>
                     <textarea
                       id="message"
                       name="message"
                       value={form.message}
                       onChange={handleChange}
+                      maxLength={LIMITS.message}
                       required
                       rows={4}
-                      className="w-full px-md py-sm border border-outline-variant rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent outline-none transition-all bg-surface resize-none"
-                      placeholder="Tulis pesan Anda di sini..."
+                      aria-invalid={!!errors.message}
+                      className={`w-full px-md py-sm border rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent outline-none transition-all bg-surface resize-none ${
+                        errors.message ? 'border-error' : 'border-outline-variant'
+                      }`}
+                      placeholder="Tulis pesan Anda di sini (minimal 10 karakter)..."
                     />
+                    <div className="flex justify-between mt-xs">
+                      {errors.message ? (
+                        <p className="font-label-sm text-label-sm text-error">{errors.message}</p>
+                      ) : (
+                        <span />
+                      )}
+                      <span className="font-label-sm text-label-sm text-on-surface-variant">
+                        {form.message.length}/{LIMITS.message}
+                      </span>
+                    </div>
                   </div>
+                  {sendError && (
+                    <div className="bg-error-container text-on-error-container border border-error rounded-lg p-md font-body-sm">
+                      {sendError}
+                    </div>
+                  )}
                   <button
                     type="submit"
-                    className="w-full bg-secondary text-on-secondary px-lg py-md rounded-lg font-label-md text-label-md hover:bg-secondary-container transition-all flex items-center justify-center gap-sm"
+                    disabled={sending}
+                    className="w-full bg-secondary text-on-secondary px-lg py-md rounded-lg font-label-md text-label-md hover:bg-secondary-container transition-all flex items-center justify-center gap-sm disabled:opacity-60"
                   >
                     <Icon name="send" className="text-[18px]" />
-                    Kirim Pesan
+                    {sending ? 'Mengirim...' : 'Kirim Pesan'}
                   </button>
                 </form>
               )}

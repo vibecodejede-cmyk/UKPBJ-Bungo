@@ -1,17 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { fetchDashboardStats, fetchActivityLog } from '../lib/api'
-
-// Read the current admin session stored at login (see LoginAdmin.jsx).
-function getAdminSession() {
-  try {
-    const raw = localStorage.getItem('cms_admin_session')
-    if (!raw) return null
-    return JSON.parse(raw)
-  } catch {
-    return null
-  }
-}
+import { getAdminSession } from '../lib/session'
+import SettingsModal from '../components/SettingsModal'
+import NotificationBell from '../components/NotificationBell'
 
 // Generate a deterministic profile photo based on the admin's name/email.
 // The admins table has no photo column, so we derive an avatar automatically.
@@ -50,40 +42,7 @@ function StatCard({ icon, iconClass, iconBg, label, value, unit, badge, badgeCla
 }
 
 function SystemHealth() {
-  // Static illustrative metrics (no dedicated table in schema)
-  const metrics = [
-    { label: 'Storage Server', value: 78 },
-    { label: 'Database Load', value: 32 },
-  ]
-  return (
-    <div className="bg-primary text-on-primary rounded-xl p-lg flex flex-col justify-between institutional-shadow relative overflow-hidden">
-      <div className="relative z-10">
-        <div className="flex items-center justify-between mb-xl">
-          <h3 className="font-headline-sm text-headline-sm">Kesehatan Sistem</h3>
-          <span className="material-symbols-outlined">terminal</span>
-        </div>
-        <div className="space-y-md">
-          {metrics.map((m) => (
-            <div className="flex flex-col" key={m.label}>
-              <div className="flex justify-between items-center mb-1">
-                <span className="font-label-sm text-label-sm opacity-80">{m.label}</span>
-                <span className="font-label-sm text-label-sm">{m.value}%</span>
-              </div>
-              <div className="w-full bg-white/20 h-2 rounded-full overflow-hidden">
-                <div className="bg-white h-full transition-all duration-500" style={{ width: `${m.value}%` }} />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="absolute -right-12 -bottom-12 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
-      <div className="mt-xl relative z-10">
-        <button className="w-full py-sm bg-white text-primary font-bold rounded-lg hover:bg-white/90 transition-colors">
-          Lihat Laporan Teknis
-        </button>
-      </div>
-    </div>
-  )
+  return null
 }
 
 export default function DashboardAdmin() {
@@ -92,6 +51,8 @@ export default function DashboardAdmin() {
   const [activities, setActivities] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [search, setSearch] = useState('')
+  const [settingsOpen, setSettingsOpen] = useState(false)
 
   // Current logged-in admin (from login session)
   const [admin, setAdmin] = useState(() => getAdminSession())
@@ -127,7 +88,8 @@ export default function DashboardAdmin() {
     { to: '/dashboard', icon: 'dashboard', label: 'Dashboard' },
     { to: '/kelola-panduan', icon: 'menu_book', label: 'Kelola Panduan' },
     { to: '/kelola-regulasi', icon: 'gavel', label: 'Kelola Regulasi' },
-    { to: '/pengumuman', icon: 'campaign', label: 'Kelola Pengumuman' },
+    { to: '/kelola-pengumuman', icon: 'campaign', label: 'Kelola Pengumuman' },
+    { to: '/kelola-pesan', icon: 'mail', label: 'Kelola Pesan Masuk' },
   ]
   if (isSuperAdmin) {
     navItems.push({ to: '/kelola-admin', icon: 'admin_panel_settings', label: 'Kelola Admin' })
@@ -135,6 +97,18 @@ export default function DashboardAdmin() {
 
   const adminName = admin?.full_name || 'Admin'
   const adminAvatar = getAdminAvatar(admin)
+
+  // Filter activity log by the header search box
+  const filteredActivities = useMemo(() => {
+    const q = search.toLowerCase()
+    if (!q) return activities
+    return activities.filter(
+      (a) =>
+        (a.user || '').toLowerCase().includes(q) ||
+        (a.activity || '').toLowerCase().includes(q) ||
+        (a.status || '').toLowerCase().includes(q)
+    )
+  }, [activities, search])
 
   return (
     <div className="bg-background text-on-background min-h-screen flex">
@@ -161,10 +135,13 @@ export default function DashboardAdmin() {
           ))}
         </nav>
         <div className="mt-auto px-sm pt-md border-t border-outline-variant">
-          <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant rounded-lg transition-all duration-200" href="#">
+          <button
+            onClick={() => setSettingsOpen(true)}
+            className="w-full flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant rounded-lg transition-all duration-200"
+          >
             <span className="material-symbols-outlined">settings</span>
             <span className="font-label-md text-label-md">Settings</span>
-          </a>
+          </button>
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant rounded-lg transition-all duration-200"
@@ -185,12 +162,15 @@ export default function DashboardAdmin() {
           <div className="flex items-center gap-md">
             <div className="relative hidden sm:block">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-[20px]">search</span>
-              <input className="pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-full text-body-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent w-64 transition-all" placeholder="Cari data..." type="text" />
+              <input
+                className="pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-full text-body-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent w-64 transition-all"
+                placeholder="Cari aktivitas..."
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
             </div>
-            <button className="p-2 rounded-full hover:bg-surface-variant relative">
-              <span className="material-symbols-outlined text-on-surface-variant">notifications</span>
-              <span className="absolute top-2 right-2 w-2 h-2 bg-error rounded-full" />
-            </button>
+            <NotificationBell />
             <div className="w-10 h-10 rounded-full overflow-hidden border border-outline-variant">
               <img className="w-full h-full object-cover" alt={adminName} src={adminAvatar} />
             </div>
@@ -241,9 +221,9 @@ export default function DashboardAdmin() {
             />
           </section>
 
-          {/* Activity Log + System Health */}
-          <section className="grid grid-cols-1 lg:grid-cols-3 gap-lg">
-            <div className="lg:col-span-2 bg-surface-container-lowest rounded-xl border border-outline-variant institutional-shadow overflow-hidden flex flex-col">
+          {/* Activity Log */}
+          <section>
+            <div className="bg-surface-container-lowest rounded-xl border border-outline-variant institutional-shadow overflow-hidden flex flex-col">
               <div className="p-lg border-b border-outline-variant flex items-center justify-between">
                 <div className="flex items-center gap-sm">
                   <span className="material-symbols-outlined text-primary">history</span>
@@ -269,15 +249,15 @@ export default function DashboardAdmin() {
                         </td>
                       </tr>
                     )}
-                    {!loading && activities.length === 0 && (
+                    {!loading && filteredActivities.length === 0 && (
                       <tr>
                         <td colSpan={4} className="px-lg py-md text-center font-body-sm text-on-surface-variant">
-                          Belum ada aktivitas.
+                          {search ? 'Tidak ada aktivitas yang cocok.' : 'Belum ada aktivitas.'}
                         </td>
                       </tr>
                     )}
                     {!loading &&
-                      activities.map((a) => (
+                      filteredActivities.map((a) => (
                         <tr key={a.id} className="hover:bg-surface-container-low transition-colors">
                           <td className="px-lg py-md">
                             <div className="flex items-center gap-sm">
@@ -298,12 +278,11 @@ export default function DashboardAdmin() {
                 </table>
               </div>
             </div>
-
-            <SystemHealth />
           </section>
         </div>
 
-        
+        {/* Settings Modal */}
+        <SettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
       </main>
     </div>
   )
