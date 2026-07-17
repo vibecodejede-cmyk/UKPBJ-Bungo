@@ -335,6 +335,18 @@ export async function markAsUnread(id) {
   return data
 }
 
+// Mark all unread messages as read at once (used when opening the bell panel).
+export async function markAllAsRead() {
+  const { data, error } = await supabase
+    .from('pesan_masuk')
+    .update({ is_read: true })
+    .eq('is_read', false)
+    .select()
+
+  if (error) throw error
+  return data
+}
+
 // ============================================
 // REGULATIONS API
 // ============================================

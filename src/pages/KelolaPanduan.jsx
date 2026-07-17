@@ -161,8 +161,8 @@ export default function KelolaPanduan() {
       {/* SideNavBar */}
       <aside className="hidden md:flex flex-col h-screen py-md px-sm border-r border-outline-variant bg-surface-container w-64 flex-shrink-0">
         <div className="px-sm mb-xl">
-          <h1 className="font-headline-sm text-headline-sm font-bold text-primary">Admin Panel</h1>
-          <p className="font-label-sm text-label-sm text-on-surface-variant">System Administrator</p>
+          <h1 className="font-headline-sm text-headline-sm font-bold text-primary">Inaproc & LPSE</h1>
+          <p className="font-label-sm text-label-sm text-on-surface-variant">Admin Panel</p>
         </div>
         <nav className="flex-1 space-y-1">
           <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/dashboard">
@@ -171,15 +171,19 @@ export default function KelolaPanduan() {
           </a>
           <a className="flex items-center gap-md px-md py-sm bg-secondary-container text-on-secondary-container rounded-lg font-bold transition-all duration-200" href="/kelola-panduan">
             <Icon name="menu_book" />
-            <span className="font-label-md text-label-md">Manage Guides</span>
+            <span className="font-label-md text-label-md">Kelola Panduan</span>
           </a>
-          <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/regulasi">
+          <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/kelola-regulasi">
             <Icon name="gavel" className="group-hover:scale-110 transition-transform" />
-            <span className="font-label-md text-label-md">Manage Regulations</span>
+            <span className="font-label-md text-label-md">Kelola Regulasi</span>
           </a>
-          <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/pengumuman">
+          <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/kelola-pengumuman">
             <Icon name="campaign" className="group-hover:scale-110 transition-transform" />
-            <span className="font-label-md text-label-md">Manage Announcements</span>
+            <span className="font-label-md text-label-md">Kelola Pengumuman</span>
+          </a>
+          <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/kelola-pesan">
+            <Icon name="mail" className="group-hover:scale-110 transition-transform" />
+            <span className="font-label-md text-label-md">Kelola Pesan Masuk</span>
           </a>
         </nav>
         <div className="mt-auto space-y-1 pt-md border-t border-outline-variant">
@@ -197,7 +201,7 @@ export default function KelolaPanduan() {
             <Icon name="settings" />
             <span className="font-label-md text-label-md">Settings</span>
           </button>
-          <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg" href="#">
+          <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg" href="/login" onClick={() => localStorage.removeItem('cms_admin_session')}>
             <Icon name="logout" />
             <span className="font-label-md text-label-md">Logout</span>
           </a>

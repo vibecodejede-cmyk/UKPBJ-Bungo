@@ -23,6 +23,16 @@ CREATE POLICY "Enable insert for all users" ON pesan_masuk
 CREATE POLICY "Enable read access for all users" ON pesan_masuk
   FOR SELECT USING (true);
 
+-- 5. Allow UPDATE so admins can mark messages as read / archive / reply
+DROP POLICY IF EXISTS "Enable update for all users" ON pesan_masuk;
+CREATE POLICY "Enable update for all users" ON pesan_masuk
+  FOR UPDATE USING (true) WITH CHECK (true);
+
+-- 6. Allow DELETE so admins can remove messages
+DROP POLICY IF EXISTS "Enable delete for all users" ON pesan_masuk;
+CREATE POLICY "Enable delete for all users" ON pesan_masuk
+  FOR DELETE USING (true);
+
 -- 5. Verify the policies were created
 SELECT 
   schemaname, 

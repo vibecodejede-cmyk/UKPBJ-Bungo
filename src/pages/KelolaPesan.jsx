@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import Icon from '../components/Icon'
 import SettingsModal from '../components/SettingsModal'
 import NotificationBell from '../components/NotificationBell'
+import { useMessages, getReadMessageIds } from '../lib/MessageContext'
 import {
   fetchContactMessages,
   replyToMessage,
@@ -72,13 +73,16 @@ const SORT_OPTIONS = [
 
 export default function KelolaPesan() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const { markRead, markUnread } = useMessages()
   const [messages, setMessages] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('all')
   const [sort, setSort] = useState('newest')
-  const [selectedId, setSelectedId] = useState(null)
+  // Allow opening a specific message directly (e.g. from the NotificationBell).
+  const [selectedId, setSelectedId] = useState(location.state?.selectedId || null)
   const [replyText, setReplyText] = useState('')
   const [sending, setSending] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -91,7 +95,15 @@ export default function KelolaPesan() {
   async function load() {
     try {
       const data = await fetchContactMessages()
-      setMessages(data || [])
+      // Apply locally-known read states (persisted in localStorage) so a
+      // message the user has already opened does not show "Belum Dibaca"
+      // again after a reload, even if the database write was blocked (RLS).
+      const readIds = getReadMessageIds()
+      setMessages(
+        (data || []).map((m) =>
+          readIds.has(m.id) ? { ...m, is_read: true } : m
+        )
+      )
     } catch (e) {
       setError(e.message || 'Gagal memuat pesan')
     } finally {
@@ -169,6 +181,8 @@ export default function KelolaPesan() {
           prev.map((m) => (m.id === msg.id ? { ...m, is_read: true } : m))
         )
       })
+      // Keep the shared notification bell unread count in sync.
+      markRead(msg.id)
     }
   }
 
@@ -185,6 +199,8 @@ export default function KelolaPesan() {
             : m
         )
       )
+      // Replying also marks as read in the shared notification bell.
+      markRead(selectedId)
       setReplyText('')
     } catch (err) {
       setError(err.message || 'Gagal mengirim balasan')
@@ -240,6 +256,8 @@ export default function KelolaPesan() {
       setMessages((prev) =>
         prev.map((m) => (m.id === selectedId ? { ...m, is_read: false } : m))
       )
+      // Revert the shared notification bell unread count.
+      markUnread(selectedId)
     } catch (err) {
       setError(err.message || 'Gagal menandai belum dibaca')
     } finally {
