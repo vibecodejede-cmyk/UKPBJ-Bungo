@@ -1,5 +1,33 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { fetchDashboardStats, fetchActivityLog } from '../lib/api'
+
+// Read the current admin session stored at login (see LoginAdmin.jsx).
+function getAdminSession() {
+  try {
+    const raw = localStorage.getItem('cms_admin_session')
+    if (!raw) return null
+    return JSON.parse(raw)
+  } catch {
+    return null
+  }
+}
+
+// Generate a deterministic profile photo based on the admin's name/email.
+// The admins table has no photo column, so we derive an avatar automatically.
+function getAdminAvatar(admin) {
+  const name = admin?.full_name || admin?.email || 'Admin'
+  const initials = name
+    .split(' ')
+    .map((p) => p[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(
+    initials
+  )}&background=1e3a8a&color=ffffff&size=128&bold=true&format=svg`
+}
 
 function StatCard({ icon, iconClass, iconBg, label, value, unit, badge, badgeClass, hoverClass }) {
   return (
@@ -59,10 +87,15 @@ function SystemHealth() {
 }
 
 export default function DashboardAdmin() {
+  const navigate = useNavigate()
   const [stats, setStats] = useState({ totalGuides: 0, totalRegulations: 0, totalAnnouncements: 0 })
   const [activities, setActivities] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+
+  // Current logged-in admin (from login session)
+  const [admin, setAdmin] = useState(() => getAdminSession())
+  const isSuperAdmin = admin?.role === 'Super Admin'
 
   useEffect(() => {
     let active = true
@@ -84,6 +117,25 @@ export default function DashboardAdmin() {
     }
   }, [])
 
+  function handleLogout() {
+    localStorage.removeItem('cms_admin_session')
+    navigate('/login')
+  }
+
+  // Sidebar navigation items. Kelola Admin is only visible to Super Admin.
+  const navItems = [
+    { to: '/dashboard', icon: 'dashboard', label: 'Dashboard' },
+    { to: '/kelola-panduan', icon: 'menu_book', label: 'Kelola Panduan' },
+    { to: '/regulasi', icon: 'gavel', label: 'Kelola Regulasi' },
+    { to: '/pengumuman', icon: 'campaign', label: 'Kelola Pengumuman' },
+  ]
+  if (isSuperAdmin) {
+    navItems.push({ to: '/kelola-admin', icon: 'admin_panel_settings', label: 'Kelola Admin' })
+  }
+
+  const adminName = admin?.full_name || 'Admin'
+  const adminAvatar = getAdminAvatar(admin)
+
   return (
     <div className="bg-background text-on-background min-h-screen flex">
       {/* SideNavBar */}
@@ -93,32 +145,33 @@ export default function DashboardAdmin() {
           <p className="font-label-sm text-label-sm text-on-surface-variant">System Administrator</p>
         </div>
         <nav className="flex-1 space-y-base overflow-y-auto custom-scrollbar px-sm">
-          <a className="flex items-center gap-md px-md py-sm bg-secondary-container text-on-secondary-container rounded-lg font-bold transition-all duration-200 ease-in-out" href="/dashboard">
-            <span className="material-symbols-outlined">dashboard</span>
-            <span className="font-label-md text-label-md">Dashboard</span>
-          </a>
-          <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant rounded-lg transition-all duration-200 ease-in-out" href="/kelola-panduan">
-            <span className="material-symbols-outlined">menu_book</span>
-            <span className="font-label-md text-label-md">Kelola Panduan</span>
-          </a>
-          <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant rounded-lg transition-all duration-200 ease-in-out" href="/regulasi">
-            <span className="material-symbols-outlined">gavel</span>
-            <span className="font-label-md text-label-md">Kelola Regulasi</span>
-          </a>
-          <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant rounded-lg transition-all duration-200 ease-in-out" href="/pengumuman">
-            <span className="material-symbols-outlined">campaign</span>
-            <span className="font-label-md text-label-md">Kelola Pengumuman</span>
-          </a>
+          {navItems.map((item) => (
+            <a
+              key={item.to}
+              className={`flex items-center gap-md px-md py-sm rounded-lg font-bold transition-all duration-200 ease-in-out ${
+                item.to === '/dashboard'
+                  ? 'bg-secondary-container text-on-secondary-container'
+                  : 'text-on-surface-variant hover:bg-surface-variant'
+              }`}
+              href={item.to}
+            >
+              <span className="material-symbols-outlined">{item.icon}</span>
+              <span className="font-label-md text-label-md">{item.label}</span>
+            </a>
+          ))}
         </nav>
         <div className="mt-auto px-sm pt-md border-t border-outline-variant">
           <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant rounded-lg transition-all duration-200" href="#">
             <span className="material-symbols-outlined">settings</span>
             <span className="font-label-md text-label-md">Settings</span>
           </a>
-          <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant rounded-lg transition-all duration-200" href="#">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant rounded-lg transition-all duration-200"
+          >
             <span className="material-symbols-outlined">logout</span>
             <span className="font-label-md text-label-md">Logout</span>
-          </a>
+          </button>
         </div>
       </aside>
 
@@ -126,7 +179,7 @@ export default function DashboardAdmin() {
       <main className="flex-1 md:ml-64 flex flex-col min-h-screen">
         <header className="w-full h-20 px-gutter flex items-center justify-between bg-surface-container-lowest sticky top-0 z-40 border-b border-outline-variant">
           <div className="flex flex-col">
-            <h2 className="font-headline-md text-headline-md text-primary">Selamat Datang, Admin Pusat.</h2>
+            <h2 className="font-headline-md text-headline-md text-primary">Selamat Datang, {adminName}.</h2>
             <p className="font-body-sm text-body-sm text-on-surface-variant">Berikut ringkasan hari ini untuk sistem Inaproc & LPSE.</p>
           </div>
           <div className="flex items-center gap-md">
@@ -139,7 +192,7 @@ export default function DashboardAdmin() {
               <span className="absolute top-2 right-2 w-2 h-2 bg-error rounded-full" />
             </button>
             <div className="w-10 h-10 rounded-full overflow-hidden border border-outline-variant">
-              <img className="w-full h-full object-cover" alt="Admin" src="https://lh3.googleusercontent.com/aida-public/AB6AXuATboMZNMK00HSfNsF2X7_uWC68uqkK3dKTRN5CwQeVZEa5mGhLJMj8c3KNN_1I7XEewgaZZn0KP3dz_TzuTmSlMOeOeag_Zq87zoa82oz703cF5iBrtXgOHKezMJGH58fxw1IKDFblr_t4I9uwim_LxmY6vEatp7bSPmgg8uWnGdIN8XTCN-UUiSAfXMkVqc-76w1xarpbssgX1JDbYVGItCuSt6oxBbbnPhKq-SnSRduW2-3aZuU7LJ0fBSuDAilua3CDo8ALNF9d" />
+              <img className="w-full h-full object-cover" alt={adminName} src={adminAvatar} />
             </div>
           </div>
         </header>
