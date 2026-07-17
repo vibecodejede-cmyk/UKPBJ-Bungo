@@ -14,6 +14,7 @@ import PengumumanDetail from './pages/PengumumanDetail'
 import DashboardAdmin from './pages/DashboardAdmin'
 import KelolaPanduan from './pages/KelolaPanduan'
 import KelolaAdmin from './pages/KelolaAdmin'
+import LoginAdmin from './pages/LoginAdmin'
 
 export default function App() {
   return (
@@ -43,6 +44,7 @@ export default function App() {
       <Route path="/pengumuman/:id" element={<PengumumanDetail />} />
       <Route path="/kontak" element={<Kontak />} />
       <Route path="/panduan-lpse" element={<PanduanLpse />} />
+      <Route path="/login" element={<LoginAdmin />} />
       <Route path="/dashboard" element={<DashboardAdmin />} />
       <Route path="/kelola-panduan" element={<KelolaPanduan />} />
       <Route path="/kelola-admin" element={<KelolaAdmin />} />

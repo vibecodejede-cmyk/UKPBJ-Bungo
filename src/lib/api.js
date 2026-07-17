@@ -1,6 +1,23 @@
 import { supabase } from './supabase'
 
 // ============================================
+// ADMIN AUTH (LOGIN CMS)
+// ============================================
+// Check whether a given email is registered as an admin in the database.
+// Returns the admin record (with role/status) or null if not found.
+export async function checkAdminByEmail(email) {
+  const normalized = (email || '').trim().toLowerCase()
+  const { data, error } = await supabase
+    .from('admins')
+    .select('id, full_name, email, role, status')
+    .eq('email', normalized)
+    .maybeSingle()
+
+  if (error) throw error
+  return data
+}
+
+// ============================================
 // GUIDES (PANDUAN) API
 // ============================================
 export async function fetchGuides() {
