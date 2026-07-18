@@ -125,6 +125,7 @@ CREATE TABLE IF NOT EXISTS regulations (
   document_url TEXT,
   publish_date TEXT NOT NULL,
   is_published BOOLEAN DEFAULT true,
+  download_count INTEGER DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );

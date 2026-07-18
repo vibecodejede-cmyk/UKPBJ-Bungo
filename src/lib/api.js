@@ -397,6 +397,7 @@ export async function createRegulation(payload) {
     .insert([
       {
         judul: payload.judul,
+        nomor: payload.nomor || `-/${payload.publish_date ? payload.publish_date.slice(0, 4) : new Date().getFullYear()}`,
         description: payload.description || null,
         category: payload.category || 'Umum',
         document_url: payload.document_url || null,
@@ -414,6 +415,7 @@ export async function updateRegulation(id, payload) {
     .from('regulations')
     .update({
       judul: payload.judul,
+      nomor: payload.nomor || `-/${payload.publish_date ? payload.publish_date.slice(0, 4) : new Date().getFullYear()}`,
       description: payload.description ?? null,
       category: payload.category || 'Umum',
       document_url: payload.document_url || null,
@@ -441,6 +443,33 @@ export async function toggleRegulationPublish(id, isPublished) {
 
   if (error) throw error
   return true
+}
+
+// Increment download count for a regulation (PDF)
+export async function incrementRegulationDownload(id) {
+  try {
+    // Fetch current value first, then update (simple read-modify-write)
+    const { data, error: fetchError } = await supabase
+      .from('regulations')
+      .select('download_count')
+      .eq('id', id)
+      .single()
+
+    if (fetchError) throw fetchError
+
+    const newCount = (data?.download_count || 0) + 1
+
+    const { error } = await supabase
+      .from('regulations')
+      .update({ download_count: newCount })
+      .eq('id', id)
+
+    if (error) throw error
+    return true
+  } catch (err) {
+    console.warn('[incrementRegulationDownload] Gagal:', err?.message || err)
+    return false
+  }
 }
 
 // ============================================

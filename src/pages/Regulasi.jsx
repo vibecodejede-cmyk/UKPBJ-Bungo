@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import Icon from '../components/Icon'
 import Footer from '../components/Footer'
-import { fetchRegulations } from '../lib/api'
+import { fetchRegulations, incrementRegulationDownload } from '../lib/api'
 
 const PAGE_SIZE = 10
 
@@ -96,6 +96,7 @@ export default function Regulasi() {
 
   const handleDownload = (reg) => {
     if (reg.document_url) {
+      incrementRegulationDownload(reg.id)
       window.open(reg.document_url, '_blank', 'noopener,noreferrer')
     }
   }
