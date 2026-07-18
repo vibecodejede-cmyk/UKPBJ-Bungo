@@ -476,6 +476,35 @@ export async function toggleGuidePublish(id, isPublished) {
   return data
 }
 
+// Admin: create a video guide in the dedicated guide_videos table
+export async function createGuideVideo(payload) {
+  const { data, error } = await supabase
+    .from('guide_videos')
+    .insert([
+      {
+        title: payload.title,
+        description: payload.description || null,
+        video_url: payload.video_url || null,
+        thumbnail_url: payload.thumbnail_url || null,
+        duration: payload.duration || null,
+        category: payload.category || 'Panduan Inaproc',
+        role: payload.role ? [payload.role] : ['Semua'],
+      },
+    ])
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+// Admin: delete a video guide from the guide_videos table
+export async function deleteGuideVideo(id) {
+  const { error } = await supabase.from('guide_videos').delete().eq('id', id)
+  if (error) throw error
+  return true
+}
+
 // ============================================
 // ADMINS (CMS) API - Kelola Admin
 // ============================================

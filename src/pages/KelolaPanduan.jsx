@@ -3,10 +3,14 @@ import Icon from '../components/Icon'
 import Modal from '../components/Modal'
 import SettingsModal from '../components/SettingsModal'
 import NotificationBell from '../components/NotificationBell'
+import { getAdminSession } from '../lib/session'
 import {
   fetchAllGuides,
+  fetchGuideVideos,
   createGuide,
+  createGuideVideo,
   deleteGuide,
+  deleteGuideVideo,
   toggleGuidePublish,
 } from '../lib/api'
 
@@ -54,6 +58,7 @@ function CategoryBadge({ category }) {
 
 export default function KelolaPanduan() {
   const [guides, setGuides] = useState([])
+  const [videos, setVideos] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [search, setSearch] = useState('')
@@ -62,6 +67,14 @@ export default function KelolaPanduan() {
   const [saving, setSaving] = useState(false)
   const [choiceModalOpen, setChoiceModalOpen] = useState(false)
   const [selectedType, setSelectedType] = useState(null)
+  const [activeTab, setActiveTab] = useState('pdf') // 'pdf' | 'video'
+  const [filterOpen, setFilterOpen] = useState(false)
+  const [filterCategory, setFilterCategory] = useState('Semua')
+  const [filterRole, setFilterRole] = useState('Semua')
+
+  // Current logged-in admin (from login session)
+  const [admin] = useState(() => getAdminSession())
+  const isSuperAdmin = admin?.role === 'Super Admin'
 
   // form state
   const [form, setForm] = useState({
@@ -74,12 +87,15 @@ export default function KelolaPanduan() {
     file_type: 'pdf',
     file_url: '',
     video_url: '',
+    thumbnail_url: '',
+    duration: '',
   })
 
   async function load() {
     try {
-      const data = await fetchAllGuides()
-      setGuides(data || [])
+      const [g, v] = await Promise.all([fetchAllGuides(), fetchGuideVideos()])
+      setGuides(g || [])
+      setVideos(v || [])
     } catch (e) {
       setError(e.message || 'Gagal memuat data')
     } finally {
@@ -93,48 +109,86 @@ export default function KelolaPanduan() {
 
   const stats = useMemo(() => {
     const total = guides.length
-    const videos = guides.filter((g) => g.file_type === 'video' || g.category === 'Video').length
+    const videoCount = videos.length
     const views = guides.reduce((sum, g) => sum + (g.view_count || 0), 0)
     const published = guides.filter((g) => g.is_published).length
     const pct = total ? Math.round((published / total) * 100) : 0
-    return { total, videos, views, pct }
-  }, [guides])
+    return { total, videoCount, views, pct }
+  }, [guides, videos])
+
+  // Source list depends on the active tab
+  const sourceList = activeTab === 'video' ? videos : guides
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase()
-    return guides.filter((g) => {
-      if (!q) return true
-      return (
-        (g.title || '').toLowerCase().includes(q) ||
-        (g.category || '').toLowerCase().includes(q) ||
-        (g.role || '').toLowerCase().includes(q)
-      )
+    return sourceList.filter((item) => {
+      const title = (item.title || '').toLowerCase()
+      const category = (item.category || '').toLowerCase()
+      const role = Array.isArray(item.role) ? item.role.join(' ') : (item.role || '')
+      const roleMatch = role.toLowerCase().includes(q)
+      const catMatch = category.includes(q)
+      const passSearch = !q || title.includes(q) || catMatch || roleMatch
+
+      const passCategory = filterCategory === 'Semua' || item.category === filterCategory
+      const passRole = filterRole === 'Semua' || (Array.isArray(item.role) ? item.role.includes(filterRole) : item.role === filterRole)
+
+      return passSearch && passCategory && passRole
     })
-  }, [guides, search])
+  }, [sourceList, search, filterCategory, filterRole])
+
+  function handleExport() {
+    const rows = filtered.map((item) => ({
+      Judul: item.title,
+      Kategori: item.category,
+      Peran: Array.isArray(item.role) ? item.role.join(', ') : item.role,
+      Status: item.is_published ? 'Published' : 'Draft',
+      'Tanggal Update': item.updated_at
+        ? new Date(item.updated_at).toLocaleDateString('id-ID')
+        : (item.created_at ? new Date(item.created_at).toLocaleDateString('id-ID') : ''),
+    }))
+    const header = Object.keys(rows[0] || { Judul: '', Kategori: '', Peran: '', Status: '', 'Tanggal Update': '' })
+    const csv = [
+      header.join(','),
+      ...rows.map((r) => header.map((h) => `"${(r[h] || '').toString().replace(/"/g, '""')}"`).join(',')),
+    ].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `panduan-${activeTab === 'video' ? 'video' : 'pdf'}-${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
 
   async function handleSubmit(e) {
     e.preventDefault()
     setSaving(true)
     try {
-      const payload = {
-        title: form.title,
-        description: form.description || form.title,
-        category: form.category,
-        role: form.role,
-        is_published: form.is_published,
-        is_featured: false,
-        file_type: selectedType || form.file_type,
-      }
-
-      if (selectedType === 'video' || form.file_type === 'video') {
-        payload.video_url = form.video_url || null
-        payload.content = null
+      if (selectedType === 'video') {
+        // Save to the dedicated guide_videos table
+        await createGuideVideo({
+          title: form.title,
+          description: form.description || form.title,
+          category: form.category,
+          role: form.role,
+          video_url: form.video_url || null,
+          thumbnail_url: form.thumbnail_url || null,
+          duration: form.duration || null,
+        })
       } else {
-        payload.content = form.content || null
-        payload.file_url = form.file_url || null
+        // Save to the guides table
+        await createGuide({
+          title: form.title,
+          description: form.description || form.title,
+          category: form.category,
+          role: form.role,
+          is_published: form.is_published,
+          is_featured: false,
+          file_type: 'pdf',
+          content: form.content || null,
+          file_url: form.file_url || null,
+        })
       }
-
-      await createGuide(payload)
       setModalOpen(false)
       setChoiceModalOpen(false)
       setSelectedType(null)
@@ -148,6 +202,8 @@ export default function KelolaPanduan() {
         file_type: 'pdf',
         file_url: '',
         video_url: '',
+        thumbnail_url: '',
+        duration: '',
       })
       await load()
     } catch (err) {
@@ -157,20 +213,29 @@ export default function KelolaPanduan() {
     }
   }
 
-  async function handleDelete(id) {
-    if (!confirm('Yakin ingin menghapus panduan ini?')) return
+  async function handleDelete(item) {
+    if (!confirm('Yakin ingin menghapus item ini?')) return
     try {
-      await deleteGuide(id)
+      if (activeTab === 'video') {
+        await deleteGuideVideo(item.id)
+      } else {
+        await deleteGuide(item.id)
+      }
       await load()
     } catch (err) {
-      setError(err.message || 'Gagal menghapus panduan')
+      setError(err.message || 'Gagal menghapus item')
     }
   }
 
-  async function handleToggle(g) {
+  async function handleToggle(item) {
     try {
-      await toggleGuidePublish(g.id, !g.is_published)
-      await load()
+      if (activeTab === 'video') {
+        // guide_videos has no publish flag; just reload
+        await load()
+      } else {
+        await toggleGuidePublish(item.id, !item.is_published)
+        await load()
+      }
     } catch (err) {
       setError(err.message || 'Gagal mengubah status')
     }
@@ -205,6 +270,12 @@ export default function KelolaPanduan() {
             <Icon name="mail" className="group-hover:scale-110 transition-transform" />
             <span className="font-label-md text-label-md">Kelola Pesan Masuk</span>
           </a>
+          {isSuperAdmin && (
+            <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/kelola-admin">
+              <Icon name="admin_panel_settings" className="group-hover:scale-110 transition-transform" />
+              <span className="font-label-md text-label-md">Kelola Admin</span>
+            </a>
+          )}
         </nav>
         <div className="mt-auto space-y-1 pt-md border-t border-outline-variant">
           <button
@@ -250,9 +321,35 @@ export default function KelolaPanduan() {
           {/* Statistics Quick View */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-lg mb-xl">
             <StatBox icon="description" iconBg="bg-primary-fixed" iconColor="text-primary" label="Total Panduan" value={loading ? '...' : stats.total} />
-            <StatBox icon="video_library" iconBg="bg-secondary-fixed" iconColor="text-secondary" label="Video Tutorial" value={loading ? '...' : stats.videos} />
+            <StatBox icon="video_library" iconBg="bg-secondary-fixed" iconColor="text-secondary" label="Video Tutorial" value={loading ? '...' : stats.videoCount} />
             <StatBox icon="visibility" iconBg="bg-tertiary-fixed" iconColor="text-tertiary" label="Total View" value={loading ? '...' : `${(stats.views / 1000).toFixed(1)}k`} />
             <StatBox icon="check_circle" iconBg="bg-surface-container-high" iconColor="text-on-surface-variant" label="Published" value={loading ? '...' : `${stats.pct}%`} />
+          </div>
+
+          {/* Tabs: separate PDF guides and Video guides */}
+          <div className="flex gap-sm mb-lg">
+            <button
+              onClick={() => setActiveTab('pdf')}
+              className={`flex items-center gap-xs px-lg py-sm rounded-lg font-label-md text-label-md border transition-colors ${
+                activeTab === 'pdf'
+                  ? 'bg-primary text-on-primary border-primary'
+                  : 'bg-surface text-on-surface-variant border-outline-variant hover:bg-surface-variant'
+              }`}
+            >
+              <Icon name="picture_as_pdf" className="text-[18px]" />
+              Panduan PDF ({loading ? '...' : guides.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('video')}
+              className={`flex items-center gap-xs px-lg py-sm rounded-lg font-label-md text-label-md border transition-colors ${
+                activeTab === 'video'
+                  ? 'bg-primary text-on-primary border-primary'
+                  : 'bg-surface text-on-surface-variant border-outline-variant hover:bg-surface-variant'
+              }`}
+            >
+              <Icon name="play_circle" className="text-[18px]" />
+              Video Panduan ({loading ? '...' : videos.length})
+            </button>
           </div>
 
           {/* Management Table Section */}
@@ -269,11 +366,56 @@ export default function KelolaPanduan() {
                 />
               </div>
               <div className="flex gap-sm w-full md:w-auto">
-                                <button className="flex items-center gap-xs px-md py-sm border border-outline-variant rounded-lg hover:bg-surface-variant transition-colors text-label-md">
-                  <Icon name="filter_list" className="text-[18px]" />
-                  Filter
-                </button>
-                <button className="flex items-center gap-xs px-md py-sm border border-outline-variant rounded-lg hover:bg-surface-variant transition-colors text-label-md">
+                <div className="relative">
+                  <button
+                    onClick={() => setFilterOpen((o) => !o)}
+                    className="flex items-center gap-xs px-md py-sm border border-outline-variant rounded-lg hover:bg-surface-variant transition-colors text-label-md"
+                  >
+                    <Icon name="filter_list" className="text-[18px]" />
+                    Filter
+                  </button>
+                  {filterOpen && (
+                    <div className="absolute right-0 mt-2 w-64 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-lg p-md z-20 space-y-md">
+                      <div>
+                        <label className="block font-label-sm text-label-sm text-on-surface-variant mb-xs">Kategori</label>
+                        <select
+                          className="w-full px-md py-sm rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary"
+                          value={filterCategory}
+                          onChange={(e) => setFilterCategory(e.target.value)}
+                        >
+                          <option value="Semua">Semua</option>
+                          <option value="Panduan Inaproc">Inaproc</option>
+                          <option value="Panduan LPSE">LPSE</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block font-label-sm text-label-sm text-on-surface-variant mb-xs">Peran</label>
+                        <select
+                          className="w-full px-md py-sm rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary"
+                          value={filterRole}
+                          onChange={(e) => setFilterRole(e.target.value)}
+                        >
+                          <option value="Semua">Semua</option>
+                          <option value="PPK">PPK / Pejabat Pengadaan</option>
+                          <option value="Vendor">Penyedia Jasa</option>
+                          <option value="Pokja">Pokja Pemilihan</option>
+                          <option value="Admin">Admin Agency</option>
+                          <option value="Semua">Semua</option>
+                        </select>
+                      </div>
+                      <button
+                        onClick={() => { setFilterCategory('Semua'); setFilterRole('Semua') }}
+                        className="w-full px-md py-sm text-label-md text-secondary hover:underline"
+                      >
+                        Reset Filter
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={handleExport}
+                  className="flex items-center gap-xs px-md py-sm border border-outline-variant rounded-lg hover:bg-surface-variant transition-colors text-label-md"
+                >
                   <Icon name="download" className="text-[18px]" />
                   Export
                 </button>
@@ -314,54 +456,63 @@ export default function KelolaPanduan() {
                     </tr>
                   )}
                   {!loading &&
-                    filtered.map((g) => (
-                      <tr key={g.id} className="hover:bg-surface-container-low transition-colors group">
-                        <td className="px-lg py-md">
-                          <div className="flex items-center gap-md">
-                            <div className="w-10 h-10 rounded bg-error-container/20 flex items-center justify-center text-error">
-                              <Icon name="picture_as_pdf" />
+                    filtered.map((item) => {
+                      const isVideo = activeTab === 'video'
+                      const dateValue = item.updated_at || item.created_at
+                      const roleLabel = Array.isArray(item.role) ? item.role.join(', ') : item.role
+                      return (
+                        <tr key={item.id} className="hover:bg-surface-container-low transition-colors group">
+                          <td className="px-lg py-md">
+                            <div className="flex items-center gap-md">
+                              <div className={`w-10 h-10 rounded flex items-center justify-center ${isVideo ? 'bg-secondary-container/20 text-secondary' : 'bg-error-container/20 text-error'}`}>
+                                <Icon name={isVideo ? 'play_circle' : 'picture_as_pdf'} />
+                              </div>
+                              <div>
+                                <p className="font-body-md text-body-md font-semibold text-on-surface">{item.title}</p>
+                                <p className="text-label-sm text-on-surface-variant">
+                                  {isVideo ? 'Video' : 'Update'}: {dateValue ? new Date(dateValue).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}
+                                </p>
+                              </div>
                             </div>
-                            <div>
-                              <p className="font-body-md text-body-md font-semibold text-on-surface">{g.title}</p>
-                              <p className="text-label-sm text-on-surface-variant">
-                                Update: {new Date(g.updated_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
-                              </p>
+                          </td>
+                          <td className="px-lg py-md">
+                            <CategoryBadge category={item.category} />
+                          </td>
+                          <td className="px-lg py-md">
+                            <span className="text-body-sm font-body-sm text-on-surface-variant">{roleLabel}</span>
+                          </td>
+                          <td className="px-lg py-md text-center">
+                            {isVideo ? (
+                              <span className="inline-flex items-center gap-xs px-md py-xs rounded-full bg-green-100 text-green-700 text-label-sm font-bold">
+                                <span className="w-1.5 h-1.5 rounded-full bg-green-700" />
+                                Active
+                              </span>
+                            ) : (
+                              <button onClick={() => handleToggle(item)} title="Klik untuk ubah status">
+                                <StatusBadge published={item.is_published} />
+                              </button>
+                            )}
+                          </td>
+                          <td className="px-lg py-md text-right">
+                            <div className="flex justify-end gap-base opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button className="p-base hover:bg-surface-container-high rounded text-error" title="Delete" onClick={() => handleDelete(item)}>
+                                <Icon name="delete" />
+                              </button>
+                              <button className="p-base hover:bg-surface-container-high rounded text-on-surface-variant" title="More">
+                                <Icon name="more_vert" />
+                              </button>
                             </div>
-                          </div>
-                        </td>
-                        <td className="px-lg py-md">
-                          <CategoryBadge category={g.category} />
-                        </td>
-                        <td className="px-lg py-md">
-                          <span className="text-body-sm font-body-sm text-on-surface-variant">{g.role}</span>
-                        </td>
-                        <td className="px-lg py-md text-center">
-                          <button onClick={() => handleToggle(g)} title="Klik untuk ubah status">
-                            <StatusBadge published={g.is_published} />
-                          </button>
-                        </td>
-                        <td className="px-lg py-md text-right">
-                          <div className="flex justify-end gap-base opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button className="p-base hover:bg-surface-container-high rounded text-secondary" title="Edit" onClick={() => handleToggle(g)}>
-                              <Icon name="edit" />
-                            </button>
-                            <button className="p-base hover:bg-surface-container-high rounded text-error" title="Delete" onClick={() => handleDelete(g.id)}>
-                              <Icon name="delete" />
-                            </button>
-                            <button className="p-base hover:bg-surface-container-high rounded text-on-surface-variant" title="More">
-                              <Icon name="more_vert" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                          </td>
+                        </tr>
+                      )
+                    })}
                 </tbody>
               </table>
             </div>
 
             <div className="p-lg flex items-center justify-between border-t border-outline-variant bg-surface-bright">
               <p className="text-label-sm text-on-surface-variant">
-                Menampilkan {filtered.length} dari {guides.length} panduan
+                Menampilkan {filtered.length} dari {sourceList.length} {activeTab === 'video' ? 'video' : 'panduan'}
               </p>
               <div className="flex items-center gap-xs">
                 <button className="w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-surface-variant disabled:opacity-30" disabled>
@@ -469,17 +620,41 @@ export default function KelolaPanduan() {
           </div>
 
           {selectedType === 'video' ? (
-            <div>
-              <label className="block font-label-md text-label-md text-on-surface mb-xs">URL Video <span className="text-error">*</span></label>
-              <input
-                required
-                className="w-full px-md py-sm rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary"
-                placeholder="https://www.youtube.com/watch?v=..."
-                type="url"
-                value={form.video_url}
-                onChange={(e) => setForm({ ...form, video_url: e.target.value })}
-              />
-              <p className="text-label-sm text-on-surface-variant mt-xs">Masukkan URL video YouTube atau platform lainnya.</p>
+            <div className="space-y-lg">
+              <div>
+                <label className="block font-label-md text-label-md text-on-surface mb-xs">URL Video <span className="text-error">*</span></label>
+                <input
+                  required
+                  className="w-full px-md py-sm rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary"
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  type="url"
+                  value={form.video_url}
+                  onChange={(e) => setForm({ ...form, video_url: e.target.value })}
+                />
+                <p className="text-label-sm text-on-surface-variant mt-xs">Masukkan URL video YouTube atau platform lainnya.</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+                <div>
+                  <label className="block font-label-md text-label-md text-on-surface mb-xs">URL Thumbnail</label>
+                  <input
+                    className="w-full px-md py-sm rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary"
+                    placeholder="https://..."
+                    type="url"
+                    value={form.thumbnail_url}
+                    onChange={(e) => setForm({ ...form, thumbnail_url: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block font-label-md text-label-md text-on-surface mb-xs">Durasi</label>
+                  <input
+                    className="w-full px-md py-sm rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary"
+                    placeholder="mis. 10:30"
+                    type="text"
+                    value={form.duration}
+                    onChange={(e) => setForm({ ...form, duration: e.target.value })}
+                  />
+                </div>
+              </div>
             </div>
           ) : (
             <>
@@ -506,21 +681,23 @@ export default function KelolaPanduan() {
             </>
           )}
 
-          <div className="flex items-center justify-between p-md bg-surface-container rounded-lg">
-            <div>
-              <p className="font-label-md text-label-md text-on-surface">Langsung Publikasikan?</p>
-              <p className="text-label-sm text-on-surface-variant">Jika aktif, panduan akan langsung terlihat oleh pengguna portal.</p>
+          {selectedType !== 'video' && (
+            <div className="flex items-center justify-between p-md bg-surface-container rounded-lg">
+              <div>
+                <p className="font-label-md text-label-md text-on-surface">Langsung Publikasikan?</p>
+                <p className="text-label-sm text-on-surface-variant">Jika aktif, panduan akan langsung terlihat oleh pengguna portal.</p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  className="sr-only peer"
+                  type="checkbox"
+                  checked={form.is_published}
+                  onChange={(e) => setForm({ ...form, is_published: e.target.checked })}
+                />
+                <div className="w-11 h-6 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+              </label>
             </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                className="sr-only peer"
-                type="checkbox"
-                checked={form.is_published}
-                onChange={(e) => setForm({ ...form, is_published: e.target.checked })}
-              />
-              <div className="w-11 h-6 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-            </label>
-          </div>
+          )}
 
           <div className="flex justify-end gap-md pt-md border-t border-outline-variant">
             <button
