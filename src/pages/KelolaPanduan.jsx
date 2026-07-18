@@ -60,6 +60,8 @@ export default function KelolaPanduan() {
   const [modalOpen, setModalOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [choiceModalOpen, setChoiceModalOpen] = useState(false)
+  const [selectedType, setSelectedType] = useState(null)
 
   // form state
   const [form, setForm] = useState({
@@ -67,8 +69,11 @@ export default function KelolaPanduan() {
     description: '',
     content: '',
     category: 'Panduan Inaproc',
-    role: 'Penyedia',
+    role: 'Vendor',
     is_published: true,
+    file_type: 'pdf',
+    file_url: '',
+    video_url: '',
   })
 
   async function load() {
@@ -111,23 +116,38 @@ export default function KelolaPanduan() {
     e.preventDefault()
     setSaving(true)
     try {
-      await createGuide({
+      const payload = {
         title: form.title,
         description: form.description || form.title,
-        content: form.content || null,
         category: form.category,
         role: form.role,
         is_published: form.is_published,
         is_featured: false,
-      })
+        file_type: selectedType || form.file_type,
+      }
+
+      if (selectedType === 'video' || form.file_type === 'video') {
+        payload.video_url = form.video_url || null
+        payload.content = null
+      } else {
+        payload.content = form.content || null
+        payload.file_url = form.file_url || null
+      }
+
+      await createGuide(payload)
       setModalOpen(false)
+      setChoiceModalOpen(false)
+      setSelectedType(null)
       setForm({
         title: '',
         description: '',
         content: '',
         category: 'Panduan Inaproc',
-        role: 'Penyedia',
+        role: 'Vendor',
         is_published: true,
+        file_type: 'pdf',
+        file_url: '',
+        video_url: '',
       })
       await load()
     } catch (err) {
@@ -188,13 +208,6 @@ export default function KelolaPanduan() {
         </nav>
         <div className="mt-auto space-y-1 pt-md border-t border-outline-variant">
           <button
-            className="w-full flex items-center justify-center gap-sm bg-primary text-on-primary py-sm rounded-lg mb-md font-label-md text-label-md hover:opacity-90 transition-opacity"
-            onClick={() => setModalOpen(true)}
-          >
-            <Icon name="add" className="text-[20px]" />
-            New Entry
-          </button>
-          <button
             className="w-full flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg"
             onClick={() => setSettingsOpen(true)}
           >
@@ -222,13 +235,7 @@ export default function KelolaPanduan() {
           </div>
           <div className="flex items-center gap-md">
             <NotificationBell />
-            <button
-              className="flex items-center gap-sm bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm"
-              onClick={() => setModalOpen(true)}
-            >
-              <Icon name="add_circle" className="text-[20px]" />
-              Tambah Panduan Baru
-            </button>
+            
           </div>
         </header>
 
@@ -262,13 +269,20 @@ export default function KelolaPanduan() {
                 />
               </div>
               <div className="flex gap-sm w-full md:w-auto">
-                <button className="flex items-center gap-xs px-md py-sm border border-outline-variant rounded-lg hover:bg-surface-variant transition-colors text-label-md">
+                                <button className="flex items-center gap-xs px-md py-sm border border-outline-variant rounded-lg hover:bg-surface-variant transition-colors text-label-md">
                   <Icon name="filter_list" className="text-[18px]" />
                   Filter
                 </button>
                 <button className="flex items-center gap-xs px-md py-sm border border-outline-variant rounded-lg hover:bg-surface-variant transition-colors text-label-md">
                   <Icon name="download" className="text-[18px]" />
                   Export
+                </button>
+                <button
+                  className="flex items-center gap-sm bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm"
+                  onClick={() => setChoiceModalOpen(true)}
+                >
+                 <Icon name="add_circle" className="text-[20px]" />
+                    Tambah Panduan Baru
                 </button>
               </div>
             </div>
@@ -369,8 +383,40 @@ export default function KelolaPanduan() {
         
       </main>
 
+      {/* Choice Modal */}
+      <Modal isOpen={choiceModalOpen} onClose={() => { setChoiceModalOpen(false); setSelectedType(null); }} title="Pilih Jenis Panduan">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+          <button
+            type="button"
+            onClick={() => { setSelectedType('pdf'); setChoiceModalOpen(false); setModalOpen(true); }}
+            className="flex flex-col items-center gap-md p-xl border-2 border-outline-variant rounded-xl hover:border-primary hover:bg-primary-container/5 transition-all group"
+          >
+            <div className="w-16 h-16 rounded-full bg-error-container/20 flex items-center justify-center text-error group-hover:scale-110 transition-transform">
+              <Icon name="picture_as_pdf" className="text-[32px]" />
+            </div>
+            <div className="text-center">
+              <p className="font-label-md text-label-md text-on-surface font-semibold">Panduan PDF</p>
+              <p className="text-label-sm text-on-surface-variant mt-xs">Unggah dokumen panduan dalam format PDF</p>
+            </div>
+          </button>
+          <button
+            type="button"
+            onClick={() => { setSelectedType('video'); setChoiceModalOpen(false); setModalOpen(true); }}
+            className="flex flex-col items-center gap-md p-xl border-2 border-outline-variant rounded-xl hover:border-primary hover:bg-primary-container/5 transition-all group"
+          >
+            <div className="w-16 h-16 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
+              <Icon name="play_circle" className="text-[32px]" />
+            </div>
+            <div className="text-center">
+              <p className="font-label-md text-label-md text-on-surface font-semibold">Video Panduan</p>
+              <p className="text-label-sm text-on-surface-variant mt-xs">Tambah video tutorial panduan</p>
+            </div>
+          </button>
+        </div>
+      </Modal>
+
       {/* Form Modal */}
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Form Input Panduan Baru">
+      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={selectedType === 'video' ? 'Form Input Video Panduan' : 'Form Input Panduan PDF'}>
         <form className="space-y-xl" onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
             <div className="col-span-full">
@@ -422,16 +468,43 @@ export default function KelolaPanduan() {
             />
           </div>
 
-          <div>
-            <label className="block font-label-md text-label-md text-on-surface mb-xs">Konten Panduan</label>
-            <textarea
-              rows={6}
-              className="w-full px-md py-sm rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary resize-none"
-              placeholder="Tulis instruksi atau keterangan panduan di sini..."
-              value={form.content}
-              onChange={(e) => setForm({ ...form, content: e.target.value })}
-            />
-          </div>
+          {selectedType === 'video' ? (
+            <div>
+              <label className="block font-label-md text-label-md text-on-surface mb-xs">URL Video <span className="text-error">*</span></label>
+              <input
+                required
+                className="w-full px-md py-sm rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary"
+                placeholder="https://www.youtube.com/watch?v=..."
+                type="url"
+                value={form.video_url}
+                onChange={(e) => setForm({ ...form, video_url: e.target.value })}
+              />
+              <p className="text-label-sm text-on-surface-variant mt-xs">Masukkan URL video YouTube atau platform lainnya.</p>
+            </div>
+          ) : (
+            <>
+              <div>
+                <label className="block font-label-md text-label-md text-on-surface mb-xs">URL File PDF</label>
+                <input
+                  className="w-full px-md py-sm rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary"
+                  placeholder="/docs/nama-file.pdf"
+                  type="url"
+                  value={form.file_url}
+                  onChange={(e) => setForm({ ...form, file_url: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block font-label-md text-label-md text-on-surface mb-xs">Konten Panduan</label>
+                <textarea
+                  rows={6}
+                  className="w-full px-md py-sm rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary resize-none"
+                  placeholder="Tulis instruksi atau keterangan panduan di sini..."
+                  value={form.content}
+                  onChange={(e) => setForm({ ...form, content: e.target.value })}
+                />
+              </div>
+            </>
+          )}
 
           <div className="flex items-center justify-between p-md bg-surface-container rounded-lg">
             <div>
