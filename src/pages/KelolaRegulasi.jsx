@@ -45,7 +45,7 @@ const EMPTY_FORM = {
   id: null,
   nomor: '',
   tahun: new Date().getFullYear().toString(),
-  title: '',
+  judul: '',
   description: '',
   is_published: true,
   document_url: '',
@@ -91,7 +91,7 @@ export default function KelolaRegulasi() {
     return regulations.filter((r) => {
       if (!q) return true
       return (
-        (r.title || '').toLowerCase().includes(q) ||
+        (r.judul || '').toLowerCase().includes(q) ||
         (r.nomor || '').toLowerCase().includes(q) ||
         (r.publish_date || '').slice(0, 4).includes(q)
       )
@@ -110,7 +110,7 @@ export default function KelolaRegulasi() {
       id: r.id,
       nomor: r.nomor || '',
       tahun: (r.publish_date || '').slice(0, 4) || new Date().getFullYear().toString(),
-      title: r.title || '',
+      judul: r.judul || '',
       description: r.description || '',
       is_published: r.is_published ?? true,
       document_url: r.document_url || '',
@@ -123,7 +123,7 @@ export default function KelolaRegulasi() {
     setSaving(true)
     try {
       const payload = {
-        title: form.title,
+        judul: form.judul,
         description: form.description,
         document_url: form.document_url,
         publish_date: `${form.tahun}-01-01`,
@@ -290,7 +290,7 @@ export default function KelolaRegulasi() {
                         <tr key={r.id} className="hover:bg-surface-container-low transition-colors group">
                           <td className="p-md font-body-sm text-on-surface">{r.nomor || `R${i + 1}`}</td>
                           <td className="p-md font-body-sm text-on-surface">{(r.publish_date || '').slice(0, 4) || '-'}</td>
-                          <td className="p-md font-body-sm text-on-surface leading-snug">{r.title}</td>
+                          <td className="p-md font-body-sm text-on-surface leading-snug">{r.judul}</td>
                           <td className="p-md text-center">
                             <button onClick={() => handleToggle(r)} title="Klik untuk ubah status">
                               <StatusBadge active={r.is_published} />
@@ -360,8 +360,8 @@ export default function KelolaRegulasi() {
                       className="w-full px-md py-md border border-outline-variant rounded-lg bg-surface focus:ring-2 focus:ring-primary focus:outline-none font-body-sm resize-none"
                       placeholder="Masukkan judul lengkap peraturan..."
                       rows="4"
-                      value={form.title}
-                      onChange={(e) => setForm({ ...form, title: e.target.value })}
+                      value={form.judul}
+                      onChange={(e) => setForm({ ...form, judul: e.target.value })}
                     />
                   </div>
                   <div>

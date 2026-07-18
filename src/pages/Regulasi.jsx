@@ -69,7 +69,7 @@ export default function Regulasi() {
     return allRegulations.filter((r) => {
       const matchYear = year ? getYear(r.publish_date) === year : true
       const matchSearch = q
-        ? [r.title, r.description, r.category].filter(Boolean).some((f) => f.toLowerCase().includes(q))
+        ? [r.judul, r.description, r.category].filter(Boolean).some((f) => f.toLowerCase().includes(q))
         : true
       return matchYear && matchSearch
     })
@@ -283,7 +283,7 @@ export default function Regulasi() {
                               <td className="px-lg py-md font-body-md text-body-md">{reg.category}</td>
                               <td className="px-lg py-md font-body-md text-body-md">{regYear || '-'}</td>
                               <td className="px-lg py-md">
-                                <p className="font-body-md text-body-md font-semibold text-primary">{reg.title}</p>
+                                <p className="font-body-md text-body-md font-semibold text-primary">{reg.judul}</p>
                                 <p className="font-body-sm text-body-sm text-on-surface-variant mt-xs">{reg.description}</p>
                               </td>
                               <td className="px-lg py-md">

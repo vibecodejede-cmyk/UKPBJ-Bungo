@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS guides (
   is_featured BOOLEAN DEFAULT false,
   is_published BOOLEAN DEFAULT true,
   view_count INTEGER DEFAULT 0,
+  download_count INTEGER DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
@@ -56,7 +57,8 @@ CREATE TABLE IF NOT EXISTS guide_videos (
   thumbnail_url TEXT,
   duration TEXT,
   category TEXT NOT NULL DEFAULT 'Panduan Inaproc' CHECK (category IN ('Panduan Inaproc', 'Panduan LPSE')),
-  role TEXT[] NOT NULL DEFAULT '{PPK}' CHECK (role <@ ARRAY['PPK', 'Pejabat Pengadaan', 'Pokja', 'PA', 'Penyedia']::TEXT[]),
+  role TEXT[] NOT NULL DEFAULT '{PPK}' CHECK (role <@ ARRAY['PPK', 'Pejabat Pengadaan', 'Pokja', 'PA', 'Penyedia', 'Semua']::TEXT[]),
+  view_count INTEGER DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
@@ -104,6 +106,10 @@ CREATE TABLE IF NOT EXISTS pesan_masuk (
   subject TEXT NOT NULL,
   message TEXT NOT NULL,
   is_read BOOLEAN DEFAULT false,
+  is_replied BOOLEAN DEFAULT false,
+  is_archived BOOLEAN DEFAULT false,
+  reply_text TEXT,
+  replied_at TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
@@ -112,6 +118,7 @@ CREATE TABLE IF NOT EXISTS pesan_masuk (
 -- ============================================
 CREATE TABLE IF NOT EXISTS regulations (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  nomor TEXT NOT NULL DEFAULT '',
   title TEXT NOT NULL,
   description TEXT NOT NULL,
   category TEXT NOT NULL,
@@ -160,35 +167,88 @@ ALTER TABLE pesan_masuk ENABLE ROW LEVEL SECURITY;
 ALTER TABLE regulations ENABLE ROW LEVEL SECURITY;
 
 -- Guides: Public can read published guides
+DROP POLICY IF EXISTS "Public can view published guides" ON guides;
 CREATE POLICY "Public can view published guides" ON guides
   FOR SELECT USING (is_published = true);
 
+-- Guides: CMS admin (anon key from frontend) can manage guides
+DROP POLICY IF EXISTS "Public can manage guides" ON guides;
+CREATE POLICY "Public can manage guides" ON guides
+  FOR ALL USING (true) WITH CHECK (true);
+
 -- Guide categories: Public can read
+DROP POLICY IF EXISTS "Public can view guide categories" ON guide_categories;
 CREATE POLICY "Public can view guide categories" ON guide_categories
   FOR SELECT USING (true);
 
+-- Guide categories: CMS admin can manage
+DROP POLICY IF EXISTS "Public can manage guide categories" ON guide_categories;
+CREATE POLICY "Public can manage guide categories" ON guide_categories
+  FOR ALL USING (true) WITH CHECK (true);
+
 -- Guide videos: Public can read
+DROP POLICY IF EXISTS "Public can view guide videos" ON guide_videos;
 CREATE POLICY "Public can view guide videos" ON guide_videos
   FOR SELECT USING (true);
 
+-- Guide videos: CMS admin (anon key from frontend) can manage videos
+DROP POLICY IF EXISTS "Public can manage guide videos" ON guide_videos;
+CREATE POLICY "Public can manage guide videos" ON guide_videos
+  FOR ALL USING (true) WITH CHECK (true);
+
 -- Announcements: Public can read published announcements
+DROP POLICY IF EXISTS "Public can view published announcements" ON announcements;
 CREATE POLICY "Public can view published announcements" ON announcements
   FOR SELECT USING (is_published = true);
 
--- Newsletter: Public can insert, authenticated can read
+-- Announcements: CMS admin (anon key from frontend) can manage announcements
+DROP POLICY IF EXISTS "Public can manage announcements" ON announcements;
+CREATE POLICY "Public can manage announcements" ON announcements
+  FOR ALL USING (true) WITH CHECK (true);
+
+-- Newsletter: Public can insert
+DROP POLICY IF EXISTS "Public can subscribe to newsletter" ON newsletter_subscriptions;
 CREATE POLICY "Public can subscribe to newsletter" ON newsletter_subscriptions
   FOR INSERT WITH CHECK (true);
 
+-- Newsletter: Admin can read
+DROP POLICY IF EXISTS "Admin can read newsletter" ON newsletter_subscriptions;
+CREATE POLICY "Admin can read newsletter" ON newsletter_subscriptions
+  FOR SELECT USING (true);
+
 -- Pesan Masuk: Public can insert (from Kontak form)
+DROP POLICY IF EXISTS "Public can send pesan masuk" ON pesan_masuk;
 CREATE POLICY "Public can send pesan masuk" ON pesan_masuk
   FOR INSERT WITH CHECK (true);
 
+-- Pesan Masuk: Admin can read
+DROP POLICY IF EXISTS "Admin can read pesan masuk" ON pesan_masuk;
+CREATE POLICY "Admin can read pesan masuk" ON pesan_masuk
+  FOR SELECT USING (true);
+
+-- Pesan Masuk: Admin can update
+DROP POLICY IF EXISTS "Admin can update pesan masuk" ON pesan_masuk;
+CREATE POLICY "Admin can update pesan masuk" ON pesan_masuk
+  FOR UPDATE USING (true) WITH CHECK (true);
+
+-- Pesan Masuk: Admin can delete
+DROP POLICY IF EXISTS "Admin can delete pesan masuk" ON pesan_masuk;
+CREATE POLICY "Admin can delete pesan masuk" ON pesan_masuk
+  FOR DELETE USING (true);
+
 -- Regulations: Public can read published regulations
+DROP POLICY IF EXISTS "Public can view published regulations" ON regulations;
 CREATE POLICY "Public can view published regulations" ON regulations
   FOR SELECT USING (is_published = true);
 
+-- Regulations: CMS admin (anon key from frontend) can manage regulations
+DROP POLICY IF EXISTS "Public can manage regulations" ON regulations;
+CREATE POLICY "Public can manage regulations" ON regulations
+  FOR ALL USING (true) WITH CHECK (true);
+
 -- Admins: Public can manage admins (for development)
 ALTER TABLE admins ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public can manage admins" ON admins;
 CREATE POLICY "Public can manage admins" ON admins
   FOR ALL USING (true) WITH CHECK (true);
 

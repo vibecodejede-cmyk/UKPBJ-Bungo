@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, NavLink, useSearchParams } from 'react-router-dom'
 import Icon from '../components/Icon'
 import Footer from '../components/Footer'
-import { fetchGuides, fetchGuidesByCategory, fetchFeaturedGuide, fetchGuideVideos } from '../lib/api'
+import { fetchGuides, fetchGuidesByCategory, fetchFeaturedGuide, fetchGuideVideos, incrementGuideDownload, incrementVideoView } from '../lib/api'
 
 const roles = [
   { id: 'all', label: 'Semua Peran', checked: true },
@@ -113,12 +113,18 @@ export default function Panduan() {
     })
   }
 
-  const handleDownload = (guide) => {
+  const handleDownload = async (guide) => {
     if (guide?.file_url) {
       const url = guide.file_url.startsWith('http')
         ? guide.file_url
         : `${window.location.origin}${guide.file_url}`
       window.open(url, '_blank', 'noopener,noreferrer')
+      // Track download count
+      if (guide.id) {
+        incrementGuideDownload(guide.id).catch(() => {
+          // Silently fail - download tracking is non-blocking
+        })
+      }
     } else {
       alert('File panduan belum tersedia untuk diunduh.')
     }
@@ -240,6 +246,46 @@ export default function Panduan() {
     if (playlist) return `https://www.youtube.com/embed/videoseries?list=${playlist}`
     if (id) return `https://www.youtube.com/embed/${id}?autoplay=1`
     return url
+  }
+
+  // Convert a Google Drive share URL to an embeddable preview URL.
+  // Supports formats:
+  //   - https://drive.google.com/file/d/FILE_ID/view?usp=sharing
+  //   - https://drive.google.com/open?id=FILE_ID
+  //   - https://drive.google.com/file/d/FILE_ID/preview (already embeddable)
+  function toGoogleDriveEmbedUrl(url) {
+    if (!url) return ''
+    // Already a preview URL
+    if (url.includes('/preview')) return url
+    // Extract file ID from /d/FILE_ID/ pattern
+    let m = url.match(/\/d\/([A-Za-z0-9_-]+)/)
+    if (m) return `https://drive.google.com/file/d/${m[1]}/preview`
+    // Extract file ID from ?id=FILE_ID pattern
+    m = url.match(/[?&]id=([A-Za-z0-9_-]+)/)
+    if (m) return `https://drive.google.com/file/d/${m[1]}/preview`
+    return ''
+  }
+
+  // Tentukan cara memutar video berdasarkan URL-nya.
+  // - 'none'    : URL kosong/tidak valid -> tampilkan placeholder
+  // - 'file'    : file video langsung (mp4/webm/dll) -> pakai <video>
+  // - 'youtube' : YouTube -> iframe embed
+  // - 'googledrive' : Google Drive -> iframe embed
+  // - 'iframe'  : URL lain yang bisa di-embed -> iframe
+  function getVideoSource(url) {
+    if (!url || !String(url).trim()) return { type: 'none' }
+    // Data URL (base64, hasil upload fallback tanpa Storage) -> mainkan via <video>.
+    if (String(url).startsWith('data:')) return { type: 'file', src: url }
+    if (/\.(mp4|webm|ogg|mov|m4v|avi)$/i.test(url)) return { type: 'file', src: url }
+    // Check Google Drive first
+    const gdEmbed = toGoogleDriveEmbedUrl(url)
+    if (gdEmbed) return { type: 'googledrive', src: gdEmbed }
+    // Then check YouTube
+    const embed = toEmbedUrl(url)
+    if (embed && embed.includes('youtube.com/embed')) return { type: 'youtube', src: embed }
+    if (embed && embed !== url) return { type: 'youtube', src: embed }
+    if (embed) return { type: 'iframe', src: embed }
+    return { type: 'none' }
   }
 
   const currentFeatured = featuredGuide || fallbackFeatured
@@ -584,49 +630,82 @@ export default function Panduan() {
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
                     {currentVideos.map((video) => {
-                      const embedUrl = toEmbedUrl(video.video_url)
-                      const isPlaying = playingVideoId === video.id
-                      return (
-                        <div
-                          key={video.id}
-                          className="bg-white border border-outline-variant rounded-xl overflow-hidden institutional-shadow group"
-                        >
-                          <div className="relative aspect-video bg-black flex items-center justify-center overflow-hidden">
-                            {isPlaying ? (
-                              <iframe
-                                className="absolute inset-0 w-full h-full"
-                                src={embedUrl}
-                                title={video.title}
-                                frameBorder="0"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen
-                              />
-                            ) : (
-                              <>
-                                <div
-                                  className="absolute inset-0 bg-cover bg-center opacity-80 group-hover:scale-105 transition-transform duration-500"
-                                  style={{
-                                    backgroundImage: video.thumbnail_url
-                                      ? `url('${video.thumbnail_url}')`
-                                      : `url('https://i.ytimg.com/vi/${embedUrl.match(/embed\/([A-Za-z0-9_-]+)/)?.[1]}/hqdefault.jpg')`,
-                                  }}
-                                />
-                                <button
-                                  type="button"
-                                  onClick={() => setPlayingVideoId(video.id)}
-                                  className="relative z-10 w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform"
-                                  aria-label={`Putar video ${video.title}`}
-                                >
-                                  <Icon name="play_arrow" className="text-primary text-[32px]" style={{ fontVariationSettings: "'FILL' 1" }} />
-                                </button>
-                                {video.duration && (
-                                  <div className="absolute bottom-md right-md bg-black/70 text-white px-sm py-xs rounded font-label-sm text-label-sm z-10">
-                                    {video.duration}
-                                  </div>
-                                )}
-                              </>
-                            )}
-                          </div>
+                       const videoSrc = getVideoSource(video.video_url)
+                       const isPlaying = playingVideoId === video.id
+                       // Extract thumbnail: prefer custom thumbnail_url, then YouTube, then Google Drive icon
+                       const ytId = (videoSrc.src || '').match(/embed\/([A-Za-z0-9_-]+)/)?.[1]
+                       const gdId = (videoSrc.src || '').match(/\/file\/d\/([A-Za-z0-9_-]+)/)?.[1]
+                       return (
+                         <div
+                           key={video.id}
+                           className="bg-white border border-outline-variant rounded-xl overflow-hidden institutional-shadow group"
+                         >
+                           <div className="relative aspect-video bg-black flex items-center justify-center overflow-hidden">
+                             {videoSrc.type === 'none' ? (
+                               <div className="flex flex-col items-center justify-center text-white/80 gap-sm p-md text-center">
+                                 <Icon name="videocam_off" className="text-[40px]" />
+                                 <p className="font-label-sm text-label-sm">URL video belum diisi / tidak valid</p>
+                               </div>
+                             ) : isPlaying ? (
+                               videoSrc.type === 'file' ? (
+                                 <video
+                                   className="absolute inset-0 w-full h-full"
+                                   src={videoSrc.src}
+                                   controls
+                                   autoPlay
+                                   playsInline
+                                 />
+                               ) : (
+                                 <iframe
+                                   className="absolute inset-0 w-full h-full"
+                                   src={videoSrc.src}
+                                   title={video.title}
+                                   frameBorder="0"
+                                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                   allowFullScreen
+                                 />
+                               )
+                             ) : (
+                               <>
+                                 <div
+                                   className="absolute inset-0 bg-cover bg-center opacity-80 group-hover:scale-105 transition-transform duration-500"
+                                   style={{
+                                     backgroundImage: video.thumbnail_url
+                                       ? `url('${video.thumbnail_url}')`
+                                       : ytId
+                                         ? `url('https://i.ytimg.com/vi/${ytId}/hqdefault.jpg')`
+                                         : gdId
+                                           ? `url('https://drive.google.com/thumbnail?id=${gdId}&sz=w640')`
+                                           : undefined,
+                                   }}
+                                 />
+                                 <button
+                                   type="button"
+                                   onClick={() => {
+                                     setPlayingVideoId(video.id)
+                                     if (video.id) {
+                                       incrementVideoView(video.id).catch(() => {
+                                         // Silently fail - view tracking is non-blocking
+                                       })
+                                     }
+                                   }}
+                                   className="relative z-10 w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform"
+                                   aria-label={`Putar video ${video.title}`}
+                                 >
+                                   <Icon
+                                     name="play_arrow"
+                                     className="text-primary text-[32px]"
+                                     style={{ fontVariationSettings: "'FILL' 1" }}
+                                   />
+                                 </button>
+                                 {video.duration && (
+                                   <div className="absolute bottom-md right-md bg-black/70 text-white px-sm py-xs rounded font-label-sm text-label-sm z-10">
+                                     {video.duration}
+                                   </div>
+                                 )}
+                               </>
+                             )}
+                           </div>
                           <div className="p-md">
                             <div className="flex items-center justify-between gap-sm mb-base">
                               <h3 className="font-headline-sm text-headline-sm text-primary">{video.title}</h3>
