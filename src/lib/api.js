@@ -218,6 +218,27 @@ export async function toggleAnnouncementPublish(id, isPublished) {
   return true
 }
 
+// Increment the view count for a single announcement
+export async function incrementAnnouncementView(id) {
+  const { data, error } = await supabase
+    .from('announcements')
+    .select('view_count')
+    .eq('id', id)
+    .single()
+
+  if (error) throw error
+
+  const newCount = (data?.view_count || 0) + 1
+
+  const { error: updateError } = await supabase
+    .from('announcements')
+    .update({ view_count: newCount })
+    .eq('id', id)
+
+  if (updateError) throw updateError
+  return newCount
+}
+
 // ============================================
 // NEWSLETTER API
 // ============================================

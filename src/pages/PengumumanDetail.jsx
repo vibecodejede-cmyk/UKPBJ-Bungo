@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, NavLink, useParams } from 'react-router-dom'
 import Icon from '../components/Icon'
 import Footer from '../components/Footer'
-import { fetchAnnouncementById, fetchAnnouncements } from '../lib/api'
+import { fetchAnnouncementById, fetchAnnouncements, incrementAnnouncementView } from '../lib/api'
 import { announcements as fallbackAnnouncements, recentAnnouncements } from '../data/announcements'
 
 // Map a DB announcement row to the shape used by the UI.
@@ -40,6 +40,8 @@ export default function PengumumanDetail() {
         if (!active) return
         if (row) {
           setData(normalize(row))
+          // Increment the view count for this announcement (fire and forget).
+          incrementAnnouncementView(id).catch(() => {})
         } else {
           // Fallback to local static data if not found in DB.
           const local = fallbackAnnouncements.find((a) => a.id === id)
