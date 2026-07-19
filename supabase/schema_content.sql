@@ -207,7 +207,7 @@ CREATE TABLE IF NOT EXISTS admins (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   full_name TEXT NOT NULL,
   email TEXT NOT NULL UNIQUE,
-  role TEXT NOT NULL DEFAULT 'Editor Panduan' CHECK (role IN ('Super Admin', 'Editor Panduan', 'Editor Regulasi', 'Editor Pengumuman')),
+  role TEXT NOT NULL DEFAULT 'Editor' CHECK (role IN ('Super Admin', 'Editor', 'Editor Panduan', 'Editor Regulasi', 'Editor Pengumuman')),
   status TEXT NOT NULL DEFAULT 'Aktif' CHECK (status IN ('Aktif', 'Nonaktif', 'Terkunci')),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
