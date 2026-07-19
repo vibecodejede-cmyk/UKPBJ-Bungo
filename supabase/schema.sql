@@ -139,6 +139,8 @@ CREATE TABLE IF NOT EXISTS admins (
   email TEXT NOT NULL UNIQUE,
   role TEXT NOT NULL DEFAULT 'Editor' CHECK (role IN ('Super Admin', 'Editor', 'Editor Panduan', 'Editor Regulasi', 'Editor Pengumuman')),
   status TEXT NOT NULL DEFAULT 'Aktif' CHECK (status IN ('Aktif', 'Nonaktif', 'Terkunci')),
+  totp_secret TEXT,
+  totp_enrolled BOOLEAN NOT NULL DEFAULT FALSE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );

@@ -1,6 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { checkAdminByEmail } from '../lib/api'
+import { checkAdminByEmail, enrollTotp } from '../lib/api'
+import {
+  generateTotpSecret,
+  buildQrDataUrl,
+  verifyTotp,
+} from '../lib/totp'
 
 // Map admin role -> default landing route after a successful login.
 const ROLE_REDIRECT = {
@@ -22,6 +27,17 @@ export default function LoginAdmin() {
   // Google button micro-interaction state
   const [googleState, setGoogleState] = useState('idle') // idle | loading | success
 
+  // TOTP (Google Authenticator) flow state
+  const [showEnroll, setShowEnroll] = useState(false) // scan barcode first time
+  const [showCode, setShowCode] = useState(false) // enter 6-digit code
+  const [qrDataUrl, setQrDataUrl] = useState('')
+  const [pendingSecret, setPendingSecret] = useState('')
+  const [pendingAdmin, setPendingAdmin] = useState(null)
+  const [pendingTarget, setPendingTarget] = useState('')
+  const [codeInput, setCodeInput] = useState('')
+  const [codeError, setCodeError] = useState('')
+  const [codeLoading, setCodeLoading] = useState(false)
+
   function openGmailModal() {
     setError('')
     setEmail('')
@@ -31,6 +47,89 @@ export default function LoginAdmin() {
   function closeModal() {
     if (loading) return
     setShowModal(false)
+  }
+
+  // After a successful Google login, decide whether the admin must enroll
+  // (scan barcode) or simply enter their existing Authenticator code.
+  async function startTotpFlow(admin, target) {
+    setPendingAdmin(admin)
+    setPendingTarget(target)
+
+    if (!admin.totp_enrolled || !admin.totp_secret) {
+      // New admin: generate a secret and show the barcode to scan.
+      const secret = generateTotpSecret()
+      setPendingSecret(secret)
+      try {
+        const dataUrl = await buildQrDataUrl(secret, admin.email, admin.full_name)
+        setQrDataUrl(dataUrl)
+      } catch {
+        setQrDataUrl('')
+      }
+      setShowEnroll(true)
+    } else {
+      // Returning admin: just ask for the 6-digit code.
+      setPendingSecret(admin.totp_secret)
+      setShowCode(true)
+    }
+  }
+
+  function closeEnroll() {
+    if (codeLoading) return
+    setShowEnroll(false)
+    setQrDataUrl('')
+    setPendingSecret('')
+    setPendingAdmin(null)
+    setPendingTarget('')
+    setCodeInput('')
+    setCodeError('')
+  }
+
+  function closeCode() {
+    if (codeLoading) return
+    setShowCode(false)
+    setPendingSecret('')
+    setPendingAdmin(null)
+    setPendingTarget('')
+    setCodeInput('')
+    setCodeError('')
+  }
+
+  // Verify the code entered by the user. Used both for first-time enrollment
+  // and for subsequent logins.
+  async function handleVerifyCode(e) {
+    e.preventDefault()
+    const value = codeInput.trim()
+
+    if (!value) {
+      setCodeError('Silakan masukkan kode Authenticator 6 digit.')
+      return
+    }
+    if (!verifyTotp(pendingSecret, value)) {
+      setCodeError('Kode Authenticator salah. Pastikan waktu di perangkat Anda sudah tepat.')
+      return
+    }
+
+    setCodeLoading(true)
+    setCodeError('')
+
+    try {
+      // If this is a first-time enrollment, persist the secret.
+      // If saving fails (e.g. migration not run), we still let the admin in.
+      if (showEnroll && pendingAdmin && !pendingAdmin.totp_enrolled) {
+        await enrollTotp(pendingAdmin.id, pendingSecret)
+      }
+
+      setGoogleState('success')
+      const target = pendingTarget
+      setTimeout(() => {
+        setShowEnroll(false)
+        setShowCode(false)
+        navigate(target)
+      }, 700)
+    } catch (err) {
+      setCodeLoading(false)
+      setCodeError('Terjadi kesalahan. Coba lagi.')
+    }
   }
 
   async function handleVerify(e) {
@@ -54,7 +153,6 @@ export default function LoginAdmin() {
       const admin = await checkAdminByEmail(value)
 
       if (!admin) {
-        // Not registered in the database
         setGoogleState('idle')
         setError(
           'Akun Google ini belum terdaftar sebagai admin. Silakan hubungi Super Admin untuk pendaftaran akses.'
@@ -77,7 +175,7 @@ export default function LoginAdmin() {
         return
       }
 
-      // Registered & active -> store session and redirect by role
+      // Registered & active -> store session, then require Google Authenticator
       const session = {
         id: admin.id,
         full_name: admin.full_name,
@@ -88,11 +186,10 @@ export default function LoginAdmin() {
       }
       localStorage.setItem('cms_admin_session', JSON.stringify(session))
 
-      setGoogleState('success')
+      setLoading(false)
+      setShowModal(false)
       const target = ROLE_REDIRECT[admin.role] || '/dashboard'
-      setTimeout(() => {
-        navigate(target)
-      }, 900)
+      await startTotpFlow(admin, target)
     } catch (err) {
       setGoogleState('idle')
       setError(
@@ -128,10 +225,10 @@ export default function LoginAdmin() {
             </div>
             <div className="flex flex-col">
               <h1 className="font-headline-md text-headline-md text-primary tracking-tight leading-none">
-                Inaproc & LPSE
+                Portal Informasi Pengadaan
               </h1>
               <span className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">
-                Government Portal
+                UKPBJ Kabupaten Bungo
               </span>
             </div>
           </div>
@@ -201,7 +298,7 @@ export default function LoginAdmin() {
         {/* Footer Copyright */}
         <footer className="mt-8 text-center">
           <p className="font-label-sm text-label-sm text-outline">
-            © 2024 Inaproc & LPSE. Institutional Government Portal.
+            © 2026 UKPBJ Kabupaten Bungo. Institutional Government Portal.
           </p>
         </footer>
       </main>
@@ -272,6 +369,176 @@ export default function LoginAdmin() {
                     </span>
                   )}
                   {loading ? 'Memverifikasi...' : 'Lanjutkan'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* First-time enrollment: scan barcode */}
+      {showEnroll && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          onClick={closeEnroll}
+        >
+          <div
+            className="w-full max-w-[440px] bg-surface-container-lowest border border-outline-variant rounded-xl p-8 institutional-shadow"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-primary rounded-lg">
+                <span className="material-symbols-outlined text-on-primary text-[24px]">
+                  qr_code_2
+                </span>
+              </div>
+              <h3 className="font-headline-sm text-headline-sm text-on-surface">
+                Aktifkan Google Authenticator
+              </h3>
+            </div>
+            <p className="font-body-sm text-body-sm text-on-surface-variant mb-4">
+              Login via Google berhasil. Untuk keamanan, pindai barcode di bawah
+              ini menggunakan aplikasi <span className="font-label-md text-label-md text-on-surface">Google Authenticator</span>,
+              lalu masukkan kode 6 digit yang muncul untuk menyelesaikan login.
+            </p>
+
+            <div className="flex justify-center mb-4">
+              {qrDataUrl ? (
+                <img
+                  src={qrDataUrl}
+                  alt="Barcode Google Authenticator"
+                  className="w-[240px] h-[240px] rounded-lg border border-outline-variant bg-surface"
+                />
+              ) : (
+                <div className="w-[240px] h-[240px] flex items-center justify-center bg-surface-container-low rounded-lg border border-outline-variant font-body-sm text-body-sm text-on-surface-variant">
+                  Memuat barcode...
+                </div>
+              )}
+            </div>
+
+            <p className="font-label-sm text-label-sm text-on-surface-variant text-center mb-4 break-all">
+              Atau masukkan kode manual:{' '}
+              <span className="font-label-md text-label-md text-on-surface">{pendingSecret}</span>
+            </p>
+
+            <form onSubmit={handleVerifyCode} className="space-y-4">
+              <div>
+                <label className="block font-label-md text-label-md text-on-surface-variant mb-2">
+                  Kode Authenticator
+                </label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  autoFocus
+                  maxLength={6}
+                  value={codeInput}
+                  onChange={(e) => setCodeInput(e.target.value.replace(/[^0-9]/g, ''))}
+                  placeholder="••••••"
+                  className="w-full py-3 px-4 text-center tracking-[0.5em] bg-surface-container-low border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+              </div>
+
+              {codeError && (
+                <div className="bg-error-container text-on-error-container border border-error rounded-lg p-3 font-body-sm text-body-sm">
+                  {codeError}
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={closeEnroll}
+                  disabled={codeLoading}
+                  className="flex-1 py-3 px-4 border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container transition-all disabled:opacity-50"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={codeLoading}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-primary-container text-on-primary-container rounded-lg font-label-md text-label-md hover:opacity-90 transition-all disabled:opacity-70"
+                >
+                  {codeLoading && (
+                    <span className="material-symbols-outlined animate-spin text-[20px]">
+                      progress_activity
+                    </span>
+                  )}
+                  {codeLoading ? 'Memverifikasi...' : 'Konfirmasi'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Returning admin: enter Authenticator code */}
+      {showCode && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          onClick={closeCode}
+        >
+          <div
+            className="w-full max-w-[420px] bg-surface-container-lowest border border-outline-variant rounded-xl p-8 institutional-shadow"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-primary rounded-lg">
+                <span className="material-symbols-outlined text-on-primary text-[24px]">
+                  verified_user
+                </span>
+              </div>
+              <h3 className="font-headline-sm text-headline-sm text-on-surface">
+                Verifikasi Google Authenticator
+              </h3>
+            </div>
+            <p className="font-body-sm text-body-sm text-on-surface-variant mb-6">
+              Login via Google berhasil. Masukkan kode 6 digit dari aplikasi
+              Google Authenticator Anda untuk menyelesaikan login.
+            </p>
+
+            <form onSubmit={handleVerifyCode} className="space-y-4">
+              <div>
+                <label className="block font-label-md text-label-md text-on-surface-variant mb-2">
+                  Kode Authenticator
+                </label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  autoFocus
+                  maxLength={6}
+                  value={codeInput}
+                  onChange={(e) => setCodeInput(e.target.value.replace(/[^0-9]/g, ''))}
+                  placeholder="••••••"
+                  className="w-full py-3 px-4 text-center tracking-[0.5em] bg-surface-container-low border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+              </div>
+
+              {codeError && (
+                <div className="bg-error-container text-on-error-container border border-error rounded-lg p-3 font-body-sm text-body-sm">
+                  {codeError}
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={closeCode}
+                  disabled={codeLoading}
+                  className="flex-1 py-3 px-4 border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container transition-all disabled:opacity-50"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={codeLoading}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-primary-container text-on-primary-container rounded-lg font-label-md text-label-md hover:opacity-90 transition-all disabled:opacity-70"
+                >
+                  {codeLoading && (
+                    <span className="material-symbols-outlined animate-spin text-[20px]">
+                      progress_activity
+                    </span>
+                  )}
+                  {codeLoading ? 'Memverifikasi...' : 'Konfirmasi'}
                 </button>
               </div>
             </form>

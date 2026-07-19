@@ -14,7 +14,55 @@ export async function checkAdminByEmail(email) {
     .maybeSingle()
 
   if (error) throw error
+  if (!data) return data
+
+  // TOTP columns may not exist yet on the live DB (migration not run).
+  // Fetch them separately so a missing column doesn't break the whole login.
+  try {
+    const { data: totpData, error: totpError } = await supabase
+      .from('admins')
+      .select('totp_secret, totp_enrolled')
+      .eq('id', data.id)
+      .maybeSingle()
+    if (!totpError && totpData) {
+      data.totp_secret = totpData.totp_secret || null
+      data.totp_enrolled = totpData.totp_enrolled || false
+    } else {
+      data.totp_secret = null
+      data.totp_enrolled = false
+    }
+  } catch {
+    data.totp_secret = null
+    data.totp_enrolled = false
+  }
   return data
+}
+
+// Persist the TOTP secret and mark the admin as enrolled after they scan the
+// barcode and confirm a valid code for the first time.
+// Resilient: if the totp columns don't exist yet on the live DB (migration
+// not run), we don't block the login — the admin simply isn't permanently
+// enrolled and will be asked to scan again next time.
+export async function enrollTotp(adminId, secret) {
+  try {
+    const { error } = await supabase
+      .from('admins')
+      .update({
+        totp_secret: secret,
+        totp_enrolled: true,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', adminId)
+
+    if (error) {
+      console.warn('[TOTP] Gagal menyimpan secret (migration belum dijalankan?):', error.message)
+      return false
+    }
+    return true
+  } catch (err) {
+    console.warn('[TOTP] enrollTotp error:', err?.message || err)
+    return false
+  }
 }
 
 // ============================================

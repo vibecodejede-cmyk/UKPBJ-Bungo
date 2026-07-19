@@ -18,6 +18,7 @@ import KelolaRegulasi from './pages/KelolaRegulasi'
 import KelolaPengumuman from './pages/KelolaPengumuman'
 import KelolaPesan from './pages/KelolaPesan'
 import LoginAdmin from './pages/LoginAdmin'
+import ProtectedRoute from './components/ProtectedRoute'
 
 export default function App() {
   return (
@@ -48,12 +49,54 @@ export default function App() {
       <Route path="/kontak" element={<Kontak />} />
       <Route path="/panduan-lpse" element={<PanduanLpse />} />
       <Route path="/login" element={<LoginAdmin />} />
-      <Route path="/dashboard" element={<DashboardAdmin />} />
-      <Route path="/kelola-panduan" element={<KelolaPanduan />} />
-      <Route path="/kelola-regulasi" element={<KelolaRegulasi />} />
-      <Route path="/kelola-pengumuman" element={<KelolaPengumuman />} />
-      <Route path="/kelola-admin" element={<KelolaAdmin />} />
-      <Route path="/kelola-pesan" element={<KelolaPesan />} />
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <DashboardAdmin />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/kelola-panduan"
+        element={
+          <ProtectedRoute>
+            <KelolaPanduan />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/kelola-regulasi"
+        element={
+          <ProtectedRoute>
+            <KelolaRegulasi />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/kelola-pengumuman"
+        element={
+          <ProtectedRoute>
+            <KelolaPengumuman />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/kelola-admin"
+        element={
+          <ProtectedRoute>
+            <KelolaAdmin />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/kelola-pesan"
+        element={
+          <ProtectedRoute>
+            <KelolaPesan />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   )
 }
