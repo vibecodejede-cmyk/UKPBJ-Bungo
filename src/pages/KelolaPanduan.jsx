@@ -3,7 +3,7 @@ import Icon from '../components/Icon'
 import Modal from '../components/Modal'
 import SettingsModal from '../components/SettingsModal'
 import NotificationBell from '../components/NotificationBell'
-import { getAdminSession } from '../lib/session'
+import { getAdminSession, getAvatarFallback } from '../lib/session'
 import {
   fetchAllGuides,
   fetchGuideVideos,
@@ -84,11 +84,9 @@ export default function KelolaPanduan() {
   const [modalOpen, setModalOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [choiceModalOpen, setChoiceModalOpen] = useState(false)
   const [selectedType, setSelectedType] = useState(null)
-  const [activeTab, setActiveTab] = useState('pdf') // 'pdf' | 'video'
+  const [activeTab, setActiveTab] = useState('pdf-inaproc') // 'pdf-inaproc' | 'video-inaproc' | 'pdf-lpse' | 'video-lpse'
   const [filterOpen, setFilterOpen] = useState(false)
-  const [filterCategory, setFilterCategory] = useState('Semua')
   const [filterRole, setFilterRole] = useState('Semua')
   const [page, setPage] = useState(1)
   const [pageSize] = useState(10)
@@ -132,6 +130,10 @@ export default function KelolaPanduan() {
     load()
   }, [])
 
+  // Derive the content type and category from the combined active tab
+  const [activeType, activeCatKey] = activeTab.split('-')
+  const activeCategory = activeCatKey === 'lpse' ? 'Panduan LPSE' : 'Panduan Inaproc'
+
   const stats = useMemo(() => {
     const total = guides.length
     const videoCount = videos.length
@@ -139,16 +141,16 @@ export default function KelolaPanduan() {
     const pct = total ? Math.round((published / total) * 100) : 0
 
     // Dynamic stat based on active tab
-    if (activeTab === 'video') {
+    if (activeType === 'video') {
       const totalViews = videos.reduce((sum, v) => sum + (v.view_count || 0), 0)
       return { total, videoCount, activeLabel: 'Total View', activeValue: totalViews, pct }
     }
     const totalDownloads = guides.reduce((sum, g) => sum + (g.download_count || 0), 0)
     return { total, videoCount, activeLabel: 'Total Download', activeValue: totalDownloads, pct }
-  }, [guides, videos, activeTab])
+  }, [guides, videos, activeType])
 
-  // Source list depends on the active tab
-  const sourceList = activeTab === 'video' ? videos : guides
+  // Source list depends on the active tab (pdf = guides, video = videos)
+  const sourceList = activeType === 'video' ? videos : guides
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase()
@@ -160,12 +162,12 @@ export default function KelolaPanduan() {
       const catMatch = category.includes(q)
       const passSearch = !q || title.includes(q) || catMatch || roleMatch
 
-      const passCategory = filterCategory === 'Semua' || item.category === filterCategory
+      const passCategory = item.category === activeCategory
       const passRole = filterRole === 'Semua' || (Array.isArray(item.role) ? item.role.includes(filterRole) : item.role === filterRole)
 
       return passSearch && passCategory && passRole
     })
-  }, [sourceList, search, filterCategory, filterRole])
+  }, [sourceList, search, activeCategory, filterRole])
 
   // Pagination: derive the slice to display and total pages from the filtered list
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize))
@@ -199,7 +201,7 @@ export default function KelolaPanduan() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `panduan-${activeTab === 'video' ? 'video' : 'pdf'}-${new Date().toISOString().slice(0, 10)}.csv`
+    a.download = `panduan-${activeType === 'video' ? 'video' : 'pdf'}-${activeCatKey}-${new Date().toISOString().slice(0, 10)}.csv`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -248,7 +250,6 @@ export default function KelolaPanduan() {
         }
       }
       setModalOpen(false)
-      setChoiceModalOpen(false)
       setSelectedType(null)
       setEditingItem(null)
       setForm({
@@ -272,7 +273,7 @@ export default function KelolaPanduan() {
     }
   }
 
-  // Open the create modal (after choosing the type in the choice modal)
+  // Open the create modal pre-set with the active tab's type and category
   function openCreate(type) {
     setEditingItem(null)
     setSelectedType(type)
@@ -280,16 +281,15 @@ export default function KelolaPanduan() {
       title: '',
       description: '',
       content: '',
-      category: 'Panduan Inaproc',
+      category: activeCategory,
       role: 'Vendor',
       is_published: true,
       file_type: 'pdf',
       file_url: '',
       video_url: '',
       thumbnail_url: '',
-      duration: '',
+        duration: '',
     })
-    setChoiceModalOpen(false)
     setModalOpen(true)
   }
 
@@ -297,7 +297,7 @@ export default function KelolaPanduan() {
   function handleEdit(item) {
     setMoreMenuId(null)
     setEditingItem(item)
-    setSelectedType(activeTab === 'video' ? 'video' : 'pdf')
+    setSelectedType(activeType === 'video' ? 'video' : 'pdf')
     setForm({
       title: item.title || '',
       description: item.description || '',
@@ -317,7 +317,7 @@ export default function KelolaPanduan() {
   async function handleDelete(item) {
     if (!confirm('Yakin ingin menghapus item ini?')) return
     try {
-      if (activeTab === 'video') {
+      if (activeType === 'video') {
         await deleteGuideVideo(item.id)
       } else {
         await deleteGuide(item.id)
@@ -330,7 +330,7 @@ export default function KelolaPanduan() {
 
   async function handleToggle(item) {
     try {
-      if (activeTab === 'video') {
+      if (activeType === 'video') {
         // guide_videos has no publish flag; just reload
         await load()
       } else {
@@ -347,8 +347,10 @@ export default function KelolaPanduan() {
       {/* SideNavBar */}
       <aside className="hidden md:flex flex-col h-screen py-md px-sm border-r border-outline-variant bg-surface-container w-64 flex-shrink-0">
         <div className="px-sm mb-xl">
-          <h1 className="font-headline-sm text-headline-sm font-bold text-primary">UKPBJ Kabupaten Bungo</h1>
-          <p className="font-label-sm text-label-sm text-on-surface-variant">Admin Panel</p>
+          <h1 className="font-headline-sm text-headline-sm font-bold text-primary">Admin Panel</h1>
+          <p className="font-label-sm text-label-sm text-on-surface-variant">UKPBJ Kabupaten Bungo
+
+</p>
         </div>
         <nav className="flex-1 space-y-1">
           <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/dashboard">
@@ -407,9 +409,20 @@ export default function KelolaPanduan() {
           </div>
           <div className="flex items-center gap-md">
             <NotificationBell />
-            <div className="w-10 h-10 rounded-full overflow-hidden border border-outline-variant">
-              <img className="w-full h-full object-cover" alt={adminName} src={adminAvatar} />
-            </div>
+            <button
+              onClick={() => setSettingsOpen(true)}
+              className="w-10 h-10 rounded-full overflow-hidden border border-outline-variant hover:opacity-80 transition-opacity cursor-pointer"
+              title="Pengaturan Akun"
+            >
+              <img
+                className="w-full h-full object-cover"
+                alt={adminName}
+                src={adminAvatar}
+                onError={(e) => {
+                  e.target.src = getAvatarFallback(adminName)
+                }}
+              />
+            </button>
           </div>
         </header>
 
@@ -426,7 +439,7 @@ export default function KelolaPanduan() {
             <StatBox icon="description" iconBg="bg-primary-fixed" iconColor="text-primary" label="Total Panduan" value={loading ? '...' : stats.total} />
             <StatBox icon="video_library" iconBg="bg-secondary-fixed" iconColor="text-secondary" label="Video Tutorial" value={loading ? '...' : stats.videoCount} />
             <StatBox
-              icon={activeTab === 'video' ? 'visibility' : 'download'}
+              icon={activeType === 'video' ? 'visibility' : 'download'}
               iconBg="bg-tertiary-fixed"
               iconColor="text-tertiary"
               label={loading ? '...' : stats.activeLabel}
@@ -435,29 +448,52 @@ export default function KelolaPanduan() {
             <StatBox icon="check_circle" iconBg="bg-surface-container-high" iconColor="text-on-surface-variant" label="Published" value={loading ? '...' : `${stats.pct}%`} />
           </div>
 
-          {/* Tabs: separate PDF guides and Video guides */}
-          <div className="flex gap-sm mb-lg">
+          {/* Tabs styled like the public Panduan page: category tabs + content-type toggle */}
+          {/* Category Tabs (Inaproc / LPSE) */}
+          <div className="flex items-center gap-lg border-b border-outline-variant mb-lg overflow-x-auto whitespace-nowrap">
             <button
-              onClick={() => setActiveTab('pdf')}
-              className={`flex items-center gap-xs px-lg py-sm rounded-lg font-label-md text-label-md border transition-colors ${
-                activeTab === 'pdf'
-                  ? 'bg-primary text-on-primary border-primary'
-                  : 'bg-surface text-on-surface-variant border-outline-variant hover:bg-surface-variant'
+              onClick={() => setActiveTab(`${activeType}-inaproc`)}
+              className={`font-headline-sm text-headline-sm py-md border-b-4 transition-all ${
+                activeCatKey === 'inaproc'
+                  ? 'text-primary border-primary'
+                  : 'text-on-surface-variant border-transparent hover:text-secondary'
               }`}
             >
-              <Icon name="picture_as_pdf" className="text-[18px]" />
-              Panduan PDF ({loading ? '...' : guides.length})
+              Panduan Inaproc
             </button>
             <button
-              onClick={() => setActiveTab('video')}
-              className={`flex items-center gap-xs px-lg py-sm rounded-lg font-label-md text-label-md border transition-colors ${
-                activeTab === 'video'
-                  ? 'bg-primary text-on-primary border-primary'
-                  : 'bg-surface text-on-surface-variant border-outline-variant hover:bg-surface-variant'
+              onClick={() => setActiveTab(`${activeType}-lpse`)}
+              className={`font-headline-sm text-headline-sm py-md border-b-4 transition-all ${
+                activeCatKey === 'lpse'
+                  ? 'text-primary border-primary'
+                  : 'text-on-surface-variant border-transparent hover:text-secondary'
               }`}
             >
-              <Icon name="play_circle" className="text-[18px]" />
-              Video Panduan ({loading ? '...' : videos.length})
+              Panduan LPSE
+            </button>
+          </div>
+
+          {/* Content Type Toggle (Panduan PDF / Video Tutorial) */}
+          <div className="flex items-center gap-md mb-lg">
+            <button
+              onClick={() => setActiveTab(`pdf-${activeCatKey}`)}
+              className={`font-label-md text-label-md px-lg py-sm rounded-lg transition-all flex items-center gap-sm ${
+                activeType === 'pdf'
+                  ? 'bg-primary text-on-primary'
+                  : 'bg-white text-on-surface-variant border border-outline-variant hover:bg-surface-container'
+              }`}
+            >
+              <Icon name="picture_as_pdf" className="text-[18px]" /> Panduan PDF
+            </button>
+            <button
+              onClick={() => setActiveTab(`video-${activeCatKey}`)}
+              className={`font-label-md text-label-md px-lg py-sm rounded-lg transition-all flex items-center gap-sm ${
+                activeType === 'video'
+                  ? 'bg-primary text-on-primary'
+                  : 'bg-white text-on-surface-variant border border-outline-variant hover:bg-surface-container'
+              }`}
+            >
+              <Icon name="play_circle" className="text-[18px]" /> Video Tutorial
             </button>
           </div>
 
@@ -486,18 +522,6 @@ export default function KelolaPanduan() {
                   {filterOpen && (
                     <div className="absolute right-0 mt-2 w-64 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-lg p-md z-20 space-y-md">
                       <div>
-                        <label className="block font-label-sm text-label-sm text-on-surface-variant mb-xs">Kategori</label>
-                        <select
-                          className="w-full px-md py-sm rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary"
-                          value={filterCategory}
-                          onChange={(e) => setFilterCategory(e.target.value)}
-                        >
-                          <option value="Semua">Semua</option>
-                          <option value="Panduan Inaproc">Inaproc</option>
-                          <option value="Panduan LPSE">LPSE</option>
-                        </select>
-                      </div>
-                      <div>
                         <label className="block font-label-sm text-label-sm text-on-surface-variant mb-xs">Peran</label>
                         <select
                           className="w-full px-md py-sm rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary"
@@ -513,7 +537,7 @@ export default function KelolaPanduan() {
                         </select>
                       </div>
                       <button
-                        onClick={() => { setFilterCategory('Semua'); setFilterRole('Semua') }}
+                        onClick={() => { setFilterRole('Semua') }}
                         className="w-full px-md py-sm text-label-md text-secondary hover:underline"
                       >
                         Reset Filter
@@ -530,10 +554,10 @@ export default function KelolaPanduan() {
                 </button>
                 <button
                   className="flex items-center gap-sm bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm"
-                  onClick={() => setChoiceModalOpen(true)}
+                  onClick={() => openCreate(activeType)}
                 >
                  <Icon name="add_circle" className="text-[20px]" />
-                    Tambah Panduan Baru
+                    Tambah 
                 </button>
               </div>
             </div>
@@ -547,7 +571,7 @@ export default function KelolaPanduan() {
                     <th className="px-lg py-md font-label-md text-label-md text-on-surface-variant border-b border-outline-variant">Peran</th>
                     <th className="px-lg py-md font-label-md text-label-md text-on-surface-variant border-b border-outline-variant text-center">Status</th>
                     <th className="px-lg py-md font-label-md text-label-md text-on-surface-variant border-b border-outline-variant text-center">
-                      {activeTab === 'video' ? 'Total View' : 'Total Download'}
+                      {activeType === 'video' ? 'Total View' : 'Total Download'}
                     </th>
                     <th className="px-lg py-md font-label-md text-label-md text-on-surface-variant border-b border-outline-variant text-right">Aksi</th>
                   </tr>
@@ -569,7 +593,7 @@ export default function KelolaPanduan() {
                   )}
                   {!loading &&
                     pagedItems.map((item) => {
-                      const isVideo = activeTab === 'video'
+                       const isVideo = activeType === 'video'
                       const dateValue = item.updated_at || item.created_at
                       const roleLabel = Array.isArray(item.role) ? item.role.join(', ') : item.role
                       const menuOpen = moreMenuId === item.id
@@ -654,7 +678,7 @@ export default function KelolaPanduan() {
 
             <div className="p-lg flex items-center justify-between border-t border-outline-variant bg-surface-bright">
               <p className="text-label-sm text-on-surface-variant">
-                Menampilkan {filtered.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}–{Math.min(currentPage * pageSize, filtered.length)} dari {filtered.length} {activeTab === 'video' ? 'video' : 'panduan'}
+                Menampilkan {filtered.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}–{Math.min(currentPage * pageSize, filtered.length)} dari {filtered.length} {activeType === 'video' ? 'video' : 'panduan'}
               </p>
               <div className="flex items-center gap-xs">
                 <button
@@ -691,38 +715,6 @@ export default function KelolaPanduan() {
 
         
       </main>
-
-      {/* Choice Modal */}
-      <Modal isOpen={choiceModalOpen} onClose={() => { setChoiceModalOpen(false); setSelectedType(null); }} title="Pilih Jenis Panduan">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
-          <button
-            type="button"
-            onClick={() => openCreate('pdf')}
-            className="flex flex-col items-center gap-md p-xl border-2 border-outline-variant rounded-xl hover:border-primary hover:bg-primary-container/5 transition-all group"
-          >
-            <div className="w-16 h-16 rounded-full bg-error-container/20 flex items-center justify-center text-error group-hover:scale-110 transition-transform">
-              <Icon name="picture_as_pdf" className="text-[32px]" />
-            </div>
-            <div className="text-center">
-              <p className="font-label-md text-label-md text-on-surface font-semibold">Panduan PDF</p>
-              <p className="text-label-sm text-on-surface-variant mt-xs">Unggah dokumen panduan dalam format PDF</p>
-            </div>
-          </button>
-          <button
-            type="button"
-            onClick={() => openCreate('video')}
-            className="flex flex-col items-center gap-md p-xl border-2 border-outline-variant rounded-xl hover:border-primary hover:bg-primary-container/5 transition-all group"
-          >
-            <div className="w-16 h-16 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
-              <Icon name="play_circle" className="text-[32px]" />
-            </div>
-            <div className="text-center">
-              <p className="font-label-md text-label-md text-on-surface font-semibold">Video Panduan</p>
-              <p className="text-label-sm text-on-surface-variant mt-xs">Tambah video tutorial panduan</p>
-            </div>
-          </button>
-        </div>
-      </Modal>
 
       {/* Form Modal */}
       <Modal isOpen={modalOpen} onClose={() => { setModalOpen(false); setEditingItem(null); }} title={editingItem ? (selectedType === 'video' ? 'Edit Video Panduan' : 'Edit Panduan PDF') : (selectedType === 'video' ? 'Form Input Video Panduan' : 'Form Input Panduan PDF')}>

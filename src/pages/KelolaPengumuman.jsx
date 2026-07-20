@@ -3,7 +3,7 @@ import Icon from '../components/Icon'
 import Modal from '../components/Modal'
 import SettingsModal from '../components/SettingsModal'
 import NotificationBell from '../components/NotificationBell'
-import { getAdminSession } from '../lib/session'
+import { getAdminSession, getAvatarFallback } from '../lib/session'
 import {
   fetchAllAnnouncements,
   createAnnouncement,
@@ -268,8 +268,8 @@ export default function KelolaPengumuman() {
       {/* SideNavBar */}
       <aside className="hidden md:flex flex-col h-screen py-md px-sm border-r border-outline-variant bg-surface-container w-64 flex-shrink-0">
         <div className="px-sm mb-xl">
-          <h1 className="font-headline-sm text-headline-sm font-bold text-primary">UKPBJ Kabupaten Bungo</h1>
-          <p className="font-label-sm text-label-sm text-on-surface-variant">Admin Panel</p>
+          <h1 className="font-headline-sm text-headline-sm font-bold text-primary">Admin Panel</h1>
+          <p className="font-label-sm text-label-sm text-on-surface-variant">UKPBJ Kabupaten Bungo</p>
         </div>
         <nav className="flex-1 space-y-1">
           <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/dashboard">
@@ -328,9 +328,20 @@ export default function KelolaPengumuman() {
           </div>
           <div className="flex items-center gap-md">
             <NotificationBell />
-            <div className="w-10 h-10 rounded-full overflow-hidden border border-outline-variant">
-              <img className="w-full h-full object-cover" alt={adminName} src={adminAvatar} />
-            </div>
+            <button
+              onClick={() => setSettingsOpen(true)}
+              className="w-10 h-10 rounded-full overflow-hidden border border-outline-variant hover:opacity-80 transition-opacity cursor-pointer"
+              title="Pengaturan Akun"
+            >
+              <img
+                className="w-full h-full object-cover"
+                alt={adminName}
+                src={adminAvatar}
+                onError={(e) => {
+                  e.target.src = getAvatarFallback(adminName)
+                }}
+              />
+            </button>
           </div>
         </header>
 
@@ -350,32 +361,11 @@ export default function KelolaPengumuman() {
             <StatBox icon="percent" iconBg="bg-surface-container-high" iconColor="text-on-surface-variant" label="Persentase Publik" value={loading ? '...' : `${stats.pct}%`} />
           </div>
 
-          {/* Total View Summary */}
-          <div className="flex items-center gap-sm text-label-sm text-on-surface-variant">
-            <Icon name="visibility" className="text-[18px]" />
-            <span>
-              Total View:{' '}
-              <span className="font-semibold text-on-surface">
-                {loading ? '...' : stats.totalViews.toLocaleString('id-ID')}
-              </span>{' '}
-              tayangan di seluruh pengumuman
-            </span>
-          </div>
+          
 
           {/* Management Table Section */}
           <section className="bg-surface rounded-xl border border-outline-variant shadow-sm overflow-hidden">
-            <div className="p-lg border-b border-outline-variant flex items-center justify-between gap-md bg-surface-bright">
-              <div className="flex items-center gap-sm text-label-sm text-on-surface-variant">
-                <Icon name="visibility" className="text-[18px]" />
-                <span>
-                  Total View:{' '}
-                  <span className="font-semibold text-on-surface">
-                    {loading ? '...' : stats.totalViews.toLocaleString('id-ID')}
-                  </span>{' '}
-                  tayangan
-                </span>
-              </div>
-            </div>
+            
             <div className="p-lg border-b border-outline-variant flex flex-col md:flex-row justify-between items-start md:items-center gap-md bg-surface-bright">
               <div className="relative w-full md:w-96">
                 <Icon name="search" className="absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant" />

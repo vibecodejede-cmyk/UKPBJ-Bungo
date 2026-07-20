@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
 import Icon from '../components/Icon'
+import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { submitContactMessage } from '../lib/api'
 
@@ -9,25 +9,19 @@ const contactInfo = [
     icon: 'location_on',
     iconBg: 'bg-primary text-on-primary',
     title: 'Alamat Kantor',
-    lines: ['Jl. Bhayangkara No. 1, Pasar Bungo', 'Kabupaten Bungo, Jambi 37211'],
-  },
-  {
-    icon: 'call',
-    iconBg: 'bg-secondary text-on-secondary',
-    title: 'Telepon',
-    lines: ['(0741) 123456', 'Call Center 1500 119'],
+    lines: ['Jl. R.M. Thaher Nomor 503 Rimbo Tengah', 'Kabupaten Bungo, Jambi 37214'],
   },
   {
     icon: 'mail',
     iconBg: 'bg-tertiary-container text-on-tertiary-container',
     title: 'Email',
-    lines: ['helpdesk@inaproc.id', 'info@ukpbj-bungo.go.id'],
+    lines: ['helpdesk.lpse.bungokab@gmail.com', 'pbjbungo@gmail.com'],
   },
   {
     icon: 'schedule',
     iconBg: 'bg-primary-container text-on-primary-container',
     title: 'Jam Operasional',
-    lines: ['Senin - Jumat: 08.00 - 16.00 WIB', 'Sabtu - Minggu: Tutup'],
+    lines: ['Senin - Kamis: 08.00 - 16.00 WIB', 'Jumat: 08.00 - 11.00', 'Sabtu - Minggu: Tutup'],
   },
 ]
 
@@ -131,48 +125,9 @@ export default function Kontak() {
 
   return (
     <div className="bg-background text-on-surface min-h-screen flex flex-col">
-      {/* TopNavBar */}
-      <header className="bg-surface border-b border-outline-variant sticky top-0 z-50">
-        <div className="flex justify-between items-center w-full px-gutter max-w-container-max mx-auto h-16">
-          <Link to="/" className="font-headline-md text-headline-md font-bold text-primary">
-            UKPBJ Kabupaten Bungo
-          </Link>
-          <nav className="hidden md:flex items-center space-x-lg">
-            <Link
-              to="/"
-              className="font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200"
-            >
-              Beranda
-            </Link>
-            <Link
-              to="/panduan"
-              className="font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200"
-            >
-              Panduan
-            </Link>
-            <Link
-              to="/regulasi"
-              className="font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200"
-            >
-              Regulasi
-            </Link>
-            <Link
-              to="/pengumuman"
-              className="font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200"
-            >
-              Pengumuman
-            </Link>
-            <Link
-              to="/kontak"
-              className="font-label-md text-label-md text-primary border-b-2 border-primary pb-1 transition-colors duration-200"
-            >
-              Kontak
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <Header />
 
-      <main className="flex-grow">
+      <main className="flex-grow pt-16">
         {/* Hero Section */}
         <section className="bg-primary py-xl">
           <div className="max-w-container-max mx-auto px-gutter text-center md:text-left">
@@ -343,11 +298,28 @@ export default function Kontak() {
                 </div>
               ))}
 
-              {/* Map placeholder */}
-              <div className="h-48 rounded-xl border border-outline-variant overflow-hidden bg-surface-variant flex items-center justify-center">
-                <div className="text-center text-on-surface-variant">
-                  <Icon name="map" className="text-[48px]" />
-                  <p className="font-label-sm text-label-sm mt-sm">Peta Lokasi Kantor UKPBJ Bungo</p>
+              {/* Map */}
+              <div className="h-64 rounded-xl border border-outline-variant overflow-hidden bg-surface-variant">
+                <iframe
+                  title="Peta Lokasi Kantor UKPBJ Bungo"
+                  className="w-full h-full border-0"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  src="https://www.openstreetmap.org/export/embed.html?bbox=102.11728748058219%2C-1.5181256968702204%2C102.12128748058219%2C-1.5141256968702204&layer=mapnik&marker=-1.5161256968702204%2C102.11928748058219"
+                />
+                <div className="flex items-center justify-between gap-md px-md py-sm bg-surface border-t border-outline-variant">
+                  <span className="font-label-sm text-label-sm text-on-surface-variant">
+                    Peta Lokasi Kantor UKPBJ Bungo
+                  </span>
+                  <a
+                    href="https://www.openstreetmap.org/?mlat=-1.5161256968702204&mlon=102.11928748058219#map=17/-1.5161256968702204/102.11928748058219"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-xs text-secondary font-label-sm text-label-sm hover:underline"
+                  >
+                    <Icon name="open_in_new" className="text-[18px]" />
+                    Buka di Peta
+                  </a>
                 </div>
               </div>
             </div>

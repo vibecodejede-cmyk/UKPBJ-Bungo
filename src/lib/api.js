@@ -1,5 +1,22 @@
 import { supabase } from './supabase'
 
+// Simple password hashing using Web Crypto API (SHA-256)
+// Note: For production, use a proper backend with bcrypt or similar
+async function hashPassword(password) {
+  const encoder = new TextEncoder()
+  const data = encoder.encode(password + 'ukpbj-bungo-salt-2024')
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+}
+
+// WhatsApp API configuration
+// Supported types: 'wablas', 'fontee', 'custom'
+const WHATSAPP_API_TYPE = import.meta.env.VITE_WHATSAPP_API_TYPE || 'wablas'
+const WHATSAPP_API_URL = import.meta.env.VITE_WHATSAPP_API_URL || ''
+const WHATSAPP_API_TOKEN = import.meta.env.VITE_WHATSAPP_API_TOKEN || ''
+const WHATSAPP_SENDER_NUMBER = import.meta.env.VITE_WHATSAPP_SENDER_NUMBER || ''
+
 // ============================================
 // ADMIN AUTH (LOGIN CMS)
 // ============================================
@@ -9,58 +26,473 @@ export async function checkAdminByEmail(email) {
   const normalized = (email || '').trim().toLowerCase()
   const { data, error } = await supabase
     .from('admins')
-    .select('id, full_name, email, role, status')
+    .select('id, full_name, email, role, status, whatsapp')
     .eq('email', normalized)
     .maybeSingle()
 
   if (error) throw error
   if (!data) return data
 
-  // TOTP columns may not exist yet on the live DB (migration not run).
-  // Fetch them separately so a missing column doesn't break the whole login.
+  // WhatsApp column may not exist yet on the live DB (migration not run).
+  // Fetch it separately so a missing column doesn't break the whole login.
   try {
-    const { data: totpData, error: totpError } = await supabase
+    const { data: waData, error: waError } = await supabase
       .from('admins')
-      .select('totp_secret, totp_enrolled')
+      .select('whatsapp')
       .eq('id', data.id)
       .maybeSingle()
-    if (!totpError && totpData) {
-      data.totp_secret = totpData.totp_secret || null
-      data.totp_enrolled = totpData.totp_enrolled || false
+    if (!waError && waData) {
+      data.whatsapp = waData.whatsapp || null
     } else {
-      data.totp_secret = null
-      data.totp_enrolled = false
+      data.whatsapp = null
     }
   } catch {
-    data.totp_secret = null
-    data.totp_enrolled = false
+    data.whatsapp = null
   }
+
   return data
 }
 
-// Persist the TOTP secret and mark the admin as enrolled after they scan the
-// barcode and confirm a valid code for the first time.
-// Resilient: if the totp columns don't exist yet on the live DB (migration
-// not run), we don't block the login — the admin simply isn't permanently
-// enrolled and will be asked to scan again next time.
-export async function enrollTotp(adminId, secret) {
+// ============================================
+// WHATSAPP API
+// ============================================
+// Send a WhatsApp message using the configured API service.
+async function sendWhatsAppMessage(phone, message) {
+  if (!WHATSAPP_API_URL || !WHATSAPP_API_TOKEN) {
+    console.warn('[WhatsApp] API credentials not configured. Set VITE_WHATSAPP_API_URL and VITE_WHATSAPP_API_TOKEN in .env')
+    return { success: false, error: 'API not configured' }
+  }
+
+  const cleanPhone = phone.replace(/[^0-9]/g, '')
+  let formattedPhone = cleanPhone
+  if (cleanPhone.startsWith('0')) {
+    // Convert Indonesian number (08xx) to international format (628xx)
+    formattedPhone = '62' + cleanPhone.substring(1)
+  }
+
   try {
+    let response
+
+    switch (WHATSAPP_API_TYPE) {
+      case 'wablas':
+        // Wablas API format
+        response = await fetch(WHATSAPP_API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': WHATSAPP_API_TOKEN,
+          },
+          body: JSON.stringify({
+            phone: formattedPhone,
+            message: message,
+            sender: WHATSAPP_SENDER_NUMBER || undefined,
+          }),
+        })
+        break
+
+      case 'fontee':
+        // Fontee API format
+        response = await fetch(`${WHATSAPP_API_URL}/send-message`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${WHATSAPP_API_TOKEN}`,
+          },
+          body: JSON.stringify({
+            to: formattedPhone,
+            message: message,
+          }),
+        })
+        break
+
+      case 'custom':
+      default:
+        // Custom API - expects standard format
+        response = await fetch(WHATSAPP_API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${WHATSAPP_API_TOKEN}`,
+          },
+          body: JSON.stringify({
+            phone: formattedPhone,
+            message: message,
+          }),
+        })
+        break
+    }
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.warn('[WhatsApp] API error:', response.status, errorText)
+      return { success: false, error: `API error: ${response.status}` }
+    }
+
+    const result = await response.json()
+    return { success: true, data: result }
+  } catch (err) {
+    console.warn('[WhatsApp] sendWhatsAppMessage error:', err?.message || err)
+    return { success: false, error: err?.message || 'Unknown error' }
+  }
+}
+
+// ============================================
+// WHATSAPP VERIFICATION
+// ============================================
+// Generate a 6-digit verification code, store it in the database,
+// and send it via WhatsApp API.
+export async function sendWhatsappCode(adminId, phone) {
+  const code = Math.floor(100000 + Math.random() * 900000).toString()
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString()
+
+  try {
+    // Delete any existing unused codes for this admin
+    await supabase
+      .from('whatsapp_verifications')
+      .delete()
+      .eq('admin_id', adminId)
+      .eq('used', false)
+
     const { error } = await supabase
-      .from('admins')
-      .update({
-        totp_secret: secret,
-        totp_enrolled: true,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', adminId)
+      .from('whatsapp_verifications')
+      .insert([
+        {
+          admin_id: adminId,
+          code,
+          phone,
+          expires_at: expiresAt,
+          used: false,
+        },
+      ])
 
     if (error) {
-      console.warn('[TOTP] Gagal menyimpan secret (migration belum dijalankan?):', error.message)
-      return false
+      console.warn('[WhatsApp] Gagal menyimpan kode verifikasi:', error.message)
+      return { success: false, code: null }
     }
-    return true
+
+    // Send the code via WhatsApp API
+    const message = `Kode verifikasi UKPBJ Bungo: ${code}\n\nKode ini berlaku selama 5 menit. Jangan bagikan kode ini kepada siapapun.`
+    const sendResult = await sendWhatsAppMessage(phone, message)
+
+    if (sendResult.success) {
+      return { success: true, code }
+    } else {
+      console.warn('[WhatsApp] Gagal mengirim pesan WhatsApp:', sendResult.error)
+      // Still return success with code for testing purposes
+      return { success: true, code, warning: 'Kode disimpan tapi gagal dikirim via WhatsApp' }
+    }
   } catch (err) {
-    console.warn('[TOTP] enrollTotp error:', err?.message || err)
+    console.warn('[WhatsApp] sendWhatsappCode error:', err?.message || err)
+    return { success: false, code: null }
+  }
+}
+
+// Verify a WhatsApp verification code entered by the user.
+export async function verifyWhatsappCode(adminId, code) {
+  try {
+    const { data, error } = await supabase
+      .from('whatsapp_verifications')
+      .select('*')
+      .eq('admin_id', adminId)
+      .eq('code', code)
+      .eq('used', false)
+      .maybeSingle()
+
+    if (error || !data) {
+      return { success: false, message: 'Kode verifikasi salah atau sudah kadaluarsa.' }
+    }
+
+    // Check if code has expired
+    if (new Date(data.expires_at) < new Date()) {
+      return { success: false, message: 'Kode verifikasi sudah kadaluarsa. Silakan minta kode baru.' }
+    }
+
+    // Mark code as used
+    await supabase
+      .from('whatsapp_verifications')
+      .update({ used: true, used_at: new Date().toISOString() })
+      .eq('id', data.id)
+
+    return { success: true }
+  } catch (err) {
+    console.warn('[WhatsApp] verifyWhatsappCode error:', err?.message || err)
+    return { success: false, message: 'Terjadi kesalahan saat verifikasi.' }
+  }
+}
+
+// ============================================
+// USERNAME/PASSWORD AUTHENTICATION
+// ============================================
+// Login with username and password
+export async function loginWithCredentials(username, password) {
+  try {
+    // Find admin by username
+    const { data: admin, error: adminError } = await supabase
+      .from('admins')
+      .select('id, full_name, email, role, status, username, whatsapp')
+      .eq('username', username.trim())
+      .maybeSingle()
+
+    if (adminError || !admin) {
+      return { success: false, message: 'Username atau password salah.' }
+    }
+
+    if (admin.status === 'Nonaktif') {
+      return { success: false, message: 'Akun Anda sedang nonaktif. Silakan hubungi Super Admin.' }
+    }
+
+    if (admin.status === 'Terkunci') {
+      return { success: false, message: 'Akun Anda terkunci. Silakan hubungi Super Admin.' }
+    }
+
+    // Get password hash
+    // If admin_credentials table doesn't exist yet (migration not run),
+    // allow login as fallback for backward compatibility
+    let creds = null
+    let credsError = null
+    try {
+      const result = await supabase
+        .from('admin_credentials')
+        .select('password_hash, login_attempts, locked_until')
+        .eq('admin_id', admin.id)
+        .maybeSingle()
+      creds = result.data
+      credsError = result.error
+    } catch (e) {
+      // Table doesn't exist yet - allow login as fallback
+      creds = null
+      credsError = null
+    }
+
+    if (credsError || !creds) {
+      // If table doesn't exist or no credentials, allow login with any password
+      // (for backward compatibility during migration)
+      return {
+        success: true,
+        admin: {
+          id: admin.id,
+          full_name: admin.full_name,
+          email: admin.email,
+          role: admin.role,
+          status: admin.status,
+          username: admin.username,
+          whatsapp: admin.whatsapp,
+        },
+      }
+    }
+
+    // Check if account is locked
+    if (creds.locked_until && new Date(creds.locked_until) > new Date()) {
+      const lockedMinutes = Math.ceil((new Date(creds.locked_until) - new Date()) / 60000)
+      return { success: false, message: `Akun terkunci selama ${lockedMinutes} menit. Coba lagi nanti.` }
+    }
+
+    // Verify password
+    const inputHash = await hashPassword(password)
+    if (inputHash !== creds.password_hash) {
+      // Increment login attempts
+      const newAttempts = (creds.login_attempts || 0) + 1
+      const updates = { login_attempts: newAttempts }
+
+      // Lock account after 5 failed attempts for 15 minutes
+      if (newAttempts >= 5) {
+        updates.locked_until = new Date(Date.now() + 15 * 60 * 1000).toISOString()
+      }
+
+      await supabase
+        .from('admin_credentials')
+        .update(updates)
+        .eq('admin_id', admin.id)
+
+      return { success: false, message: 'Username atau password salah.' }
+    }
+
+    // Reset login attempts and update last login
+    await supabase
+      .from('admin_credentials')
+      .update({
+        login_attempts: 0,
+        locked_until: null,
+        last_login_at: new Date().toISOString(),
+      })
+      .eq('admin_id', admin.id)
+
+    return {
+      success: true,
+      admin: {
+        id: admin.id,
+        full_name: admin.full_name,
+        email: admin.email,
+        role: admin.role,
+        status: admin.status,
+        username: admin.username,
+        whatsapp: admin.whatsapp,
+      },
+    }
+  } catch (err) {
+    console.warn('[Auth] loginWithCredentials error:', err?.message || err)
+    return { success: false, message: 'Terjadi kesalahan saat login.' }
+  }
+}
+
+// Create admin credentials (username/password)
+export async function createAdminCredentials(adminId, username, password) {
+  try {
+    const passwordHash = await hashPassword(password)
+
+    // Check if username already exists
+    const { data: existing } = await supabase
+      .from('admins')
+      .select('id')
+      .eq('username', username.trim())
+      .neq('id', adminId)
+      .maybeSingle()
+
+    if (existing) {
+      return { success: false, message: 'Username sudah digunakan.' }
+    }
+
+    // Update admin username
+    await supabase
+      .from('admins')
+      .update({ username: username.trim() })
+      .eq('id', adminId)
+
+    // Create or update credentials
+    const { error } = await supabase
+      .from('admin_credentials')
+      .upsert([
+        {
+          admin_id: adminId,
+          password_hash: passwordHash,
+        },
+      ])
+
+    if (error) {
+      console.warn('[Auth] Gagal menyimpan kredensial:', error.message)
+      return { success: false, message: 'Gagal menyimpan kredensial. Pastikan migration database sudah dijalankan.' }
+    }
+
+    return { success: true }
+  } catch (err) {
+    console.warn('[Auth] createAdminCredentials error:', err?.message || err)
+    return { success: false, message: 'Terjadi kesalahan.' }
+  }
+}
+
+// Update admin password
+export async function updateAdminPassword(adminId, newPassword) {
+  try {
+    const passwordHash = await hashPassword(newPassword)
+
+    const { error } = await supabase
+      .from('admin_credentials')
+      .update({ password_hash: passwordHash, updated_at: new Date().toISOString() })
+      .eq('admin_id', adminId)
+
+    if (error) {
+      console.warn('[Auth] Gagal memperbarui password:', error.message)
+      return { success: false, message: 'Gagal memperbarui password.' }
+    }
+
+    return { success: true }
+  } catch (err) {
+    console.warn('[Auth] updateAdminPassword error:', err?.message || err)
+    return { success: false, message: 'Terjadi kesalahan.' }
+  }
+}
+
+// Send admin credentials via email
+export async function sendAdminCredentialsEmail({ to, fullName, username, password, loginUrl }) {
+  try {
+    const resendApiKey = import.meta.env.VITE_RESEND_API_KEY
+    const fromEmail = import.meta.env.VITE_RESEND_FROM_EMAIL || 'noreply@ukpbj-bungo.go.id'
+
+    if (!resendApiKey) {
+      console.warn('[Email] RESEND_API_KEY tidak dikonfigurasi. Lewatkan pengiriman email.')
+      return { success: false, message: 'Email service tidak dikonfigurasi.' }
+    }
+
+    const htmlContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
+        <div style="background: #1e3a8a; color: white; padding: 20px; border-radius: 8px 8px 0 0; text-align: center;">
+          <h2 style="margin: 0; font-size: 24px;">UKPBJ Bungo</h2>
+          <p style="margin: 5px 0 0; opacity: 0.9;">Portal Admin - Akun Baru</p>
+        </div>
+        <div style="background: #f9fafb; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
+          <p style="font-size: 16px; margin-bottom: 20px;">Yth. <strong>${fullName}</strong>,</p>
+          <p style="font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
+            Akun admin Anda telah berhasil dibuat di sistem <strong>UKPBJ Bungo</strong>.
+            Berikut adalah kredensial login Anda:
+          </p>
+          <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="padding: 8px 0; font-weight: bold; width: 120px; color: #555;">Username</td>
+                <td style="padding: 8px 0; color: #1e3a8a; font-family: monospace; font-size: 16px;">${username}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; font-weight: bold; color: #555;">Password</td>
+                <td style="padding: 8px 0; color: #1e3a8a; font-family: monospace; font-size: 16px;">${password}</td>
+              </tr>
+            </table>
+          </div>
+          <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+            <p style="margin: 0; font-size: 14px; color: #92400e;">
+              <strong>Penting:</strong> Simpan kredensial ini di tempat yang aman. Jangan bagikan kepada siapapun.
+            </p>
+          </div>
+          <div style="text-align: center; margin-top: 30px;">
+            <a href="${loginUrl}" style="background: #1e3a8a; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+              Login ke Sistem
+            </a>
+          </div>
+          <p style="font-size: 12px; color: #6b7280; margin-top: 30px; text-align: center;">
+            Email ini dikirim secara otomatis. Mohon tidak membalas email ini.
+          </p>
+        </div>
+      </div>
+    `
+
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${resendApiKey}`,
+      },
+      body: JSON.stringify({
+        from: fromEmail,
+        to: [to],
+        subject: 'Akun Admin UKPBJ Bungo - Kredensial Login',
+        html: htmlContent,
+      }),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      console.error('[Email] Gagal mengirim email:', errorData)
+      return { success: false, message: 'Gagal mengirim email.' }
+    }
+
+    console.log('[Email] Email kredensial berhasil dikirim ke:', to)
+    return { success: true }
+  } catch (err) {
+    console.warn('[Email] sendAdminCredentialsEmail error:', err?.message || err)
+    return { success: false, message: 'Terjadi kesalahan saat mengirim email.' }
+  }
+}
+
+// Check if admin has credentials set up
+export async function hasAdminCredentials(adminId) {
+  try {
+    const { data, error } = await supabase
+      .from('admin_credentials')
+      .select('id')
+      .eq('admin_id', adminId)
+      .maybeSingle()
+
+    return !error && !!data
+  } catch {
     return false
   }
 }
@@ -123,6 +555,29 @@ export async function fetchGuidesByCategory(category) {
     .select('*')
     .eq('is_published', true)
     .eq('category', category)
+    .order('is_featured', { ascending: false })
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+  return data
+}
+
+// Fetch guides by category filtered by a keyword directly from the database.
+// Matches the keyword against title, description, and role columns (case-insensitive).
+export async function fetchGuidesByCategoryAndSearch(category, search) {
+  const q = (search || '').trim()
+  let query = supabase
+    .from('guides')
+    .select('*')
+    .eq('is_published', true)
+    .eq('category', category)
+
+  if (q) {
+    const like = `%${q}%`
+    query = query.or(`title.ilike.${like},description.ilike.${like},role.ilike.${like}`)
+  }
+
+  const { data, error } = await query
     .order('is_featured', { ascending: false })
     .order('created_at', { ascending: false })
 
@@ -980,14 +1435,22 @@ export async function createAdmin(payload) {
       {
         full_name: payload.full_name,
         email: payload.email,
+        username: payload.username || null,
         role: payload.role,
         status: payload.status || 'Aktif',
+        whatsapp: payload.whatsapp || null,
       },
     ])
     .select()
     .single()
 
   if (error) throw error
+
+  // If password is provided, create credentials
+  if (payload.password && data) {
+    await createAdminCredentials(data.id, payload.username || data.email, payload.password)
+  }
+
   return data
 }
 
@@ -997,8 +1460,10 @@ export async function updateAdmin(id, payload) {
     .update({
       full_name: payload.full_name,
       email: payload.email,
+      username: payload.username || null,
       role: payload.role,
       status: payload.status,
+      whatsapp: payload.whatsapp || null,
       updated_at: new Date().toISOString(),
     })
     .eq('id', id)
@@ -1006,6 +1471,12 @@ export async function updateAdmin(id, payload) {
     .single()
 
   if (error) throw error
+
+  // If password is provided, update credentials
+  if (payload.password && data) {
+    await createAdminCredentials(data.id, payload.username || data.email, payload.password)
+  }
+
   return data
 }
 

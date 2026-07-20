@@ -137,8 +137,9 @@ CREATE TABLE IF NOT EXISTS admins (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   full_name TEXT NOT NULL,
   email TEXT NOT NULL UNIQUE,
-  role TEXT NOT NULL DEFAULT 'Editor' CHECK (role IN ('Super Admin', 'Editor', 'Editor Panduan', 'Editor Regulasi', 'Editor Pengumuman')),
+  role TEXT NOT NULL DEFAULT 'Admin' CHECK (role IN ('Super Admin', 'Admin')),
   status TEXT NOT NULL DEFAULT 'Aktif' CHECK (status IN ('Aktif', 'Nonaktif', 'Terkunci')),
+  whatsapp TEXT,
   totp_secret TEXT,
   totp_enrolled BOOLEAN NOT NULL DEFAULT FALSE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
@@ -148,11 +149,26 @@ CREATE TABLE IF NOT EXISTS admins (
 CREATE INDEX IF NOT EXISTS idx_admins_role ON admins(role);
 CREATE INDEX IF NOT EXISTS idx_admins_status ON admins(status);
 
+-- ============================================
+-- 9. TOTP ENROLLMENTS TABLE (Riwayat Scan Barcode)
+-- ============================================
+CREATE TABLE IF NOT EXISTS totp_enrollments (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  admin_id UUID NOT NULL REFERENCES admins(id) ON DELETE CASCADE,
+  secret TEXT NOT NULL,
+  enrolled_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+  user_agent TEXT,
+  ip_address TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_totp_enrollments_admin_id ON totp_enrollments(admin_id);
+CREATE INDEX IF NOT EXISTS idx_totp_enrollments_enrolled_at ON totp_enrollments(enrolled_at);
+
 -- Sample data for admins
 INSERT INTO admins (full_name, email, role, status) VALUES
   ('Ahmad Subardjo', 'ahmad.s@lpse.go.id', 'Super Admin', 'Aktif'),
-  ('Siti Aminah', 'siti.a@lpse.go.id', 'Editor Regulasi', 'Aktif'),
-  ('Budi Darmawan', 'budi.d@lpse.go.id', 'Editor Panduan', 'Nonaktif'),
+  ('Siti Aminah', 'siti.a@lpse.go.id', 'Admin', 'Aktif'),
+  ('Budi Darmawan', 'budi.d@lpse.go.id', 'Admin', 'Nonaktif'),
   ('Ratna Sari', 'ratna.s@lpse.go.id', 'Super Admin', 'Terkunci')
 ON CONFLICT (email) DO NOTHING;
 

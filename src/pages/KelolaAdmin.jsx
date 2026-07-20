@@ -3,12 +3,15 @@ import Icon from '../components/Icon'
 import Modal from '../components/Modal'
 import SettingsModal from '../components/SettingsModal'
 import NotificationBell from '../components/NotificationBell'
-import { getAdminSession } from '../lib/session'
+import { getAdminSession, getAvatarFallback } from '../lib/session'
 import {
   fetchAllAdmins,
   createAdmin,
   updateAdmin,
   deleteAdmin,
+  createAdminCredentials,
+  hasAdminCredentials,
+  sendAdminCredentialsEmail,
 } from '../lib/api'
 
 // Generate a deterministic profile photo based on the admin's name/email.
@@ -28,7 +31,7 @@ function getAdminAvatar(admin) {
 
 const ROLE_OPTIONS = [
   { value: 'Super Admin', label: 'Super Admin' },
-  { value: 'Editor', label: 'Editor' },
+  { value: 'Admin', label: 'Admin' },
 ]
 
 function StatBox({ icon, iconBg, iconColor, label, value }) {
@@ -74,8 +77,11 @@ const EMPTY_FORM = {
   id: null,
   full_name: '',
   email: '',
+  username: '',
   role: '',
   status: 'Aktif',
+  whatsapp: '',
+  password: '',
 }
 
 export default function KelolaAdmin() {
@@ -93,6 +99,13 @@ export default function KelolaAdmin() {
   const [page, setPage] = useState(1)
   const [pageSize] = useState(10)
   const [moreMenuId, setMoreMenuId] = useState(null)
+  const [credModalOpen, setCredModalOpen] = useState(false)
+  const [credAdminId, setCredAdminId] = useState(null)
+  const [credUsername, setCredUsername] = useState('')
+  const [credPassword, setCredPassword] = useState('')
+  const [credLoading, setCredLoading] = useState(false)
+  const [credError, setCredError] = useState('')
+  const [credSuccess, setCredSuccess] = useState('')
 
   // Current logged-in admin (from login session)
   const [admin] = useState(() => getAdminSession())
@@ -180,20 +193,13 @@ export default function KelolaAdmin() {
     URL.revokeObjectURL(url)
   }
 
-  // Peran "Editor" di UI merupakan gabungan dari 3 peran lama.
-  // Karena constraint database hanya mengizinkan peran lama, kita simpan
-  // sebagai salah satu nilai yang valid ('Editor Panduan') agar penambahan
-  // data admin tidak melanggar check constraint.
+  // Konversi peran dari UI ke nilai yang disimpan di database.
   function toStoredRole(role) {
-    if (role === 'Editor') return 'Editor Panduan'
     return role
   }
 
-  // Tampilkan peran editor lama sebagai "Editor" agar konsisten dengan UI.
+  // Tampilkan peran sesuai dengan nilai di database.
   function toDisplayRole(role) {
-    if (['Editor Panduan', 'Editor Regulasi', 'Editor Pengumuman'].includes(role)) {
-      return 'Editor'
-    }
     return role
   }
 
@@ -203,18 +209,38 @@ export default function KelolaAdmin() {
       setError('Nama lengkap, email, dan peran wajib diisi.')
       return
     }
+    if (!form.username || form.username.length < 8) {
+      setError('Username wajib diisi dan minimal 8 karakter.')
+      return
+    }
+    if (!form.password || form.password.length < 8) {
+      setError('Password wajib diisi dan minimal 8 karakter.')
+      return
+    }
     setSaving(true)
     try {
       const payload = {
         full_name: form.full_name,
         email: form.email,
+        username: form.username,
         role: toStoredRole(form.role),
         status: form.status,
+        whatsapp: form.whatsapp || null,
+        password: form.password,
       }
       if (editingItem) {
         await updateAdmin(form.id, payload)
       } else {
         await createAdmin(payload)
+        // Kirim kredensial ke email admin baru
+        const loginUrl = `${window.location.origin}/login`
+        await sendAdminCredentialsEmail({
+          to: form.email,
+          fullName: form.full_name,
+          username: form.username,
+          password: form.password,
+          loginUrl,
+        })
       }
       setModalOpen(false)
       setEditingItem(null)
@@ -242,8 +268,11 @@ export default function KelolaAdmin() {
       id: item.id,
       full_name: item.full_name || '',
       email: item.email || '',
+      username: item.username || '',
       role: item.role || '',
       status: item.status || 'Aktif',
+      whatsapp: item.whatsapp || '',
+      password: '', // Don't populate password for security
     })
     setModalOpen(true)
   }
@@ -258,13 +287,54 @@ export default function KelolaAdmin() {
     }
   }
 
+  function openCredModal(item) {
+    setMoreMenuId(null)
+    setCredAdminId(item.id)
+    setCredUsername(item.username || item.email)
+    setCredPassword('')
+    setCredError('')
+    setCredSuccess('')
+    setCredModalOpen(true)
+  }
+
+  async function handleSetCredentials(e) {
+    e.preventDefault()
+    if (!credUsername.trim() || !credPassword.trim()) {
+      setCredError('Username dan password wajib diisi.')
+      return
+    }
+
+    setCredLoading(true)
+    setCredError('')
+    setCredSuccess('')
+
+    try {
+      const result = await createAdminCredentials(credAdminId, credUsername, credPassword)
+      if (result.success) {
+        setCredSuccess('Kredensial login berhasil disimpan!')
+        setCredPassword('')
+        await load()
+        setTimeout(() => {
+          setCredModalOpen(false)
+          setCredSuccess('')
+        }, 1500)
+      } else {
+        setCredError(result.message)
+      }
+    } catch (err) {
+      setCredError(err.message || 'Gagal menyimpan kredensial')
+    } finally {
+      setCredLoading(false)
+    }
+  }
+
   return (
     <div className="bg-background text-on-background min-h-screen flex overflow-hidden">
       {/* SideNavBar */}
       <aside className="hidden md:flex flex-col h-screen py-md px-sm border-r border-outline-variant bg-surface-container w-64 flex-shrink-0">
         <div className="px-sm mb-xl">
-          <h1 className="font-headline-sm text-headline-sm font-bold text-primary">UKPBJ Kabupaten Bungo</h1>
-          <p className="font-label-sm text-label-sm text-on-surface-variant">Admin Panel</p>
+          <h1 className="font-headline-sm text-headline-sm font-bold text-primary">Admin Panel</h1>
+          <p className="font-label-sm text-label-sm text-on-surface-variant">UKPBJ Kabupaten Bungo</p>
         </div>
         <nav className="flex-1 space-y-1">
           <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/dashboard">
@@ -323,9 +393,20 @@ export default function KelolaAdmin() {
           </div>
           <div className="flex items-center gap-md">
             <NotificationBell />
-            <div className="w-10 h-10 rounded-full overflow-hidden border border-outline-variant">
-              <img className="w-full h-full object-cover" alt={adminName} src={adminAvatar} />
-            </div>
+            <button
+              onClick={() => setSettingsOpen(true)}
+              className="w-10 h-10 rounded-full overflow-hidden border border-outline-variant hover:opacity-80 transition-opacity cursor-pointer"
+              title="Pengaturan Akun"
+            >
+              <img
+                className="w-full h-full object-cover"
+                alt={adminName}
+                src={adminAvatar}
+                onError={(e) => {
+                  e.target.src = getAvatarFallback(adminName)
+                }}
+              />
+            </button>
           </div>
         </header>
 
@@ -412,6 +493,7 @@ export default function KelolaAdmin() {
                   <Icon name="download" className="text-[18px]" />
                   Export
                 </button>
+
                 <button
                   className="flex items-center gap-sm bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm"
                   onClick={openCreate}
@@ -464,7 +546,14 @@ export default function KelolaAdmin() {
                           <td className="px-lg py-md">
                             <div className="flex items-center gap-md">
                               <div className="w-10 h-10 rounded-full overflow-hidden bg-primary-container/20 flex items-center justify-center text-primary">
-                                <img className="w-full h-full object-cover" alt={item.full_name} src={getAdminAvatar(item)} />
+                                <img
+                                  className="w-full h-full object-cover"
+                                  alt={item.full_name}
+                                  src={getAdminAvatar(item)}
+                                  onError={(e) => {
+                                    e.target.src = getAvatarFallback(item.full_name || item.email || 'Admin')
+                                  }}
+                                />
                               </div>
                               <p className="font-body-md text-body-md font-semibold text-on-surface">{item.full_name}</p>
                             </div>
@@ -506,6 +595,13 @@ export default function KelolaAdmin() {
                                     >
                                       <Icon name="edit" className="text-[18px]" />
                                       Edit Admin
+                                    </button>
+                                    <button
+                                      className="w-full flex items-center gap-sm px-md py-sm text-left text-body-sm text-primary hover:bg-surface-variant transition-colors"
+                                      onClick={() => openCredModal(item)}
+                                    >
+                                      <Icon name="key" className="text-[18px]" />
+                                      Set Password
                                     </button>
                                     <button
                                       className="w-full flex items-center gap-sm px-md py-sm text-left text-body-sm text-error hover:bg-surface-variant transition-colors"
@@ -580,7 +676,7 @@ export default function KelolaAdmin() {
           </div>
 
           <div>
-            <label className="block font-label-md text-label-md text-on-surface mb-xs">Email / Username <span className="text-error">*</span></label>
+            <label className="block font-label-md text-label-md text-on-surface mb-xs">Email <span className="text-error">*</span></label>
             <input
               required
               className="w-full px-md py-sm rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary"
@@ -592,6 +688,30 @@ export default function KelolaAdmin() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+            <div>
+              <label className="block font-label-md text-label-md text-on-surface mb-xs">Username <span className="text-error">*</span></label>
+              <input
+                required
+                minLength={8}
+                className="w-full px-md py-sm rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary"
+                placeholder="minimal 8 karakter"
+                type="text"
+                value={form.username}
+                onChange={(e) => setForm({ ...form, username: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block font-label-md text-label-md text-on-surface mb-xs">Password {editingItem ? '(kosongkan jika tidak diubah)' : <span className="text-error">*</span>}</label>
+              <input
+                required={!editingItem}
+                minLength={8}
+                className="w-full px-md py-sm rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary"
+                placeholder={editingItem ? '••••••••' : 'minimal 8 karakter'}
+                type="password"
+                value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
+              />
+            </div>
             <div>
               <label className="block font-label-md text-label-md text-on-surface mb-xs">Peran <span className="text-error">*</span></label>
               <select
@@ -642,6 +762,89 @@ export default function KelolaAdmin() {
 
       {/* Settings Modal */}
       <SettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
+
+      {/* Set Credentials Modal */}
+      {credModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setCredModalOpen(false)}>
+          <div className="w-full max-w-[420px] bg-surface-container-lowest border border-outline-variant rounded-xl p-8 institutional-shadow" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-primary rounded-lg">
+                <span className="material-symbols-outlined text-on-primary text-[24px]">
+                  key
+                </span>
+              </div>
+              <h3 className="font-headline-sm text-headline-sm text-on-surface">
+                Set Password Login
+              </h3>
+            </div>
+            <p className="font-body-sm text-body-sm text-on-surface-variant mb-6">
+              Buat username dan password untuk admin ini agar dapat login ke sistem.
+            </p>
+
+            <form onSubmit={handleSetCredentials} className="space-y-4">
+              <div>
+                <label className="block font-label-md text-label-md text-on-surface-variant mb-2">
+                  Username
+                </label>
+                <input
+                  type="text"
+                  value={credUsername}
+                  onChange={(e) => setCredUsername(e.target.value)}
+                  placeholder="Masukkan username"
+                  className="w-full py-3 px-4 bg-surface-container-low border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block font-label-md text-label-md text-on-surface-variant mb-2">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  value={credPassword}
+                  onChange={(e) => setCredPassword(e.target.value)}
+                  placeholder="Masukkan password"
+                  className="w-full py-3 px-4 bg-surface-container-low border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                />
+              </div>
+
+              {credError && (
+                <div className="bg-error-container text-on-error-container border border-error rounded-lg p-3 font-body-sm text-body-sm">
+                  {credError}
+                </div>
+              )}
+
+              {credSuccess && (
+                <div className="bg-green-100 text-green-700 border border-green-400 rounded-lg p-3 font-body-sm text-body-sm">
+                  {credSuccess}
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setCredModalOpen(false)}
+                  disabled={credLoading}
+                  className="flex-1 py-3 px-4 border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container transition-all disabled:opacity-50"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={credLoading}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-primary-container text-on-primary-container rounded-lg font-label-md text-label-md hover:opacity-90 transition-all disabled:opacity-70"
+                >
+                  {credLoading && (
+                    <span className="material-symbols-outlined animate-spin text-[20px]">
+                      progress_activity
+                    </span>
+                  )}
+                  {credLoading ? 'Menyimpan...' : 'Simpan'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

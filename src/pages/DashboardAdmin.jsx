@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { fetchDashboardStats, fetchActivityLog } from '../lib/api'
-import { getAdminSession } from '../lib/session'
+import { getAdminSession, getAvatarFallback } from '../lib/session'
 import SettingsModal from '../components/SettingsModal'
 import NotificationBell from '../components/NotificationBell'
 
@@ -53,6 +53,8 @@ export default function DashboardAdmin() {
   const [error, setError] = useState(null)
   const [search, setSearch] = useState('')
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [page, setPage] = useState(1)
+  const pageSize = 5
 
   // Current logged-in admin (from login session)
   const [admin, setAdmin] = useState(() => getAdminSession())
@@ -62,7 +64,7 @@ export default function DashboardAdmin() {
     let active = true
     async function load() {
       try {
-        const [s, a] = await Promise.all([fetchDashboardStats(), fetchActivityLog(8)])
+        const [s, a] = await Promise.all([fetchDashboardStats(), fetchActivityLog(50)])
         if (!active) return
         setStats(s)
         setActivities(a)
@@ -110,13 +112,26 @@ export default function DashboardAdmin() {
     )
   }, [activities, search])
 
+  // Reset to first page whenever the search query changes
+  useEffect(() => {
+    setPage(1)
+  }, [search])
+
+  // Paginate the filtered activities
+  const totalPages = Math.max(1, Math.ceil(filteredActivities.length / pageSize))
+  const currentPage = Math.min(page, totalPages)
+  const paginatedActivities = useMemo(
+    () => filteredActivities.slice((currentPage - 1) * pageSize, currentPage * pageSize),
+    [filteredActivities, currentPage, pageSize]
+  )
+
   return (
     <div className="bg-background text-on-background min-h-screen flex">
       {/* SideNavBar */}
       <aside className="hidden md:flex flex-col h-screen py-md px-sm border-r border-outline-variant bg-surface-container fixed w-64 z-50">
         <div className="mb-xl px-md">
           <h1 className="font-headline-sm text-headline-sm font-bold text-primary">Admin Panel</h1>
-          <p className="font-label-sm text-label-sm text-on-surface-variant">System Administrator</p>
+          <p className="font-label-sm text-label-sm text-on-surface-variant">UKPBJ Kabupaten Bungo</p>
         </div>
         <nav className="flex-1 space-y-base overflow-y-auto custom-scrollbar px-sm">
           {navItems.map((item) => (
@@ -171,9 +186,20 @@ export default function DashboardAdmin() {
               />
             </div>
             <NotificationBell />
-            <div className="w-10 h-10 rounded-full overflow-hidden border border-outline-variant">
-              <img className="w-full h-full object-cover" alt={adminName} src={adminAvatar} />
-            </div>
+            <button
+              onClick={() => setSettingsOpen(true)}
+              className="w-10 h-10 rounded-full overflow-hidden border border-outline-variant hover:opacity-80 transition-opacity cursor-pointer"
+              title="Pengaturan Akun"
+            >
+              <img
+                className="w-full h-full object-cover"
+                alt={adminName}
+                src={adminAvatar}
+                onError={(e) => {
+                  e.target.src = getAvatarFallback(adminName)
+                }}
+              />
+            </button>
           </div>
         </header>
 
@@ -257,7 +283,7 @@ export default function DashboardAdmin() {
                       </tr>
                     )}
                     {!loading &&
-                      filteredActivities.map((a) => (
+                      paginatedActivities.map((a) => (
                         <tr key={a.id} className="hover:bg-surface-container-low transition-colors">
                           <td className="px-lg py-md">
                             <div className="flex items-center gap-sm">
@@ -277,6 +303,49 @@ export default function DashboardAdmin() {
                   </tbody>
                 </table>
               </div>
+
+              {/* Pagination */}
+              {!loading && filteredActivities.length > 0 && (
+                <div className="p-lg border-t border-outline-variant flex items-center justify-between flex-wrap gap-md">
+                  <span className="font-body-sm text-body-sm text-on-surface-variant">
+                    Menampilkan {paginatedActivities.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}–
+                    {Math.min(currentPage * pageSize, filteredActivities.length)} dari {filteredActivities.length} aktivitas
+                  </span>
+                  <div className="flex items-center gap-sm">
+                    <button
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage <= 1}
+                      className="flex items-center gap-1 px-md py-sm rounded-lg border border-outline-variant font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-variant transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+                      Sebelumnya
+                    </button>
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                        <button
+                          key={p}
+                          onClick={() => setPage(p)}
+                          className={`w-9 h-9 rounded-lg font-label-sm text-label-sm transition-colors ${
+                            p === currentPage
+                              ? 'bg-primary text-on-primary'
+                              : 'border border-outline-variant text-on-surface-variant hover:bg-surface-variant'
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      ))}
+                    </div>
+                    <button
+                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={currentPage >= totalPages}
+                      className="flex items-center gap-1 px-md py-sm rounded-lg border border-outline-variant font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-variant transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      Berikutnya
+                      <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </section>
         </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Link, NavLink } from 'react-router-dom'
 import Icon from '../components/Icon'
+import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { fetchRegulations, incrementRegulationDownload } from '../lib/api'
 
@@ -117,56 +117,9 @@ export default function Regulasi() {
 
   return (
     <div className="bg-background text-on-background min-h-screen flex flex-col">
-      {/* TopNavBar */}
-      <header className="bg-surface border-b border-outline-variant sticky top-0 z-50">
-        <div className="flex justify-between items-center w-full px-gutter max-w-container-max mx-auto h-16">
-          <Link to="/" className="font-headline-md text-headline-md font-bold text-primary">
-            UKPBJ Kabupaten Bungo
-          </Link>
-          <nav className="hidden md:flex items-center space-x-lg">
-            <Link
-              to="/"
-              className="font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200"
-            >
-              Beranda
-            </Link>
-            <Link
-              to="/panduan"
-              className="font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200"
-            >
-              Panduan
-            </Link>
-            <Link
-              to="/regulasi"
-              className="font-label-md text-label-md text-primary border-b-2 border-primary pb-1 transition-colors duration-200"
-            >
-              Regulasi
-            </Link>
-            <NavLink
-              to="/pengumuman"
-              className={({ isActive }) =>
-                isActive
-                  ? 'font-label-md text-label-md text-primary border-b-2 border-primary pb-1 transition-colors duration-200'
-                  : 'font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200'
-              }
-            >
-              Pengumuman
-            </NavLink>
-            <NavLink
-              to="/kontak"
-              className={({ isActive }) =>
-                isActive
-                  ? 'font-label-md text-label-md text-primary border-b-2 border-primary pb-1 transition-colors duration-200'
-                  : 'font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200'
-              }
-            >
-              Kontak
-            </NavLink>
-          </nav>
-        </div>
-      </header>
+      <Header />
 
-      <main className="flex-grow">
+      <main className="flex-grow pt-16">
         {/* Hero Section */}
         <section className="bg-primary py-xl">
           <div className="max-w-container-max mx-auto px-gutter text-center md:text-left">
@@ -179,9 +132,9 @@ export default function Regulasi() {
         </section>
 
         {/* Filter & Search Section */}
-        <section className="max-w-container-max mx-auto px-gutter -mt-8">
+        <section className="max-w-container-max mx-auto px-gutter mt-lg">
           <div className="bg-surface institutional-shadow border border-outline-variant p-lg rounded-xl grid grid-cols-1 md:grid-cols-12 gap-md items-end">
-            <div className="md:col-span-7">
+            <div className="md:col-span-6">
               <label className="block font-label-sm text-label-sm text-on-surface-variant mb-xs" htmlFor="search">
                 Cari Kata Kunci
               </label>
@@ -193,12 +146,12 @@ export default function Regulasi() {
                   onChange={(e) => setSearchInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleApply()}
                   className="w-full pl-10 pr-md py-sm border border-outline-variant rounded focus:ring-2 focus:ring-secondary focus:border-transparent outline-none transition-all"
-                  placeholder="Contoh: Peraturan Presiden No. 12 Tahun 2021"
+                  placeholder="Contoh: Perpres No. 12/2021"
                   type="text"
                 />
               </div>
             </div>
-            <div className="md:col-span-3">
+            <div className="md:col-span-2">
               <label className="block font-label-sm text-label-sm text-on-surface-variant mb-xs" htmlFor="year">
                 Filter Tahun
               </label>
@@ -208,7 +161,7 @@ export default function Regulasi() {
                 onChange={(e) => setYearInput(e.target.value)}
                 className="w-full px-md py-sm border border-outline-variant rounded focus:ring-2 focus:ring-secondary focus:border-transparent outline-none transition-all bg-surface"
               >
-                <option value="">Semua Tahun</option>
+                <option value="">Semua</option>
                 {years.map((y) => (
                   <option key={y} value={y}>
                     {y}
@@ -216,22 +169,21 @@ export default function Regulasi() {
                 ))}
               </select>
             </div>
-            <div className="md:col-span-2 flex flex-col gap-xs">
+            <div className="md:col-span-4 flex items-end gap-sm">
               <button
                 onClick={handleApply}
-                className="w-full bg-secondary text-on-secondary px-lg py-sm rounded hover:bg-opacity-90 transition-all font-label-md text-label-md flex items-center justify-center gap-xs h-[42px]"
+                className="flex-1 bg-secondary text-on-secondary px-md py-sm rounded hover:bg-opacity-90 transition-all font-label-md text-label-md flex items-center justify-center gap-xs h-[42px]"
               >
                 <Icon name="filter_list" className="text-[18px]" />
                 Terapkan
               </button>
-              {(searchInput || yearInput) && (
-                <button
-                  onClick={handleReset}
-                  className="w-full text-on-surface-variant font-label-sm text-label-sm underline hover:text-secondary transition-colors"
-                >
-                  Reset
-                </button>
-              )}
+              <button
+                onClick={handleReset}
+                className="flex-1 border border-outline-variant text-on-surface-variant px-md py-sm rounded hover:bg-surface-container-high transition-all font-label-md text-label-md flex items-center justify-center gap-xs h-[42px]"
+              >
+                <Icon name="restart_alt" className="text-[18px]" />
+                Reset
+              </button>
             </div>
           </div>
         </section>

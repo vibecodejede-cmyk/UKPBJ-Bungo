@@ -13,7 +13,7 @@ import {
   markAsRead,
   markAsUnread,
 } from '../lib/api'
-import { getAdminSession } from '../lib/session'
+import { getAdminSession, getAvatarFallback } from '../lib/session'
 
 // Generate a deterministic profile photo based on the admin's name/email.
 function getAdminAvatar(admin) {
@@ -292,8 +292,8 @@ export default function KelolaPesan() {
       {/* SideNavBar */}
       <aside className="hidden md:flex flex-col h-screen py-md px-sm border-r border-outline-variant bg-surface-container w-64 flex-shrink-0">
         <div className="px-sm mb-xl">
-          <h1 className="font-headline-sm text-headline-sm font-bold text-primary">UKPBJ Kabupaten Bungo</h1>
-          <p className="font-label-sm text-label-sm text-on-surface-variant">Admin Panel</p>
+          <h1 className="font-headline-sm text-headline-sm font-bold text-primary">Admin Panel</h1>
+          <p className="font-label-sm text-label-sm text-on-surface-variant">UKPBJ Kabupaten Bungo</p>
         </div>
         <nav className="flex-1 space-y-1">
           <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/dashboard">
@@ -352,9 +352,20 @@ export default function KelolaPesan() {
           </div>
           <div className="flex items-center gap-md">
             <NotificationBell />
-            <div className="w-10 h-10 rounded-full overflow-hidden border border-outline-variant">
-              <img className="w-full h-full object-cover" alt={adminName} src={adminAvatar} />
-            </div>
+            <button
+              onClick={() => setSettingsOpen(true)}
+              className="w-10 h-10 rounded-full overflow-hidden border border-outline-variant hover:opacity-80 transition-opacity cursor-pointer"
+              title="Pengaturan Akun"
+            >
+              <img
+                className="w-full h-full object-cover"
+                alt={adminName}
+                src={adminAvatar}
+                onError={(e) => {
+                  e.target.src = getAvatarFallback(adminName)
+                }}
+              />
+            </button>
           </div>
         </header>
 

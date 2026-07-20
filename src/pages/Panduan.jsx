@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import { Link, NavLink, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import Icon from '../components/Icon'
+import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { fetchGuides, fetchGuidesByCategory, fetchFeaturedGuide, fetchGuideVideos, incrementGuideDownload, incrementVideoView } from '../lib/api'
 
@@ -35,7 +36,9 @@ export default function Panduan() {
 
   const isLpse = activeTab === 'lpse'
 
-  // Fetch data from Supabase
+  // Load the full guide list for the active category from the database.
+  // Search filtering is done client-side on this already-loaded DB data
+  // (see currentGuides below) so it stays instant and the input keeps focus.
   useEffect(() => {
     let cancelled = false
     async function loadData() {
@@ -130,7 +133,7 @@ export default function Panduan() {
     }
   }
 
-  // Fallback data if Supabase is empty
+  // Fallback data for the featured card if the database has no featured guide
   const fallbackFeatured = {
     badge: 'PPK',
     updated: 'Updated 24 Mar 2024',
@@ -139,27 +142,6 @@ export default function Panduan() {
       'Panduan komprehensif mengenai tata cara terbaru proses pengadaan mulai dari perencanaan hingga serah terima hasil pekerjaan.',
     size: '4.8 MB',
   }
-
-  const fallbackGuides = [
-    {
-      role: 'Vendor',
-      title: 'Panduan Pendaftaran Akun SIKaP',
-      description:
-        'Langkah-langkah lengkap melakukan pendaftaran dan verifikasi profil badan usaha di Sistem Informasi Kinerja Penyedia.',
-    },
-    {
-      role: 'Pokja',
-      title: 'Tata Cara Evaluasi Dokumen Penawaran',
-      description:
-        'Modul teknis evaluasi kualifikasi, administrasi, teknis, dan harga untuk Pokja Pemilihan di aplikasi SPSE.',
-    },
-    {
-      role: 'PPK',
-      title: 'Penyusunan HPS & Spesifikasi Teknis',
-      description:
-        'Pedoman perhitungan Harga Perkiraan Sendiri (HPS) yang akuntabel sesuai dengan regulasi LKPP terbaru.',
-    },
-  ]
 
   // Fallback video data (used when Supabase guide_videos table is empty/unavailable).
   // Uses a real, working YouTube video ID from the official Inaproc/LKPP channel.
@@ -289,7 +271,8 @@ export default function Panduan() {
   }
 
   const currentFeatured = featuredGuide || fallbackFeatured
-  const allGuides = guides.length > 0 ? guides : fallbackGuides
+  // Use the guides loaded directly from the Supabase database.
+  const allGuides = guides
   const allVideos = videos.length > 0 ? videos : fallbackVideos
 
   // Map filter ids to actual role values stored in the database (guides & videos)
@@ -329,6 +312,17 @@ export default function Panduan() {
     )
   })
 
+  // Show the featured card only when no search is active or it matches the query
+  const showFeatured = (() => {
+    const q = searchQuery.trim().toLowerCase()
+    if (!q) return true
+    return (
+      (currentFeatured.title || '').toLowerCase().includes(q) ||
+      (currentFeatured.description || '').toLowerCase().includes(q) ||
+      (currentFeatured.role || '').toLowerCase().includes(q)
+    )
+  })()
+
   // Filter videos by selected roles (video.role is an array); "Semua Peran" (all) shows everything
   const currentVideos = (checkedRoles.all
     ? allVideos
@@ -349,61 +343,7 @@ export default function Panduan() {
 
   return (
     <div className="bg-background text-on-background min-h-screen">
-      {/* TopNavBar */}
-      <header className="bg-surface border-b border-outline-variant fixed top-0 z-50 w-full">
-        <div className="flex justify-between items-center w-full px-gutter max-w-container-max mx-auto h-16">
-          <div className="flex items-center gap-md">
-            <Link to="/" className="font-headline-md text-headline-md font-bold text-primary">
-              UKPBJ Kabupaten Bungo
-            </Link>
-          </div>
-          <nav className="hidden md:flex items-center gap-lg h-full">
-            <Link
-              to="/"
-              className="font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200"
-            >
-              Beranda
-            </Link>
-            <Link
-              to="/panduan"
-              className="font-label-md text-label-md text-primary border-b-2 border-primary pb-1 transition-colors duration-200"
-            >
-              Panduan
-            </Link>
-            <NavLink
-              to="/regulasi"
-              className={({ isActive }) =>
-                isActive
-                  ? 'font-label-md text-label-md text-primary border-b-2 border-primary pb-1 transition-colors duration-200'
-                  : 'font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200'
-              }
-            >
-              Regulasi
-            </NavLink>
-            <NavLink
-              to="/pengumuman"
-              className={({ isActive }) =>
-                isActive
-                  ? 'font-label-md text-label-md text-primary border-b-2 border-primary pb-1 transition-colors duration-200'
-                  : 'font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200'
-              }
-            >
-              Pengumuman
-            </NavLink>
-            <NavLink
-              to="/kontak"
-              className={({ isActive }) =>
-                isActive
-                  ? 'font-label-md text-label-md text-primary border-b-2 border-primary pb-1 transition-colors duration-200'
-                  : 'font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200'
-              }
-            >
-              Kontak
-            </NavLink>
-          </nav>
-          
-        </div>
-      </header>
+      <Header />
 
       <main className="pt-16 min-h-screen">
         {/* Hero Section */}
@@ -445,13 +385,13 @@ export default function Panduan() {
                   ))}
                 </div>
                 <div className="mt-xl pt-md border-t border-outline-variant">
-                  <h3 className="font-label-md text-label-md font-bold text-primary mb-sm">Bantuan Cepat</h3>
+                  <h3 className="font-label-md text-label-md font-bold text-primary mb-sm">Pusat Bantuan</h3>
                   <div className="flex flex-col gap-sm">
                     <button className="flex items-center gap-sm text-secondary hover:underline font-label-sm text-label-sm">
-                      <Icon name="support_agent" className="text-[18px]" /> Call Center 1500 119
+                      <Icon name="support_agent" className="text-[18px]" /> <a href="https://bantuan.inaproc.id/hc/id-id">Pusat Bantuan</a>
                     </button>
                     <button className="flex items-center gap-sm text-secondary hover:underline font-label-sm text-label-sm">
-                      <Icon name="mail" className="text-[18px]" /> helpdesk@inaproc.id
+                      <Icon name="mail" className="text-[18px]" /> helpdesk.ukpbjbungo@gmail.com
                     </button>
                   </div>
                 </div>
@@ -521,28 +461,29 @@ export default function Panduan() {
                 </button>
               </div>
 
-              {/* Search Bar */}
-              <div className="mb-lg">
-                <div className="relative">
-                  <input
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-xl pr-md py-md bg-white border border-outline-variant rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all"
-                    placeholder="Cari panduan atau tutorial..."
-                    type="text"
-                  />
-                  <Icon
-                    name="search"
-                    className="absolute left-md top-1/2 -translate-y-1/2 text-outline"
-                  />
-                </div>
-              </div>
-
               {/* Panduan Cards List (PDF) */}
               {contentView === 'panduan' && (
                 <>
+                  {/* Search Bar - Panduan PDF */}
+                  <div className="mb-lg">
+                    <div className="relative">
+                      <input
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full pl-xl pr-md py-md bg-white border border-outline-variant rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                        placeholder="Cari panduan PDF..."
+                        type="text"
+                      />
+                      <Icon
+                        name="search"
+                        className="absolute left-md top-1/2 -translate-y-1/2 text-outline"
+                      />
+                    </div>
+                  </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-md">
-                    {/* Featured Large Card */}
+                    {/* Featured Large Card (hidden when searching and it doesn't match) */}
+                    {showFeatured && (
                     <div className="md:col-span-2 xl:col-span-2 bg-white border border-outline-variant rounded-xl p-lg institutional-shadow flex flex-col md:flex-row gap-lg group hover:border-primary transition-colors">
                       <div className="w-full md:w-48 h-48 bg-surface-container rounded-lg flex-shrink-0 flex items-center justify-center">
                         <Icon name="description" className="text-primary text-[64px]" style={{ fontVariationSettings: "'FILL' 1" }} />
@@ -574,6 +515,7 @@ export default function Panduan() {
                         </div>
                       </div>
                     </div>
+                    )}
 
                     {/* Regular Cards */}
                     {currentGuides.map((guide) => (
@@ -611,7 +553,9 @@ export default function Panduan() {
                   {!loading && currentGuides.length === 0 && (
                     <div className="bg-surface-container text-on-surface-variant p-lg rounded-xl text-center">
                       <p className="font-body-md text-body-md">
-                        Tidak ada panduan untuk peran yang dipilih. Silakan ubah filter peran Anda.
+                        {searchQuery.trim()
+                          ? 'Tidak ada panduan yang cocok dengan kata kunci pencarian Anda.'
+                          : 'Belum ada data panduan pada database untuk kategori ini.'}
                       </p>
                     </div>
                   )}

@@ -114,11 +114,11 @@ const modalContent = {
       <h4 className="font-headline-sm text-headline-sm text-on-surface">Cara Menghubungi Kami</h4>
       <ul className="list-disc pl-md space-y-sm">
         <li>Kunjungi halaman Kontak dan isi formulir yang tersedia</li>
-        <li>Kirimkan email ke helpdesk@ukpbj.bungokab.go.id</li>
-        <li>Hubungi telepon di (0742) 123456 selama jam kerja</li>
+        <li>Kirimkan email ke helpdesk.ukpbjbungo@gmail.com</li>
       </ul>
       <h4 className="font-headline-sm text-headline-sm text-on-surface">Jam Operasional</h4>
-      <p>Senin - Jumat: 08.00 - 16.00 WIB</p>
+      <p>Senin - Kamis: 08.00 - 16.00 WIB</p>
+      <p>Jumat: 08.00 - 11.00 WIB</p>
       <p>Sabtu - Minggu: Tutup</p>
     </div>
   ),
@@ -129,7 +129,7 @@ export default function Footer() {
 
   return (
     <footer className="bg-surface-dim dark:bg-inverse-surface border-t border-outline-variant transition-colors duration-200">
-      <div className="w-full py-xl px-gutter flex flex-col md:flex-row justify-between items-start md:items-center max-w-container-max mx-auto gap-lg">
+      <div className="w-full py-md px-gutter flex flex-col md:flex-row justify-between items-start md:items-center max-w-container-max mx-auto gap-lg">
         <div className="flex flex-col gap-sm">
           <span className="font-label-md text-label-md font-bold text-on-surface dark:text-inverse-on-surface">
             Portal Informasi Pengadaan Barang dan Jasa
@@ -163,29 +163,6 @@ export default function Footer() {
           })}
         </nav>
       </div>
-      <div className="max-w-container-max mx-auto px-gutter pb-lg">
-        <p className="font-label-xs text-label-xs text-on-surface-variant dark:text-on-surface-variant mb-2">
-          Link Penting
-        </p>
-        <div className="flex items-center gap-md">
-          {partners.map((partner) => (
-            <a
-              key={partner.name}
-              href={partner.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="h-8 w-24 flex items-center justify-center grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-200"
-            >
-              <img
-                src={partner.logo}
-                alt={partner.name}
-                className="h-full w-full object-contain"
-              />
-            </a>
-          ))}
-        </div>
-      </div>
-
       <Modal
         isOpen={activeModal !== null}
         onClose={() => setActiveModal(null)}
