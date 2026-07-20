@@ -5,6 +5,8 @@ import Footer from '../components/Footer'
 import { fetchAnnouncementById, fetchAnnouncements, incrementAnnouncementView } from '../lib/api'
 import { announcements as fallbackAnnouncements, recentAnnouncements } from '../data/announcements'
 
+const FALLBACK_IMAGE = '/announcements/announcement-new.png'
+
 // Map a DB announcement row to the shape used by the UI.
 function normalize(item) {
   return {
@@ -17,7 +19,7 @@ function normalize(item) {
     author: item.author,
     title: item.title,
     excerpt: item.excerpt,
-    image: item.image_url,
+    image: item.image_url || FALLBACK_IMAGE,
     content: item.content,
   }
 }
@@ -254,7 +256,16 @@ export default function PengumumanDetail() {
               </header>
 
               <div className="rounded-xl overflow-hidden mb-xl institutional-shadow border border-outline-variant">
-                <img className="w-full h-80 object-cover" src={data.image} alt={data.title} />
+                <img
+                  className="w-full h-80 object-cover"
+                  src={data.image}
+                  alt={data.title}
+                  onError={(e) => {
+                    if (e.target.src !== FALLBACK_IMAGE) {
+                      e.target.src = FALLBACK_IMAGE
+                    }
+                  }}
+                />
               </div>
 
               <div className="prose prose-blue max-w-none text-on-surface-variant">
@@ -317,6 +328,11 @@ export default function PengumumanDetail() {
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                             src={item.image}
                             alt={item.title}
+                            onError={(e) => {
+                              if (e.target.src !== FALLBACK_IMAGE) {
+                                e.target.src = FALLBACK_IMAGE
+                              }
+                            }}
                           />
                         </div>
                         <div className="flex flex-col justify-center">

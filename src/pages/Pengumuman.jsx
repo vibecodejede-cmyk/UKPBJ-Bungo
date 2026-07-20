@@ -5,6 +5,8 @@ import Footer from '../components/Footer'
 import { fetchAnnouncements } from '../lib/api'
 import { announcements as fallbackAnnouncements } from '../data/announcements'
 
+const FALLBACK_IMAGE = '/announcements/announcement-new.png'
+
 // Map a DB announcement row to the shape used by the UI.
 function normalize(item) {
   return {
@@ -18,7 +20,7 @@ function normalize(item) {
     title: item.title,
     excerpt: item.excerpt,
     description: item.excerpt || item.content,
-    image: item.image_url,
+    image: item.image_url || FALLBACK_IMAGE,
     content: item.content,
   }
 }
@@ -235,7 +237,7 @@ export default function Pengumuman() {
                     <div className="h-48 w-full bg-surface-variant relative overflow-hidden">
                       <div
                         className="w-full h-full bg-cover bg-center opacity-80"
-                        style={{ backgroundImage: `url('${featured.image}')` }}
+                        style={{ backgroundImage: `url('${featured.image || FALLBACK_IMAGE}')` }}
                       />
                       <div className="absolute bottom-0 left-0 right-0 p-lg bg-gradient-to-t from-black/60 to-transparent">
                         <span className="font-label-sm text-label-sm px-2 py-1 bg-primary text-on-primary rounded uppercase">

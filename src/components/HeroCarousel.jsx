@@ -3,11 +3,12 @@ import { Link } from 'react-router-dom'
 import Icon from './Icon'
 import { fetchAnnouncements } from '../lib/api'
 
+const FALLBACK_IMAGE = '/announcements/announcement-new.png'
+
 const fallbackSlides = [
   {
     id: 'fallback-1',
-    image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuDdM8DrrAIWTVwF56rnv98cnGymh1RweHCGOogDz9abXth8kFiFlB5QUf3naLwhdt-4C1evf9GjeXgvff5IymQ-kwJFqW5D4Nb-0YyDV-L_9cA2wagwNRWJ9WOL01Cot5bAtsG8fL0q9vXfZZCHI85UDhRjywykBOK0E6Z7s5R54cDbCWOOqosn8TCyKZ1XWDoVfAOMRf7Irp385XvE0f_XFdmPexypyxRCANCkxbudHnOwbsL1LtSWjwTcOJ-IgumTo1RE449_XWcN',
+    image: FALLBACK_IMAGE,
     alt: 'Modernisasi Pengadaan Nasional',
     title: 'Modernisasi Pengadaan Nasional',
     description:
@@ -15,8 +16,7 @@ const fallbackSlides = [
   },
   {
     id: 'fallback-2',
-    image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuC5hPWtI4-ubrJXk3BVgt6GcX3CJ_GLlFy5Ca3Gf5fTw-XH3dq2F_10gAXzI-wvWNJTo-BQ4il6GBKGZxSfqqo1zAt8SHZqa44smF0Gez4WpiiXtzjNQqV033WKKEZUwHlA3vTcYn1RG2H7tvqy19hHzUaajRDC-81Z1eYQzO18RuB9Rzr4RbnaVHCWgrnUGhXI5IROLG9ruVhpq7mcHNPwMrGUEPwdCxa-pbf6VNbR8xlkQb929YqR7t34wl9FRczPtFUGiwnigYfb',
+    image: FALLBACK_IMAGE,
     alt: 'Layanan Publik Terintegrasi',
     title: 'Layanan Publik Terintegrasi',
     description:
@@ -24,8 +24,7 @@ const fallbackSlides = [
   },
   {
     id: 'fallback-3',
-    image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuD-OEqZOftsh1gERgHOHv2FYqKPsA2K5nD6HJdERnxB8a0_qkaBiFni2qYeXqNKqi1zbimAOzlX0Xrd9jHIZ7ZhyrwxPL9GGX_ENaCRYRSjkVFIQ7kzV_sTrt1WQJmyNHoELYZS26prLpVnFKYDJuaBYKJtOeVmsGM5lnSLHCcZJrth7USfMj5wtM-ASdgkjtg9rsEbA6oFrkFtXcS5DWbpAX74oaQp6cAKFUW3sNd6t1-CNGwt7SPCfo09ugLrUp0huG3QC01ZW9tU',
+    image: FALLBACK_IMAGE,
     alt: 'Transparansi Data Regulasi',
     title: 'Transparansi Data Regulasi',
     description:
@@ -49,7 +48,7 @@ export default function HeroCarousel() {
         if (!cancelled && data && data.length > 0) {
           const mapped = data.map((a) => ({
             id: a.id,
-            image: a.image_url,
+            image: a.image_url || FALLBACK_IMAGE,
             alt: a.title,
             title: a.title,
             description: a.excerpt,
@@ -85,7 +84,16 @@ export default function HeroCarousel() {
     <div className="carousel-container" id="hero-carousel">
       {slides.map((slide, index) => (
         <div key={slide.id} className={`slide ${index === current ? 'active' : ''}`}>
-          <img alt={slide.alt} className="w-full h-full object-cover" src={slide.image} />
+          <img
+            alt={slide.alt}
+            className="w-full h-full object-cover"
+            src={slide.image}
+            onError={(e) => {
+              if (e.target.src !== FALLBACK_IMAGE) {
+                e.target.src = FALLBACK_IMAGE
+              }
+            }}
+          />
           <div className="absolute inset-0 slide-overlay flex items-center">
             <div className="max-w-container-max mx-auto px-gutter w-full text-white">
               <div className="max-w-4xl pr-md lg:pr-xl pb-24 lg:pb-28 lg:pl-[10%]">

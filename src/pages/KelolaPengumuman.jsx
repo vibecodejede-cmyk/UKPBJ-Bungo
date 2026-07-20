@@ -74,7 +74,7 @@ const EMPTY_FORM = {
   badge_class: 'bg-secondary text-on-secondary',
   category: 'Umum',
   author: 'Admin',
-  image_url: '',
+  image_url: '/announcements/announcement-new.png',
   is_published: true,
 }
 
@@ -92,6 +92,7 @@ export default function KelolaPengumuman() {
   const [page, setPage] = useState(1)
   const [pageSize] = useState(10)
   const [moreMenuId, setMoreMenuId] = useState(null)
+  const [imagePreview, setImagePreview] = useState(null)
 
   // Current logged-in admin (from login session)
   const [admin] = useState(() => getAdminSession())
@@ -182,6 +183,31 @@ export default function KelolaPengumuman() {
     URL.revokeObjectURL(url)
   }
 
+  async function handleImageChange(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('File harus berupa gambar')
+      return
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Ukuran gambar maksimal 2MB')
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = () => {
+      const base64 = reader.result
+      setForm({ ...form, image_url: base64 })
+      setImagePreview(base64)
+    }
+    reader.readAsDataURL(file)
+  }
+
   async function handleSubmit(e) {
     e.preventDefault()
     setSaving(true)
@@ -205,6 +231,7 @@ export default function KelolaPengumuman() {
       setModalOpen(false)
       setEditingItem(null)
       setForm(EMPTY_FORM)
+      setImagePreview(null)
       await load()
     } catch (err) {
       setError(err.message || 'Gagal menyimpan pengumuman')
@@ -217,6 +244,7 @@ export default function KelolaPengumuman() {
   function openCreate() {
     setEditingItem(null)
     setForm(EMPTY_FORM)
+    setImagePreview(null)
     setModalOpen(true)
   }
 
@@ -236,6 +264,7 @@ export default function KelolaPengumuman() {
       image_url: item.image_url || '',
       is_published: item.is_published ?? true,
     })
+    setImagePreview(item.image_url || null)
     setModalOpen(true)
   }
 
@@ -646,14 +675,25 @@ export default function KelolaPengumuman() {
               </select>
             </div>
             <div>
-              <label className="block font-label-md text-label-md text-on-surface mb-xs">URL Gambar (opsional)</label>
+              <label className="block font-label-md text-label-md text-on-surface mb-xs">Gambar Pengumuman</label>
               <input
                 className="w-full px-md py-sm rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary"
-                placeholder="https://..."
-                type="text"
-                value={form.image_url}
-                onChange={(e) => setForm({ ...form, image_url: e.target.value })}
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
               />
+              {imagePreview && (
+                <div className="mt-md">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-full h-48 object-cover rounded-lg border border-outline-variant"
+                  />
+                </div>
+              )}
+              <p className="text-label-sm text-on-surface-variant mt-xs">
+                Format: JPG, PNG, GIF. Maksimal 2MB.
+              </p>
             </div>
           </div>
 
