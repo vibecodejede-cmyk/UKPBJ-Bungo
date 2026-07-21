@@ -303,9 +303,9 @@ export default function Kontak() {
                 <iframe
                   title="Peta Lokasi Kantor UKPBJ Bungo"
                   className="w-full h-full border-0"
-                  loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
                   src="https://www.openstreetmap.org/export/embed.html?bbox=102.11728748058219%2C-1.5181256968702204%2C102.12128748058219%2C-1.5141256968702204&layer=mapnik&marker=-1.5161256968702204%2C102.11928748058219"
+                  allow="geolocation; fullscreen"
                 />
                 <div className="flex items-center justify-between gap-md px-md py-sm bg-surface border-t border-outline-variant">
                   <span className="font-label-sm text-label-sm text-on-surface-variant">

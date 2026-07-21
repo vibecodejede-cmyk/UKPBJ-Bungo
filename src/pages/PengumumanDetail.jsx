@@ -31,6 +31,7 @@ export default function PengumumanDetail() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [copied, setCopied] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -132,58 +133,6 @@ export default function PengumumanDetail() {
             <Link to="/" className="font-headline-md text-headline-md font-bold text-primary">
               UKPBJ Kabupaten Bungo
             </Link>
-            <nav className="hidden md:flex items-center gap-lg">
-              <NavLink
-                to="/"
-                className={({ isActive }) =>
-                  isActive
-                    ? 'font-label-md text-label-md text-primary border-b-2 border-primary pb-1 transition-colors duration-200'
-                    : 'font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200'
-                }
-              >
-                Beranda
-              </NavLink>
-              <NavLink
-                to="/panduan"
-                className={({ isActive }) =>
-                  isActive
-                    ? 'font-label-md text-label-md text-primary border-b-2 border-primary pb-1 transition-colors duration-200'
-                    : 'font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200'
-                }
-              >
-                Panduan
-              </NavLink>
-              <NavLink
-                to="/regulasi"
-                className={({ isActive }) =>
-                  isActive
-                    ? 'font-label-md text-label-md text-primary border-b-2 border-primary pb-1 transition-colors duration-200'
-                    : 'font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200'
-                }
-              >
-                Regulasi
-              </NavLink>
-              <NavLink
-                to="/pengumuman"
-                className={({ isActive }) =>
-                  isActive
-                    ? 'font-label-md text-label-md text-primary border-b-2 border-primary pb-1 transition-colors duration-200'
-                    : 'font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200'
-                }
-              >
-                Pengumuman
-              </NavLink>
-              <NavLink
-                to="/kontak"
-                className={({ isActive }) =>
-                  isActive
-                    ? 'font-label-md text-label-md text-primary border-b-2 border-primary pb-1 transition-colors duration-200'
-                    : 'font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200'
-                }
-              >
-                Kontak
-              </NavLink>
-            </nav>
           </div>
           <div className="flex items-center gap-md">
             <div className="relative hidden sm:block">
@@ -194,8 +143,80 @@ export default function PengumumanDetail() {
                 type="text"
               />
             </div>
+            <button
+              type="button"
+              className="md:hidden flex items-center justify-center w-10 h-10 rounded-lg text-on-surface hover:bg-surface-container-low transition-colors"
+              onClick={() => setMobileOpen((prev) => !prev)}
+              aria-label="Toggle navigation"
+              aria-expanded={mobileOpen}
+            >
+              <Icon name={mobileOpen ? 'close' : 'menu'} className="text-2xl" />
+            </button>
           </div>
         </div>
+        <nav className="hidden md:flex items-center gap-lg">
+          <NavLink
+            to="/"
+            className={({ isActive }) =>
+              isActive
+                ? 'font-label-md text-label-md text-primary border-b-2 border-primary pb-1 transition-colors duration-200'
+                : 'font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200'
+            }
+          >
+            Beranda
+          </NavLink>
+          <NavLink
+            to="/panduan"
+            className={({ isActive }) =>
+              isActive
+                ? 'font-label-md text-label-md text-primary border-b-2 border-primary pb-1 transition-colors duration-200'
+                : 'font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200'
+            }
+          >
+            Panduan
+          </NavLink>
+          <NavLink
+            to="/regulasi"
+            className={({ isActive }) =>
+              isActive
+                ? 'font-label-md text-label-md text-primary border-b-2 border-primary pb-1 transition-colors duration-200'
+                : 'font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200'
+            }
+          >
+            Regulasi
+          </NavLink>
+          <NavLink
+            to="/pengumuman"
+            className={({ isActive }) =>
+              isActive
+                ? 'font-label-md text-label-md text-primary border-b-2 border-primary pb-1 transition-colors duration-200'
+                : 'font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200'
+            }
+          >
+            Pengumuman
+          </NavLink>
+          <NavLink
+            to="/kontak"
+            className={({ isActive }) =>
+              isActive
+                ? 'font-label-md text-label-md text-primary border-b-2 border-primary pb-1 transition-colors duration-200'
+                : 'font-label-md text-label-md text-on-surface-variant hover:text-secondary transition-colors duration-200'
+            }
+          >
+            Kontak
+          </NavLink>
+        </nav>
+        {mobileOpen && (
+          <div className="md:hidden border-t border-outline-variant bg-surface">
+            <nav className="flex flex-col px-gutter py-md gap-sm">
+              <NavLink to="/" onClick={() => setMobileOpen(false)} className={({ isActive }) => `font-label-md text-label-md ${isActive ? 'text-primary' : 'text-on-surface-variant hover:text-secondary'} py-sm`}>Beranda</NavLink>
+              <NavLink to="/panduan" onClick={() => setMobileOpen(false)} className={({ isActive }) => `font-label-md text-label-md ${isActive ? 'text-primary' : 'text-on-surface-variant hover:text-secondary'} py-sm`}>Panduan</NavLink>
+              <NavLink to="/regulasi" onClick={() => setMobileOpen(false)} className={({ isActive }) => `font-label-md text-label-md ${isActive ? 'text-primary' : 'text-on-surface-variant hover:text-secondary'} py-sm`}>Regulasi</NavLink>
+              <NavLink to="/pengumuman" onClick={() => setMobileOpen(false)} className={({ isActive }) => `font-label-md text-label-md ${isActive ? 'text-primary' : 'text-on-surface-variant hover:text-secondary'} py-sm`}>Pengumuman</NavLink>
+              <NavLink to="/kontak" onClick={() => setMobileOpen(false)} className={({ isActive }) => `font-label-md text-label-md ${isActive ? 'text-primary' : 'text-on-surface-variant hover:text-secondary'} py-sm`}>Kontak</NavLink>
+            </nav>
+          </div>
+        )}
       </header>
 
       <main className="max-w-container-max mx-auto px-gutter py-md">
@@ -268,9 +289,10 @@ export default function PengumumanDetail() {
                 />
               </div>
 
-              <div className="prose prose-blue max-w-none text-on-surface-variant">
-                <p className="font-body-lg text-body-lg mb-lg text-on-surface whitespace-pre-line">{data.content}</p>
-              </div>
+              <div
+                className="prose prose-blue max-w-none text-on-surface-variant"
+                dangerouslySetInnerHTML={{ __html: data.content }}
+              />
             </article>
 
             {/* Sidebar */}

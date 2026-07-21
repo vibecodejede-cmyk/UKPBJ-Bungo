@@ -45,6 +45,7 @@ export default function HeroCarousel() {
     async function loadSlides() {
       try {
         const data = await fetchAnnouncements()
+        console.log('[HeroCarousel] fetchAnnouncements result:', data)
         if (!cancelled && data && data.length > 0) {
           const mapped = data.map((a) => ({
             id: a.id,
@@ -53,8 +54,11 @@ export default function HeroCarousel() {
             title: a.title,
             description: a.excerpt,
           }))
+          console.log('[HeroCarousel] mapped slides:', mapped)
           setSlides(mapped)
           setCurrent(0)
+        } else {
+          console.warn('[HeroCarousel] No announcements data, keeping fallback slides')
         }
       } catch (err) {
         console.warn('fetchAnnouncements failed, using fallback slides:', err?.message)
@@ -89,19 +93,20 @@ export default function HeroCarousel() {
             className="w-full h-full object-cover"
             src={slide.image}
             onError={(e) => {
+              console.warn('[HeroCarousel] Image failed to load:', e.target.src)
               if (e.target.src !== FALLBACK_IMAGE) {
                 e.target.src = FALLBACK_IMAGE
               }
             }}
           />
-          <div className="absolute inset-0 slide-overlay flex items-center">
+          <div className="absolute inset-0 slide-overlay flex items-end sm:items-center">
             <div className="max-w-container-max mx-auto px-gutter w-full text-white">
-              <div className="max-w-4xl pr-md lg:pr-xl pb-24 lg:pb-28 lg:pl-[10%]">
-                <h2 className="font-display-lg text-display-lg mb-md text-on-primary leading-tight">{slide.title}</h2>
-                <p className="font-body-lg text-body-lg mb-xl text-primary-fixed leading-relaxed">{slide.description}</p>
+              <div className="max-w-4xl pr-md lg:pr-xl pt-20 pb-24 sm:pt-0 sm:pb-24 lg:pt-0 lg:pb-28 lg:pl-[10%]">
+                <h2 className="font-headline-lg-mobile text-headline-lg-mobile sm:font-display-lg sm:text-display-lg mb-md text-on-primary leading-tight">{slide.title}</h2>
+                <p className="font-body-md text-body-md sm:font-body-lg sm:text-body-lg mb-xl text-primary-fixed leading-relaxed">{slide.description}</p>
                 <Link
                   to={`/pengumuman/${slide.id}`}
-                  className="bg-secondary text-on-secondary px-xl py-lg rounded-lg font-label-md text-label-md hover:bg-secondary-container transition-all inline-block"
+                  className="bg-secondary text-on-secondary px-lg py-md sm:px-xl sm:py-lg rounded-lg font-label-md text-label-md hover:bg-secondary-container transition-all inline-block"
                 >
                   Selengkapnya
                 </Link>
@@ -113,16 +118,20 @@ export default function HeroCarousel() {
 
       {/* Side Arrows */}
       <button
+        type="button"
         className="absolute left-md top-1/2 -translate-y-1/2 z-20 bg-white/10 hover:bg-white/20 p-sm rounded-full text-white transition-colors"
         onClick={() => moveSlide(-1)}
         aria-label="Previous slide"
+        disabled={total <= 1}
       >
         <Icon name="chevron_left" className="text-4xl" />
       </button>
       <button
+        type="button"
         className="absolute right-md top-1/2 -translate-y-1/2 z-20 bg-white/10 hover:bg-white/20 p-sm rounded-full text-white transition-colors"
         onClick={() => moveSlide(1)}
         aria-label="Next slide"
+        disabled={total <= 1}
       >
         <Icon name="chevron_right" className="text-4xl" />
       </button>

@@ -3,6 +3,7 @@ import Icon from '../components/Icon'
 import Modal from '../components/Modal'
 import SettingsModal from '../components/SettingsModal'
 import NotificationBell from '../components/NotificationBell'
+import WysiwygEditor from '../components/WysiwygEditor'
 import { getAdminSession, getAvatarFallback } from '../lib/session'
 import {
   fetchAllAnnouncements,
@@ -63,6 +64,15 @@ const BADGE_OPTIONS = [
   { label: 'Regulasi', value: 'Regulasi', cls: 'bg-primary text-on-primary' },
   { label: 'Kegiatan', value: 'Kegiatan', cls: 'bg-tertiary-container text-on-tertiary-container' },
   { label: 'Info', value: 'Info', cls: 'bg-surface-variant text-on-surface' },
+]
+
+const CATEGORY_OPTIONS = [
+  'Umum',
+  'Sistem',
+  'Regulasi',
+  'Kegiatan',
+  'Informasi Teknis',
+  'Pengumuman Penting',
 ]
 
 const EMPTY_FORM = {
@@ -219,8 +229,8 @@ export default function KelolaPengumuman() {
         badge: form.badge,
         badge_class: form.badge_class,
         category: form.category,
-        author: form.author,
         image_url: form.image_url,
+        author: 'Admin',
         is_published: form.is_published,
       }
       if (editingItem) {
@@ -245,6 +255,26 @@ export default function KelolaPengumuman() {
     setEditingItem(null)
     setForm(EMPTY_FORM)
     setImagePreview(null)
+    setModalOpen(true)
+  }
+
+  // Open the edit modal pre-filled with the item's data
+  function handleEdit(item) {
+    setMoreMenuId(null)
+    setEditingItem(item)
+    setForm({
+      id: item.id,
+      title: item.title || '',
+      excerpt: item.excerpt || '',
+      content: item.content || '',
+      badge: item.badge || 'Info',
+      badge_class: item.badge_class || 'bg-secondary text-on-secondary',
+      category: item.category || 'Umum',
+      author: 'Admin',
+      image_url: item.image_url || '',
+      is_published: item.is_published ?? true,
+    })
+    setImagePreview(item.image_url || null)
     setModalOpen(true)
   }
 
@@ -619,23 +649,15 @@ export default function KelolaPengumuman() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
             <div>
               <label className="block font-label-md text-label-md text-on-surface mb-xs">Kategori</label>
-              <input
+              <select
                 className="w-full px-md py-sm rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary"
-                placeholder="Mis. Sistem"
-                type="text"
                 value={form.category}
                 onChange={(e) => setForm({ ...form, category: e.target.value })}
-              />
-            </div>
-            <div>
-              <label className="block font-label-md text-label-md text-on-surface mb-xs">Penulis</label>
-              <input
-                className="w-full px-md py-sm rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary"
-                placeholder="Nama penulis"
-                type="text"
-                value={form.author}
-                onChange={(e) => setForm({ ...form, author: e.target.value })}
-              />
+              >
+                {CATEGORY_OPTIONS.map((cat) => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -652,12 +674,10 @@ export default function KelolaPengumuman() {
 
           <div>
             <label className="block font-label-md text-label-md text-on-surface mb-xs">Isi Konten</label>
-            <textarea
-              rows={5}
-              className="w-full px-md py-sm rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary resize-none"
-              placeholder="Tulis isi pengumuman di sini..."
+            <WysiwygEditor
               value={form.content}
-              onChange={(e) => setForm({ ...form, content: e.target.value })}
+              onChange={(content) => setForm({ ...form, content })}
+              placeholder="Tulis isi pengumuman di sini..."
             />
           </div>
 

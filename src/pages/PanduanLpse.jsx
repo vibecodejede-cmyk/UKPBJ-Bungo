@@ -50,6 +50,7 @@ export default function PanduanLpse() {
   const [openChapters, setOpenChapters] = useState(() =>
     chapters.reduce((acc, c) => ({ ...acc, [c.number]: c.expanded }), {}),
   )
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   const toggleChapter = (number) => {
     setOpenChapters((prev) => ({ ...prev, [number]: !prev[number] }))
@@ -118,11 +119,31 @@ export default function PanduanLpse() {
             </NavLink>
           </div>
           <div className="flex items-center gap-md">
-            <button className="flex items-center justify-center p-sm rounded-full text-on-surface-variant hover:bg-surface-variant">
+            <button className="hidden md:flex items-center justify-center p-sm rounded-full text-on-surface-variant hover:bg-surface-variant">
               <Icon name="search" />
+            </button>
+            <button
+              type="button"
+              className="md:hidden flex items-center justify-center w-10 h-10 rounded-lg text-on-surface hover:bg-surface-container-low transition-colors"
+              onClick={() => setMobileOpen((prev) => !prev)}
+              aria-label="Toggle navigation"
+              aria-expanded={mobileOpen}
+            >
+              <Icon name={mobileOpen ? 'close' : 'menu'} className="text-2xl" />
             </button>
           </div>
         </div>
+        {mobileOpen && (
+          <div className="md:hidden border-t border-outline-variant bg-surface">
+            <nav className="flex flex-col px-gutter py-md gap-sm">
+              <NavLink to="/" onClick={() => setMobileOpen(false)} className={({ isActive }) => `font-label-md text-label-md ${isActive ? 'text-primary' : 'text-on-surface-variant hover:text-secondary'} py-sm`}>Beranda</NavLink>
+              <NavLink to="/panduan" onClick={() => setMobileOpen(false)} className={({ isActive }) => `font-label-md text-label-md ${isActive ? 'text-primary' : 'text-on-surface-variant hover:text-secondary'} py-sm`}>Panduan</NavLink>
+              <NavLink to="/regulasi" onClick={() => setMobileOpen(false)} className={({ isActive }) => `font-label-md text-label-md ${isActive ? 'text-primary' : 'text-on-surface-variant hover:text-secondary'} py-sm`}>Regulasi</NavLink>
+              <NavLink to="/pengumuman" onClick={() => setMobileOpen(false)} className={({ isActive }) => `font-label-md text-label-md ${isActive ? 'text-primary' : 'text-on-surface-variant hover:text-secondary'} py-sm`}>Pengumuman</NavLink>
+              <NavLink to="/kontak" onClick={() => setMobileOpen(false)} className={({ isActive }) => `font-label-md text-label-md ${isActive ? 'text-primary' : 'text-on-surface-variant hover:text-secondary'} py-sm`}>Kontak</NavLink>
+            </nav>
+          </div>
+        )}
       </nav>
 
       {/* Main Content */}

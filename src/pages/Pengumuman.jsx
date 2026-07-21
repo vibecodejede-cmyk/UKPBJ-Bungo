@@ -27,9 +27,10 @@ function normalize(item) {
 
 function DetailContent({ item }) {
   return (
-    <div className="space-y-md font-body-md text-body-md text-on-surface">
-      <p className="whitespace-pre-line">{item.content}</p>
-    </div>
+    <div
+      className="space-y-md font-body-md text-body-md text-on-surface prose prose-blue max-w-none"
+      dangerouslySetInnerHTML={{ __html: item.content }}
+    />
   )
 }
 
@@ -39,6 +40,7 @@ export default function Pengumuman() {
   const [error, setError] = useState(null)
   const [search, setSearch] = useState('')
   const [shareOpen, setShareOpen] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
   const shareRef = useRef(null)
 
   useEffect(() => {
@@ -112,9 +114,11 @@ export default function Pengumuman() {
       {/* TopNavBar */}
       <header className="bg-surface border-b border-outline-variant sticky top-0 z-50">
         <div className="flex justify-between items-center w-full px-gutter max-w-container-max mx-auto h-16">
-          <Link to="/" className="font-headline-md text-headline-md font-bold text-primary">
-            UKPBJ Kabupaten Bungo
-          </Link>
+          <div className="flex items-center gap-md">
+            <Link to="/" className="font-headline-md text-headline-md font-bold text-primary">
+              UKPBJ Kabupaten Bungo
+            </Link>
+          </div>
           <nav className="hidden md:flex items-center space-x-lg">
             <Link
               to="/"
@@ -151,7 +155,7 @@ export default function Pengumuman() {
               Kontak
             </NavLink>
           </nav>
-          <div className="flex items-center space-x-md">
+          <div className="flex items-center gap-md">
             <div className="relative hidden sm:block">
               <Icon
                 name="search"
@@ -165,8 +169,28 @@ export default function Pengumuman() {
                 type="text"
               />
             </div>
+            <button
+              type="button"
+              className="md:hidden flex items-center justify-center w-10 h-10 rounded-lg text-on-surface hover:bg-surface-container-low transition-colors"
+              onClick={() => setMobileOpen((prev) => !prev)}
+              aria-label="Toggle navigation"
+              aria-expanded={mobileOpen}
+            >
+              <Icon name={mobileOpen ? 'close' : 'menu'} className="text-2xl" />
+            </button>
           </div>
         </div>
+        {mobileOpen && (
+          <div className="md:hidden border-t border-outline-variant bg-surface">
+            <nav className="flex flex-col px-gutter py-md gap-sm">
+              <Link to="/" onClick={() => setMobileOpen(false)} className="font-label-md text-label-md text-on-surface-variant hover:text-secondary py-sm">Beranda</Link>
+              <Link to="/panduan" onClick={() => setMobileOpen(false)} className="font-label-md text-label-md text-on-surface-variant hover:text-secondary py-sm">Panduan</Link>
+              <Link to="/regulasi" onClick={() => setMobileOpen(false)} className="font-label-md text-label-md text-on-surface-variant hover:text-secondary py-sm">Regulasi</Link>
+              <Link to="/pengumuman" onClick={() => setMobileOpen(false)} className="font-label-md text-label-md text-primary py-sm">Pengumuman</Link>
+              <NavLink to="/kontak" onClick={() => setMobileOpen(false)} className={({ isActive }) => `font-label-md text-label-md ${isActive ? 'text-primary' : 'text-on-surface-variant hover:text-secondary'} py-sm`}>Kontak</NavLink>
+            </nav>
+          </div>
+        )}
       </header>
 
       <main className="max-w-container-max mx-auto px-gutter py-xl">
@@ -183,6 +207,16 @@ export default function Pengumuman() {
                   <Icon name="sort" />
                 </button>
               </div>
+            </div>
+            <div className="lg:hidden relative mb-md">
+              <Icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-body-sm"
+                placeholder="Cari pengumuman..."
+                type="text"
+              />
             </div>
 
             {loading ? (
