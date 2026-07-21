@@ -125,20 +125,18 @@ export default function PengumumanDetail() {
   }
 
   return (
-    <div className="bg-background text-on-surface min-h-screen flex flex-col">
+    <div className="bg-background text-on-surface min-h-screen flex flex-col overflow-x-hidden">
       {/* TopNavBar */}
       <header className="bg-surface border-b border-outline-variant sticky top-0 z-50">
-        <div className="flex justify-between items-center w-full px-gutter max-w-container-max mx-auto h-16">
-          <div className="flex items-center gap-xl">
-            <Link to="/" className="font-headline-md text-headline-md font-bold text-primary">
-              UKPBJ Kabupaten Bungo
-            </Link>
-          </div>
-          <div className="flex items-center gap-md">
+        <div className="flex justify-between items-center w-full px-gutter max-w-container-max mx-auto h-14 md:h-16">
+          <Link to="/" className="font-headline-sm md:font-headline-md text-headline-sm md:text-headline-md font-bold text-primary">
+            UKPBJ Kabupaten Bungo
+          </Link>
+          <div className="flex items-center gap-sm md:gap-md">
             <div className="relative hidden sm:block">
               <Icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-outline" />
               <input
-                className="pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-lg text-body-sm focus:ring-2 focus:ring-primary focus:outline-none w-64"
+                className="pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-lg text-body-sm focus:ring-2 focus:ring-primary focus:outline-none w-40 sm:w-64"
                 placeholder="Cari pengumuman..."
                 type="text"
               />
@@ -219,9 +217,9 @@ export default function PengumumanDetail() {
         )}
       </header>
 
-      <main className="max-w-container-max mx-auto px-gutter py-md">
+      <main className="flex-1 max-w-container-max mx-auto px-gutter py-md overflow-x-hidden">
         {/* Breadcrumbs */}
-        <nav className="flex items-center gap-xs text-on-surface-variant mb-xl py-sm">
+        <nav className="hidden sm:flex items-center gap-xs text-on-surface-variant mb-lg py-sm">
           <Link className="font-label-md text-label-md hover:text-primary transition-colors" to="/">
             Beranda
           </Link>
@@ -232,7 +230,7 @@ export default function PengumumanDetail() {
           {data && (
             <>
               <Icon name="chevron_right" className="text-sm" />
-              <span className="font-label-md text-label-md text-primary truncate max-w-xs sm:max-w-md">
+              <span className="font-label-md text-label-md text-primary truncate max-w-[140px] sm:max-w-xs md:max-w-md">
                 {data.title}
               </span>
             </>
@@ -273,12 +271,12 @@ export default function PengumumanDetail() {
                     <span>{data.author}</span>
                   </div>
                 </div>
-                <h1 className="font-headline-lg text-headline-lg text-primary leading-tight mb-md">{data.title}</h1>
+                <h1 className="text-base md:text-headline-lg text-headline-lg text-primary leading-tight mb-md">{data.title}</h1>
               </header>
 
               <div className="rounded-xl overflow-hidden mb-xl institutional-shadow border border-outline-variant">
                 <img
-                  className="w-full h-80 object-cover"
+                  className="w-full h-48 sm:h-64 md:h-80 object-cover"
                   src={data.image}
                   alt={data.title}
                   onError={(e) => {
@@ -290,17 +288,17 @@ export default function PengumumanDetail() {
               </div>
 
               <div
-                className="prose prose-blue max-w-none text-on-surface-variant"
+                className="prose prose-blue max-w-full text-on-surface-variant"
                 dangerouslySetInnerHTML={{ __html: data.content }}
               />
             </article>
 
             {/* Sidebar */}
-            <aside className="lg:col-span-4 space-y-xl">
+            <aside className="lg:col-span-4 space-y-lg mt-lg lg:mt-0">
               {/* Share */}
-              <section className="bg-white p-lg rounded-xl institutional-shadow border border-outline-variant">
-                <h3 className="font-label-md text-label-md text-on-surface mb-md">Bagikan Pengumuman</h3>
-                <div className="flex gap-md">
+              <section className="bg-white p-md sm:p-lg rounded-xl institutional-shadow border border-outline-variant">
+                <h3 className="font-label-md text-label-md text-on-surface mb-sm sm:mb-md">Bagikan Pengumuman</h3>
+                <div className="flex gap-sm sm:gap-md">
                   <button
                     onClick={handleCopyLink}
                     className="flex-1 py-2 rounded-lg border border-outline-variant hover:bg-surface-variant transition-all flex items-center justify-center gap-xs"
