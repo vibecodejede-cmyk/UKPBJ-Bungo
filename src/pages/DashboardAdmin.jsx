@@ -4,6 +4,7 @@ import { fetchDashboardStats, fetchActivityLog } from '../lib/api'
 import { getAdminSession, getAvatarFallback } from '../lib/session'
 import SettingsModal from '../components/SettingsModal'
 import NotificationBell from '../components/NotificationBell'
+import Icon from '../components/Icon'
 
 // Generate a deterministic profile photo based on the admin's name/email.
 // The admins table has no photo column, so we derive an avatar automatically.
@@ -23,17 +24,17 @@ function getAdminAvatar(admin) {
 
 function StatCard({ icon, iconClass, iconBg, label, value, unit, badge, badgeClass, hoverClass }) {
   return (
-    <div className={`bg-surface-container-lowest p-lg rounded-xl border border-outline-variant institutional-shadow group hover:border-primary transition-all ${hoverClass}`}>
-      <div className="flex items-start justify-between mb-md">
-        <div className={`w-12 h-12 rounded-lg ${iconBg} flex items-center justify-center ${iconClass}`}>
-          <span className="material-symbols-outlined text-[28px]">{icon}</span>
+    <div className={`bg-surface-container-lowest p-md md:p-lg rounded-xl border border-outline-variant institutional-shadow group hover:border-primary transition-all ${hoverClass}`}>
+      <div className="flex items-start justify-between mb-sm md:mb-md">
+        <div className={`w-10 h-10 md:w-12 md:h-12 rounded-lg ${iconBg} flex items-center justify-center ${iconClass}`}>
+          <span className="material-symbols-outlined text-[24px] md:text-[28px]">{icon}</span>
         </div>
         <span className={`${badgeClass} px-sm py-[2px] rounded-full font-label-sm text-label-sm`}>{badge}</span>
       </div>
       <div className="flex flex-col">
-        <span className="font-label-md text-label-md text-on-surface-variant mb-base">{label}</span>
+        <span className="font-label-sm text-label-sm md:font-label-md md:text-label-md text-on-surface-variant mb-1 md:mb-base">{label}</span>
         <div className="flex items-baseline gap-sm">
-          <span className="font-headline-lg text-headline-lg text-on-surface">{value}</span>
+          <span className="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface">{value}</span>
           <span className="font-body-sm text-body-sm text-outline">{unit}</span>
         </div>
       </div>
@@ -54,6 +55,7 @@ export default function DashboardAdmin() {
   const [search, setSearch] = useState('')
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [page, setPage] = useState(1)
+  const [mobileOpen, setMobileOpen] = useState(false)
   const pageSize = 5
 
   // Current logged-in admin (from login session)
@@ -69,7 +71,17 @@ export default function DashboardAdmin() {
         setStats(s)
         setActivities(a)
       } catch (e) {
-        if (active) setError(e.message || 'Gagal memuat data')
+        if (!active) return
+        const msg = e?.message || 'Gagal memuat data'
+        const isOffline = typeof navigator !== 'undefined' && !navigator.onLine
+        const isFetchError = msg === 'Failed to fetch' || msg.includes('fetch')
+        let friendly = msg
+        if (isOffline) {
+          friendly = 'Perangkat sedang offline. Periksa koneksi internet Anda.'
+        } else if (isFetchError) {
+          friendly = 'Tidak dapat terhubung ke Supabase. Pastikan perangkat terhubung ke internet dan tidak diblokir firewall.'
+        }
+        setError(friendly)
       } finally {
         if (active) setLoading(false)
       }
@@ -126,12 +138,25 @@ export default function DashboardAdmin() {
   )
 
   return (
-    <div className="bg-background text-on-background min-h-screen flex">
+    <div className="bg-background text-on-background min-h-screen flex overflow-hidden">
+      {/* Mobile Sidebar Overlay */}
+      {mobileOpen && (
+        <div className="md:hidden fixed inset-0 bg-black/50 z-40" onClick={() => setMobileOpen(false)} />
+      )}
+
       {/* SideNavBar */}
-      <aside className="hidden md:flex flex-col h-screen py-md px-sm border-r border-outline-variant bg-surface-container fixed w-64 z-50">
-        <div className="mb-xl px-md">
-          <h1 className="font-headline-sm text-headline-sm font-bold text-primary">Admin Panel</h1>
-          <p className="font-label-sm text-label-sm text-on-surface-variant">UKPBJ Kabupaten Bungo</p>
+      <aside className={`fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-200 ease-in-out ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:static md:transform-none flex flex-col h-screen py-md px-sm border-r border-outline-variant bg-surface-container`}>
+        <div className="px-sm mb-xl flex items-center justify-between">
+          <div>
+            <h1 className="text-base md:text-headline-sm font-headline-sm font-bold text-primary">Admin Panel</h1>
+            <p className="text-[10px] md:text-label-sm font-label-sm text-on-surface-variant">UKPBJ Kabupaten Bungo</p>
+          </div>
+          <button
+            className="md:hidden p-2 rounded-lg hover:bg-surface-variant"
+            onClick={() => setMobileOpen(false)}
+          >
+            <span className="material-symbols-outlined text-on-surface-variant">close</span>
+          </button>
         </div>
         <nav className="flex-1 space-y-base overflow-y-auto custom-scrollbar px-sm">
           {navItems.map((item) => (
@@ -143,6 +168,7 @@ export default function DashboardAdmin() {
                   : 'text-on-surface-variant hover:bg-surface-variant'
               }`}
               href={item.to}
+              onClick={() => setMobileOpen(false)}
             >
               <span className="material-symbols-outlined">{item.icon}</span>
               <span className="font-label-md text-label-md">{item.label}</span>
@@ -151,7 +177,7 @@ export default function DashboardAdmin() {
         </nav>
         <div className="mt-auto px-sm pt-md border-t border-outline-variant">
           <button
-            onClick={() => setSettingsOpen(true)}
+            onClick={() => { setSettingsOpen(true); setMobileOpen(false) }}
             className="w-full flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant rounded-lg transition-all duration-200"
           >
             <span className="material-symbols-outlined">settings</span>
@@ -168,23 +194,26 @@ export default function DashboardAdmin() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 md:ml-64 flex flex-col min-h-screen">
-        <header className="w-full h-20 px-gutter flex items-center justify-between bg-surface-container-lowest sticky top-0 z-40 border-b border-outline-variant">
+      <main className="flex-1 flex flex-col min-h-screen overflow-hidden">
+        <header className="h-16 flex items-center justify-between px-gutter border-b border-outline-variant bg-surface shrink-0">
           <div className="flex flex-col">
-            <h2 className="font-headline-md text-headline-md text-primary">Selamat Datang, {adminName}.</h2>
-            <p className="font-body-sm text-body-sm text-on-surface-variant">Berikut ringkasan hari ini untuk sistem Inaproc & LPSE.</p>
+            <div className="flex items-center gap-sm">
+              <button
+                className="md:hidden p-1 -ml-1 rounded-lg hover:bg-surface-variant text-on-surface-variant"
+                onClick={() => setMobileOpen(true)}
+                aria-label="Open menu"
+              >
+                <span className="material-symbols-outlined text-[24px]">menu</span>
+              </button>
+              <h2 className="text-base md:text-headline-md text-primary truncate max-w-[200px] md:max-w-none">Selamat Datang, {adminName}.</h2>
+            </div>
+            <div className="hidden md:flex items-center gap-base text-label-sm text-on-surface-variant">
+              <span>Beranda</span>
+              <Icon name="chevron_right" className="text-[14px]" />
+              <span>Dashboard</span>
+            </div>
           </div>
           <div className="flex items-center gap-md">
-            <div className="relative hidden sm:block">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-[20px]">search</span>
-              <input
-                className="pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-full text-body-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent w-64 transition-all"
-                placeholder="Cari aktivitas..."
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
             <NotificationBell />
             <button
               onClick={() => setSettingsOpen(true)}
@@ -203,10 +232,16 @@ export default function DashboardAdmin() {
           </div>
         </header>
 
-        <div className="p-gutter max-w-container-max mx-auto w-full space-y-xl">
+        <div className="flex-1 p-gutter overflow-y-auto bg-surface-container-lowest">
           {error && (
             <div className="bg-error-container text-on-error-container border border-error rounded-xl p-md font-body-sm">
-              Gagal memuat data dari Supabase: {error}
+              <p className="mb-sm">Gagal memuat data dari Supabase: {error}</p>
+              <button
+                onClick={load}
+                className="px-md py-sm bg-error text-on-error rounded-lg font-label-md text-label-md hover:bg-opacity-90 transition-opacity"
+              >
+                Coba Lagi
+              </button>
             </div>
           )}
 
@@ -250,21 +285,21 @@ export default function DashboardAdmin() {
           {/* Activity Log */}
           <section>
             <div className="bg-surface-container-lowest rounded-xl border border-outline-variant institutional-shadow overflow-hidden flex flex-col">
-              <div className="p-lg border-b border-outline-variant flex items-center justify-between">
+              <div className="p-lg border-b border-outline-variant flex flex-col md:flex-row md:items-center md:justify-between gap-sm">
                 <div className="flex items-center gap-sm">
                   <span className="material-symbols-outlined text-primary">history</span>
-                  <h3 className="font-headline-sm text-headline-sm">Aktivitas Terakhir</h3>
+                  <h3 className="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-sm md:text-headline-sm">Aktivitas Terakhir</h3>
                 </div>
-                <button className="text-secondary font-label-md text-label-md hover:underline">Lihat Semua</button>
+                <button className="text-secondary font-label-md text-label-md hover:underline self-start md:self-auto">Lihat Semua</button>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-surface-container-low">
-                      <th className="px-lg py-md font-label-md text-label-md text-on-surface-variant">PENGGUNA</th>
-                      <th className="px-lg py-md font-label-md text-label-md text-on-surface-variant">AKTIVITAS</th>
-                      <th className="px-lg py-md font-label-md text-label-md text-on-surface-variant">TANGGAL</th>
-                      <th className="px-lg py-md font-label-md text-label-md text-on-surface-variant text-right">STATUS</th>
+                      <th className="px-md py-sm md:px-lg md:py-md font-label-md text-label-md text-on-surface-variant">PENGGUNA</th>
+                      <th className="px-md py-sm md:px-lg md:py-md font-label-md text-label-md text-on-surface-variant">AKTIVITAS</th>
+                      <th className="px-md py-sm md:px-lg md:py-md font-label-md text-label-md text-on-surface-variant">TANGGAL</th>
+                      <th className="px-md py-sm md:px-lg md:py-md font-label-md text-label-md text-on-surface-variant text-right">STATUS</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-outline-variant">
@@ -285,7 +320,7 @@ export default function DashboardAdmin() {
                     {!loading &&
                       paginatedActivities.map((a) => (
                         <tr key={a.id} className="hover:bg-surface-container-low transition-colors">
-                          <td className="px-lg py-md">
+                          <td className="px-md py-sm md:px-lg md:py-md">
                             <div className="flex items-center gap-sm">
                               <div className={`w-8 h-8 rounded-full ${a.userColor} text-white flex items-center justify-center text-[12px] font-bold`}>
                                 {a.userInitials}
@@ -293,9 +328,9 @@ export default function DashboardAdmin() {
                               <span className="font-body-sm text-body-sm">{a.user}</span>
                             </div>
                           </td>
-                          <td className="px-lg py-md font-body-sm text-body-sm">{a.activity}</td>
-                          <td className="px-lg py-md font-body-sm text-body-sm text-on-surface-variant">{a.date}</td>
-                          <td className="px-lg py-md text-right">
+                          <td className="px-md py-sm md:px-lg md:py-md font-body-sm text-body-sm">{a.activity}</td>
+                          <td className="px-md py-sm md:px-lg md:py-md font-body-sm text-body-sm text-on-surface-variant">{a.date}</td>
+                          <td className="px-md py-sm md:px-lg md:py-md text-right">
                             <span className={`px-sm py-1 rounded-full font-label-sm text-label-sm ${a.statusClass}`}>{a.status}</span>
                           </td>
                         </tr>
@@ -306,7 +341,7 @@ export default function DashboardAdmin() {
 
               {/* Pagination */}
               {!loading && filteredActivities.length > 0 && (
-                <div className="p-lg border-t border-outline-variant flex items-center justify-between flex-wrap gap-md">
+                <div className="p-lg border-t border-outline-variant flex flex-col md:flex-row items-center justify-between gap-md">
                   <span className="font-body-sm text-body-sm text-on-surface-variant">
                     Menampilkan {paginatedActivities.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}–
                     {Math.min(currentPage * pageSize, filteredActivities.length)} dari {filteredActivities.length} aktivitas
@@ -318,7 +353,7 @@ export default function DashboardAdmin() {
                       className="flex items-center gap-1 px-md py-sm rounded-lg border border-outline-variant font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-variant transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       <span className="material-symbols-outlined text-[18px]">chevron_left</span>
-                      Sebelumnya
+                      <span className="hidden md:inline">Sebelumnya</span>
                     </button>
                     <div className="flex items-center gap-1">
                       {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
@@ -340,7 +375,7 @@ export default function DashboardAdmin() {
                       disabled={currentPage >= totalPages}
                       className="flex items-center gap-1 px-md py-sm rounded-lg border border-outline-variant font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-variant transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                     >
-                      Berikutnya
+                      <span className="hidden md:inline">Berikutnya</span>
                       <span className="material-symbols-outlined text-[18px]">chevron_right</span>
                     </button>
                   </div>

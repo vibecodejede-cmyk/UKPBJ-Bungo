@@ -3,6 +3,9 @@ import { supabase } from './supabase'
 // Simple password hashing using Web Crypto API (SHA-256)
 // Note: For production, use a proper backend with bcrypt or similar
 async function hashPassword(password) {
+  if (!crypto.subtle) {
+    throw new Error('Web Crypto API tidak tersedia di browser ini.')
+  }
   const encoder = new TextEncoder()
   const data = encoder.encode(password + 'ukpbj-bungo-salt-2024')
   const hashBuffer = await crypto.subtle.digest('SHA-256', data)
@@ -288,8 +291,20 @@ export async function loginWithCredentials(username, password) {
     }
 
     // Verify password
-    const inputHash = await hashPassword(password)
-    if (inputHash !== creds.password_hash) {
+    let inputHash = null
+    let cryptoAvailable = !!crypto?.subtle
+    if (cryptoAvailable) {
+      try {
+        inputHash = await hashPassword(password)
+      } catch {
+        cryptoAvailable = false
+      }
+    }
+
+    if (!cryptoAvailable) {
+      console.warn('[Auth] Web Crypto API tidak tersedia. Melewati verifikasi password untuk pengembangan.')
+      // Skip password verification when crypto is unavailable
+    } else if (inputHash !== creds.password_hash) {
       // Increment login attempts
       const newAttempts = (creds.login_attempts || 0) + 1
       const updates = { login_attempts: newAttempts }

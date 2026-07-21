@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { loginWithCredentials } from '../lib/api'
 
 // Map admin role -> default landing route after a successful login.
@@ -43,7 +43,6 @@ export default function LoginAdmin() {
         return
       }
 
-      // Store session
       const session = {
         id: result.admin.id,
         full_name: result.admin.full_name,
@@ -55,20 +54,28 @@ export default function LoginAdmin() {
       }
       localStorage.setItem('cms_admin_session', JSON.stringify(session))
 
-      // Navigate to dashboard
       const target = ROLE_REDIRECT[result.admin.role] || '/dashboard'
       navigate(target)
     } catch (err) {
+      console.error('[LoginAdmin] handleLogin error:', err)
       setError('Gagal memverifikasi akun ke server. Periksa koneksi Anda dan coba lagi.')
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen md:h-screen flex items-center justify-center p-4 relative overflow-hidden md:overflow-hidden bg-surface">
+    <div className="min-h-screen md:h-screen flex items-center justify-center p-4 relative overflow-auto md:overflow-hidden bg-surface">
       {/* Atmospheric Background */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-tr from-surface-container via-transparent to-surface-container-high opacity-50" />
+      </div>
+
+      {/* Back to Home (mobile) */}
+      <div className="md:hidden absolute top-4 left-4 z-20">
+        <Link to="/" className="flex items-center gap-1 text-on-surface-variant hover:text-primary transition-colors">
+          <span className="material-symbols-outlined text-[20px]">arrow_back</span>
+          <span className="font-label-sm text-label-sm">Beranda</span>
+        </Link>
       </div>
 
       {/* Login Container */}
@@ -120,6 +127,10 @@ export default function LoginAdmin() {
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="Masukkan username"
                   className="w-full py-2 pl-12 pr-4 bg-surface-container-low border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  autoComplete="username"
+                  autoCapitalize="off"
+                  autoCorrect="off"
+                  inputMode="text"
                 />
               </div>
             </div>
@@ -139,11 +150,15 @@ export default function LoginAdmin() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Masukkan password"
                   className="w-full py-3 pl-12 pr-12 bg-surface-container-low border border-outline-variant rounded-lg text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  autoComplete="current-password"
+                  autoCapitalize="off"
+                  autoCorrect="off"
+                  inputMode="text"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px] hover:text-on-surface transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-[20px] hover:text-on-surface active:text-on-surface active:scale-95 transition-colors"
                 >
                   {showPassword ? 'visibility_off' : 'visibility'}
                 </button>

@@ -86,6 +86,7 @@ export default function KelolaPanduan() {
   const [saving, setSaving] = useState(false)
   const [selectedType, setSelectedType] = useState(null)
   const [activeTab, setActiveTab] = useState('pdf-inaproc') // 'pdf-inaproc' | 'video-inaproc' | 'pdf-lpse' | 'video-lpse'
+  const [mobileOpen, setMobileOpen] = useState(false)
   const [filterOpen, setFilterOpen] = useState(false)
   const [filterRole, setFilterRole] = useState('Semua')
   const [page, setPage] = useState(1)
@@ -344,37 +345,44 @@ export default function KelolaPanduan() {
 
   return (
     <div className="bg-background text-on-background min-h-screen flex overflow-hidden">
-      {/* SideNavBar */}
-      <aside className="hidden md:flex flex-col h-screen py-md px-sm border-r border-outline-variant bg-surface-container w-64 flex-shrink-0">
-        <div className="px-sm mb-xl">
-          <h1 className="font-headline-sm text-headline-sm font-bold text-primary">Admin Panel</h1>
-          <p className="font-label-sm text-label-sm text-on-surface-variant">UKPBJ Kabupaten Bungo
+      {/* Overlay for mobile sidebar */}
+      {mobileOpen && <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setMobileOpen(false)} />}
 
+      {/* SideNavBar */}
+      <aside className={`fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-200 ease-in-out bg-surface-container md:static md:transform-none md:translate-x-0 md:flex md:flex-col md:h-screen md:py-md md:px-sm md:border-r md:border-outline-variant flex-shrink-0 ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="px-sm mb-xl flex items-center justify-between">
+          <div>
+            <h1 className="text-base md:text-headline-sm font-headline-sm font-bold text-primary">Admin Panel</h1>
+            <p className="text-[10px] md:text-label-sm font-label-sm text-on-surface-variant">UKPBJ Kabupaten Bungo
 </p>
+          </div>
+          <button onClick={() => setMobileOpen(false)} className="md:hidden p-1 rounded-lg hover:bg-surface-variant text-on-surface-variant">
+            <Icon name="close" />
+          </button>
         </div>
         <nav className="flex-1 space-y-1">
-          <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/dashboard">
+          <a onClick={() => setMobileOpen(false)} className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/dashboard">
             <Icon name="dashboard" className="group-hover:scale-110 transition-transform" />
             <span className="font-label-md text-label-md">Dashboard</span>
           </a>
-          <a className="flex items-center gap-md px-md py-sm bg-secondary-container text-on-secondary-container rounded-lg font-bold transition-all duration-200" href="/kelola-panduan">
+          <a onClick={() => setMobileOpen(false)} className="flex items-center gap-md px-md py-sm bg-secondary-container text-on-secondary-container rounded-lg font-bold transition-all duration-200" href="/kelola-panduan">
             <Icon name="menu_book" />
             <span className="font-label-md text-label-md">Kelola Panduan</span>
           </a>
-          <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/kelola-regulasi">
+          <a onClick={() => setMobileOpen(false)} className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/kelola-regulasi">
             <Icon name="gavel" className="group-hover:scale-110 transition-transform" />
             <span className="font-label-md text-label-md">Kelola Regulasi</span>
           </a>
-          <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/kelola-pengumuman">
+          <a onClick={() => setMobileOpen(false)} className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/kelola-pengumuman">
             <Icon name="campaign" className="group-hover:scale-110 transition-transform" />
             <span className="font-label-md text-label-md">Kelola Pengumuman</span>
           </a>
-          <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/kelola-pesan">
+          <a onClick={() => setMobileOpen(false)} className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/kelola-pesan">
             <Icon name="mail" className="group-hover:scale-110 transition-transform" />
             <span className="font-label-md text-label-md">Kelola Pesan Masuk</span>
           </a>
           {isSuperAdmin && (
-            <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/kelola-admin">
+            <a onClick={() => setMobileOpen(false)} className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/kelola-admin">
               <Icon name="admin_panel_settings" className="group-hover:scale-110 transition-transform" />
               <span className="font-label-md text-label-md">Kelola Admin</span>
             </a>
@@ -383,12 +391,12 @@ export default function KelolaPanduan() {
         <div className="mt-auto space-y-1 pt-md border-t border-outline-variant">
           <button
             className="w-full flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg"
-            onClick={() => setSettingsOpen(true)}
+            onClick={() => { setSettingsOpen(true); setMobileOpen(false); }}
           >
             <Icon name="settings" />
             <span className="font-label-md text-label-md">Settings</span>
           </button>
-          <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg" href="/login" onClick={() => localStorage.removeItem('cms_admin_session')}>
+          <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg" href="/login" onClick={() => { localStorage.removeItem('cms_admin_session'); setMobileOpen(false); }}>
             <Icon name="logout" />
             <span className="font-label-md text-label-md">Logout</span>
           </a>
@@ -400,8 +408,13 @@ export default function KelolaPanduan() {
         {/* Header */}
         <header className="h-16 flex items-center justify-between px-gutter border-b border-outline-variant bg-surface shrink-0">
           <div className="flex flex-col">
-            <h2 className="font-headline-sm text-headline-sm text-primary">Kelola Panduan & Video Tutorial</h2>
-            <div className="flex items-center gap-base text-label-sm text-on-surface-variant">
+            <div className="flex items-center gap-sm">
+              <button onClick={() => setMobileOpen(true)} className="md:hidden p-1 -ml-1 rounded-lg hover:bg-surface-variant text-on-surface-variant">
+                <Icon name="menu" />
+              </button>
+              <h2 className="text-base md:text-headline-sm text-primary truncate max-w-[200px] md:max-w-none">Kelola Panduan & Video Tutorial</h2>
+            </div>
+            <div className="hidden md:flex items-center gap-base text-label-sm text-on-surface-variant">
               <span>Admin Panel</span>
               <Icon name="chevron_right" className="text-[14px]" />
               <span>Kelola Panduan</span>
@@ -510,11 +523,11 @@ export default function KelolaPanduan() {
                   onChange={(e) => setSearch(e.target.value)}
                 />
               </div>
-              <div className="flex gap-sm w-full md:w-auto">
+              <div className="flex flex-col sm:flex-row gap-sm w-full sm:w-auto">
                 <div className="relative">
                   <button
                     onClick={() => setFilterOpen((o) => !o)}
-                    className="flex items-center gap-xs px-md py-sm border border-outline-variant rounded-lg hover:bg-surface-variant transition-colors text-label-md"
+                    className="flex items-center gap-xs px-md py-sm border border-outline-variant rounded-lg hover:bg-surface-variant transition-colors text-label-md w-full sm:w-auto justify-center sm:justify-start"
                   >
                     <Icon name="filter_list" className="text-[18px]" />
                     Filter
@@ -547,13 +560,13 @@ export default function KelolaPanduan() {
                 </div>
                 <button
                   onClick={handleExport}
-                  className="flex items-center gap-xs px-md py-sm border border-outline-variant rounded-lg hover:bg-surface-variant transition-colors text-label-md"
+                  className="flex items-center gap-xs px-md py-sm border border-outline-variant rounded-lg hover:bg-surface-variant transition-colors text-label-md w-full sm:w-auto justify-center sm:justify-start"
                 >
                   <Icon name="download" className="text-[18px]" />
                   Export
                 </button>
                 <button
-                  className="flex items-center gap-sm bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm"
+                  className="flex items-center gap-sm bg-primary text-on-primary px-md py-sm sm:px-lg sm:py-sm rounded-lg font-label-md text-label-md hover:bg-primary-container transition-colors shadow-sm"
                   onClick={() => openCreate(activeType)}
                 >
                  <Icon name="add_circle" className="text-[20px]" />

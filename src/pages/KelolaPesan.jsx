@@ -102,6 +102,8 @@ export default function KelolaPesan() {
   const [sending, setSending] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [actionLoading, setActionLoading] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [mobileDetailOpen, setMobileDetailOpen] = useState(false)
 
   // Current logged-in admin (from login session)
   const [admin] = useState(() => getAdminSession())
@@ -191,6 +193,7 @@ export default function KelolaPesan() {
 
   function selectMessage(msg) {
     setSelectedId(msg.id)
+    setMobileDetailOpen(true)
     setReplyText('')
     if (!msg.is_read) {
       markAsRead(msg.id).then(() => {
@@ -198,7 +201,6 @@ export default function KelolaPesan() {
           prev.map((m) => (m.id === msg.id ? { ...m, is_read: true } : m))
         )
       })
-      // Keep the shared notification bell unread count in sync.
       markRead(msg.id)
     }
   }
@@ -290,34 +292,45 @@ export default function KelolaPesan() {
   return (
     <div className="bg-background text-on-background min-h-screen flex overflow-hidden">
       {/* SideNavBar */}
-      <aside className="hidden md:flex flex-col h-screen py-md px-sm border-r border-outline-variant bg-surface-container w-64 flex-shrink-0">
-        <div className="px-sm mb-xl">
-          <h1 className="font-headline-sm text-headline-sm font-bold text-primary">Admin Panel</h1>
-          <p className="font-label-sm text-label-sm text-on-surface-variant">UKPBJ Kabupaten Bungo</p>
+      {mobileOpen && <div className="md:hidden fixed inset-0 bg-black/50 z-40" onClick={() => setMobileOpen(false)} />}
+      <aside className={`fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-200 ease-in-out ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:static md:transform-none flex flex-col h-screen py-md px-sm border-r border-outline-variant bg-surface-container flex-shrink-0`}>
+        <div className="px-sm mb-xl flex items-center justify-between">
+          <div>
+            <h1 className="text-base md:text-headline-sm font-headline-sm font-bold text-primary">Admin Panel</h1>
+            <p className="text-[10px] md:text-label-sm font-label-sm text-on-surface-variant">UKPBJ Kabupaten Bungo</p>
+          </div>
+          <button
+            type="button"
+            className="md:hidden p-sm rounded-lg hover:bg-surface-variant transition-colors"
+            onClick={() => setMobileOpen(false)}
+            aria-label="Tutup menu"
+          >
+            <Icon name="close" />
+          </button>
         </div>
         <nav className="flex-1 space-y-1">
-          <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/dashboard">
+          <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/dashboard" onClick={() => setMobileOpen(false)}>
             <Icon name="dashboard" className="group-hover:scale-110 transition-transform" />
             <span className="font-label-md text-label-md">Dashboard</span>
           </a>
-          <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/kelola-panduan">
+          <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/kelola-panduan" onClick={() => setMobileOpen(false)}>
             <Icon name="menu_book" className="group-hover:scale-110 transition-transform" />
             <span className="font-label-md text-label-md">Kelola Panduan</span>
           </a>
-          <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/kelola-regulasi">
+          <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/kelola-regulasi" onClick={() => setMobileOpen(false)}>
             <Icon name="gavel" className="group-hover:scale-110 transition-transform" />
             <span className="font-label-md text-label-md">Kelola Regulasi</span>
           </a>
-          <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/kelola-pengumuman">
+          <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/kelola-pengumuman" onClick={() => setMobileOpen(false)}>
             <Icon name="campaign" className="group-hover:scale-110 transition-transform" />
             <span className="font-label-md text-label-md">Kelola Pengumuman</span>
           </a>
-          <a className="flex items-center gap-md px-md py-sm bg-secondary-container text-on-secondary-container rounded-lg font-bold transition-all duration-200" href="/kelola-pesan">
+          <a className="flex items-center gap-md px-md py-sm bg-secondary-container text-on-secondary-container rounded-lg font-bold transition-all duration-200" href="/kelola-pesan" onClick={() => setMobileOpen(false)}>
             <Icon name="mail" />
             <span className="font-label-md text-label-md">Kelola Pesan Masuk</span>
           </a>
           {isSuperAdmin && (
-            <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/kelola-admin">
+            <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg group" href="/kelola-admin" onClick={() => setMobileOpen(false)}>
               <Icon name="admin_panel_settings" className="group-hover:scale-110 transition-transform" />
               <span className="font-label-md text-label-md">Kelola Admin</span>
             </a>
@@ -326,12 +339,12 @@ export default function KelolaPesan() {
         <div className="mt-auto space-y-1 pt-md border-t border-outline-variant">
           <button
             className="w-full flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg"
-            onClick={() => setSettingsOpen(true)}
+            onClick={() => { setSettingsOpen(true); setMobileOpen(false); }}
           >
             <Icon name="settings" />
             <span className="font-label-md text-label-md">Settings</span>
           </button>
-          <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg" href="/login" onClick={() => localStorage.removeItem('cms_admin_session')}>
+          <a className="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-200 rounded-lg" href="/login" onClick={() => { localStorage.removeItem('cms_admin_session'); setMobileOpen(false); }}>
             <Icon name="logout" />
             <span className="font-label-md text-label-md">Logout</span>
           </a>
@@ -343,8 +356,13 @@ export default function KelolaPesan() {
         {/* Header */}
         <header className="h-16 flex items-center justify-between px-gutter border-b border-outline-variant bg-surface shrink-0">
           <div className="flex flex-col">
-            <h2 className="font-headline-sm text-headline-sm text-primary">Kelola Pesan Masuk</h2>
-            <div className="flex items-center gap-base text-label-sm text-on-surface-variant">
+            <div className="flex items-center gap-sm">
+              <button type="button" className="md:hidden mb-sm self-start p-sm -ml-sm rounded-lg hover:bg-surface-variant transition-colors" onClick={() => setMobileOpen(true)} aria-label="Buka menu">
+                <Icon name="menu" />
+              </button>
+              <h2 className="text-base md:text-headline-sm text-primary truncate max-w-[200px] md:max-w-none">Kelola Pesan Masuk</h2>
+            </div>
+            <div className="hidden md:flex items-center gap-base text-label-sm text-on-surface-variant">
               <span>Admin Panel</span>
               <Icon name="chevron_right" className="text-[14px]" />
               <span>Kelola Pesan Masuk</span>
@@ -474,9 +492,9 @@ export default function KelolaPesan() {
             </div>
 
             {/* Desktop Split View */}
-            <div className="flex-1 flex overflow-hidden">
+            <div className="flex-1 flex overflow-hidden relative">
               {/* Message List */}
-              <div className="w-full md:w-[420px] shrink-0 border-r border-outline-variant overflow-y-auto bg-white">
+              <div className={`w-full md:w-[420px] shrink-0 border-r border-outline-variant overflow-y-auto bg-white ${mobileDetailOpen ? 'hidden md:block' : 'block'}`}>
                 {loading ? (
                   <div className="p-md text-center text-on-surface-variant">Memuat pesan...</div>
                 ) : filtered.length === 0 ? (
@@ -532,7 +550,7 @@ export default function KelolaPesan() {
                 )}
               </div>
 
-              {/* Detail Panel */}
+              {/* Desktop Detail Panel */}
               <div className="hidden md:flex flex-1 flex-col bg-surface overflow-hidden">
                 {selectedMessage ? (
                   <>
@@ -675,6 +693,140 @@ export default function KelolaPesan() {
                   </div>
                 )}
               </div>
+
+              {/* Mobile Detail Overlay */}
+              {mobileDetailOpen && selectedMessage && (
+                <div className="md:hidden fixed inset-0 bg-surface z-50 flex flex-col">
+                  {/* Mobile Toolbar */}
+                  <div className="h-14 flex items-center justify-between px-md border-b border-outline-variant bg-white shrink-0">
+                    <button
+                      className="p-sm rounded-full hover:bg-surface-container transition-colors text-on-surface-variant"
+                      onClick={() => setMobileDetailOpen(false)}
+                    >
+                      <Icon name="arrow_back" className="text-[20px]" />
+                    </button>
+                    <div className="flex gap-sm">
+                      <button
+                        className="p-sm rounded-full hover:bg-surface-container transition-colors text-on-surface-variant"
+                        title={selectedMessage.is_archived ? 'Batal Arsip' : 'Arsip'}
+                        onClick={handleArchive}
+                        disabled={actionLoading}
+                      >
+                        <Icon name="archive" />
+                      </button>
+                      <button
+                        className="p-sm rounded-full hover:bg-surface-container transition-colors text-on-surface-variant"
+                        title="Hapus"
+                        onClick={handleDelete}
+                        disabled={actionLoading}
+                      >
+                        <Icon name="delete" />
+                      </button>
+                      <button
+                        className="p-sm rounded-full hover:bg-surface-container transition-colors text-on-surface-variant"
+                        title="Tandai Belum Dibaca"
+                        onClick={handleMarkUnread}
+                        disabled={actionLoading}
+                      >
+                        <Icon name="mark_as_unread" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Mobile Message Content */}
+                  <div className="flex-1 overflow-y-auto p-md">
+                    <div className="mb-lg">
+                      <h3 className="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-md">
+                        {selectedMessage.subject || '(tanpa subjek)'}
+                      </h3>
+                      <div className="flex items-center gap-md">
+                        <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white font-bold text-lg">
+                          {getInitials(selectedMessage.name)}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex justify-between items-center">
+                            <p className="font-label-md text-label-md text-on-surface">
+                              {selectedMessage.name}{' '}
+                              <span className="font-normal text-on-surface-variant">
+                                {'<'}{selectedMessage.email}{'>'}
+                              </span>
+                            </p>
+                            <span className="text-label-sm font-label-sm text-on-surface-variant">
+                              {formatDateTime(selectedMessage.created_at)}
+                            </span>
+                          </div>
+                          <p className="text-label-sm font-label-sm text-on-surface-variant">
+                            Kepada: Helpdesk Inaproc
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <article className="prose max-w-none text-on-surface-variant font-body-md text-body-md space-y-md whitespace-pre-wrap">
+                      {selectedMessage.message}
+                    </article>
+
+                    {/* Reply History */}
+                    {selectedMessage.reply_text && (
+                      <div className="mt-xl pt-lg border-t border-outline-variant">
+                        <h5 className="font-label-md text-label-md text-on-surface mb-sm">Balasan Admin</h5>
+                        <div className="bg-surface-container-low p-md rounded-lg border border-outline-variant">
+                          <p className="text-body-sm font-body-sm text-on-surface whitespace-pre-wrap">
+                            {selectedMessage.reply_text}
+                          </p>
+                          <p className="text-label-sm font-label-sm text-on-surface-variant mt-sm">
+                            {formatDateTime(selectedMessage.replied_at)}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Reply Action Area */}
+                    <div className="mt-xl pt-lg border-t border-outline-variant">
+                      <h5 className="font-label-md text-label-md text-on-surface mb-sm">Balas Pesan</h5>
+                      <form
+                        className="border border-outline-variant rounded-xl focus-within:ring-2 focus-within:ring-primary overflow-hidden transition-all shadow-sm"
+                        onSubmit={handleReply}
+                      >
+                        <div className="flex items-center gap-md px-md py-sm bg-surface-container-low border-b border-outline-variant">
+                          <button type="button" className="p-xs hover:bg-surface-variant rounded">
+                            <Icon name="format_bold" className="text-[20px]" />
+                          </button>
+                          <button type="button" className="p-xs hover:bg-surface-variant rounded">
+                            <Icon name="format_italic" className="text-[20px]" />
+                          </button>
+                          <button type="button" className="p-xs hover:bg-surface-variant rounded">
+                            <Icon name="format_list_bulleted" className="text-[20px]" />
+                          </button>
+                          <button type="button" className="p-xs hover:bg-surface-variant rounded">
+                            <Icon name="attach_file" className="text-[20px]" />
+                          </button>
+                          <div className="flex-1"></div>
+                          <span className="text-label-sm font-label-sm text-on-surface-variant">
+                            Balas ke: {selectedMessage.email}
+                          </span>
+                        </div>
+                        <textarea
+                          className="w-full p-md outline-none border-none resize-none font-body-sm text-body-sm"
+                          placeholder="Tulis balasan Anda di sini..."
+                          rows={4}
+                          value={replyText}
+                          onChange={(e) => setReplyText(e.target.value)}
+                        />
+                        <div className="flex justify-end p-md bg-white">
+                          <button
+                            type="submit"
+                            disabled={sending || !replyText.trim()}
+                            className="flex items-center gap-sm px-lg py-sm bg-primary text-white rounded-lg font-label-md text-label-md hover:bg-opacity-90 shadow-md disabled:opacity-50"
+                          >
+                            <Icon name="send" className="text-[18px]" />
+                            <span>{sending ? 'Mengirim...' : 'Balas'}</span>
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </section>
         </div>
